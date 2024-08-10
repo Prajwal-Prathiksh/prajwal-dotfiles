@@ -209,9 +209,9 @@ keybindings:
     bindings: ["Alt+X"]
   - command: "exec explorer"
     bindings: ["Alt+E"]
-  - command: "exec 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'"
+  - command: "exec {BROWSER_PATH}"
     bindings: ["Alt+B"]
-  - command: "exec 'C:\\Users\\prajw\\AppData\\Roaming\\Spotify\\Spotify.exe'"
+  - command: "exec {SPOTIFY_PATH}"
     bindings: ["Alt+S"]
 
   # Focus the workspace that last had focus.
