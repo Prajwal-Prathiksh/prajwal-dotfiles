@@ -353,11 +353,11 @@ else {
     foreach ($key in $newEnvironmentVariables.Keys) {
         $currentValue = [System.Environment]::GetEnvironmentVariable($key, "User")
         if ($currentValue -eq $newEnvironmentVariables[$key]) {
-            Write-Host "No Change: $key"
+            Write-Host "No Change: $key" -ForegroundColor White
         }
         else {
             [System.Environment]::SetEnvironmentVariable($key, $newEnvironmentVariables[$key], "User")
-            Write-Host "Updated: $key"
+            Write-Host "Updated: $key" -ForegroundColor Green
         }
     }
     Write-Host "Environment variables updated successfully." -ForegroundColor Green
