@@ -34,6 +34,8 @@ $programFiles = (Get-Item "C:\Program Files").FullName
 $appDataRoamingDir = $env:APPDATA
 $gitDir = (Get-Command "git").Source.Replace("\cmd\git.exe", "")
 $fileOnePath = "$gitDir\usr\bin\file.exe"
+$setupTempDir = "$scriptRootDir\_setup_temp"
+New-Item -ItemType Directory -Path $setupTempDir -ErrorAction SilentlyContinue
 
 $scoopPackages = @(
     "7zip",
@@ -78,7 +80,10 @@ $wingetEditorPackages = @(
 # Ask user to launch in admin mode if not already in admin mode
 $inAdminMode = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 if (-not $inAdminMode) {
-    Write-Host "Script is not running in admin mode. Installing packages may require admin privileges." 
+    Write-Host "$border1$border1" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "Script is not running in admin mode!!" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "Installing packages may require admin privileges!!" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "$border1$border1" -ForegroundColor Red -BackgroundColor Black    
 }
 
 ######################################################
@@ -86,12 +91,12 @@ if (-not $inAdminMode) {
 # PACKAGE INSTALL SECTION
 ######################################################
 ######################################################
-Write-Host "$border1"
-Write-Host "PACKAGE INSTALLATION SECTION"
-Write-Host "$border1"
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "PACKAGE INSTALLATION SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
 
 Write-Host ""
-Write-Host "$border3"
+Write-Host "$border3$border3"
 # Show apps within each category
 Write-Host ">>> (1) Scoop packages:"
 $scoopPackages | ForEach-Object {
@@ -125,7 +130,7 @@ Write-Host "$border2"
 
 # Menu-driven system for selecting package category
 Write-Host ""
-Write-Host "$border3"
+Write-Host "$border3$border3"
 
 Write-Host "Select the category of packages to install:"
 Write-Host "1. Scoop packages"
@@ -177,9 +182,76 @@ switch ($choice) {
         }
     }
     default {
-        Write-Host "Continuing to next section..."
+        Write-Host "Continuing to next section..." -ForegroundColor White
     }
 }
+
+
+######################################################
+######################################################
+# PRE-CONFIG FILES SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "PRE-CONFIG FILES SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
+
+function Get-ShortcutTargetPath {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ShortcutName
+    )
+
+    $possibleShortcutPaths = @(
+        "$env:APPDATA\Microsoft\Windows\Start Menu\Programs",
+        "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
+        "$env:USERPROFILE\Desktop"
+    )
+
+    $shortcutPath = Get-ChildItem -Path $possibleShortcutPaths -Recurse -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+
+    if ($shortcutPath) {
+        $shortcut = New-Object -ComObject WScript.Shell
+        $shortcutTarget = $shortcut.CreateShortcut($shortcutPath).TargetPath
+        return $shortcutTarget
+    } else {
+        Write-Host "Warning: No $ShortcutName shortcut found." -ForegroundColor Red
+        return $null
+    }
+}
+function Get-ParsedPath {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ShortcutName
+    )
+
+    $shortcutTarget = Get-ShortcutTargetPath -ShortcutName $ShortcutName
+    if (-not $shortcutTarget) {
+        return $null
+    }
+    $parsedPath = $shortcutTarget -replace "\\", "\\"
+    return "'$parsedPath'"
+}
+
+$spotifyParsedPath = Get-ParsedPath -ShortcutName "Spotify"
+$chromeParsedPath = Get-ParsedPath -ShortcutName "Chrome"
+
+$replaceKeys = @{
+    "{SPOTIFY_PATH}" = $spotifyParsedPath
+    "{BROWSER_PATH}" = $chromeParsedPath
+}
+
+$glazeConfigPath = "$scriptDir\glaze_config.yaml"
+# Read 'glaze_config.yaml' and replace keys with the parsed paths
+(Get-Content $glazeConfigPath) | ForEach-Object {
+    $line = $_
+    foreach ($key in $replaceKeys.Keys) {
+        $line = $line -replace $key, $replaceKeys[$key]
+    }
+    $line
+} | Set-Content "$setupTempDir\glaze_config.yaml"
+Write-Host "glaze config file has been prepared successfully." -ForegroundColor Green
 
 
 ######################################################
@@ -188,16 +260,16 @@ switch ($choice) {
 ######################################################
 ######################################################
 Write-Host ""
-Write-Host "==============================="
-Write-Host "CONFIG FILES SECTION"
-Write-Host "==============================="
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "CONFIG FILES SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
 
 $fromPaths = @{
     "oh_my_posh" = "$scriptDir\custom.omp.json"
     "fastfetch" = "$scriptDir\fastfetch_custom.jsonc"
     "powershell" = "$scriptDir\Microsoft.PowerShell_profile.ps1"
     "vim" = "$scriptDir\.vimrc"
-    "glaze" = "$scriptDir\glaze_config.yaml"
+    "glaze" = "$setupTempDir\glaze_config.yaml"
 }
 $toPaths = @{
     "oh_my_posh" = "$env:POSH_THEMES_PATH\custom.omp.json"
@@ -215,14 +287,14 @@ foreach ($key in $keys) {
 
 $runCopy = Read-Host "Do you want to copy these files? ([Y]es/[n]o)"
 if ($runCopy -eq "n") {
-    Write-Host "Skipping copying files..."
+    Write-Host "Skipping copying files..." -ForegroundColor White
 }
 else {
     # copy files
     foreach ($key in $keys) {
         Copy-Item -Path $fromPaths[$key] -Destination $toPaths[$key]
     }
-    Write-Host "Files copied successfully."
+    Write-Host "Files copied successfully." -ForegroundColor Green
 }
 
 ######################################################
@@ -231,9 +303,9 @@ else {
 ######################################################
 ######################################################
 Write-Host ""
-Write-Host "==============================="
-Write-Host "ENVIRONMENT VARIABLES SECTION"
-Write-Host "==============================="
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "ENVIRONMENT VARIABLES SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
 
 # Iterate through possible vim directories and select the one which exists, without 
 # throwing an error if it doesn't exist
@@ -274,7 +346,7 @@ foreach ($key in $newEnvironmentVariables.Keys) {
 # Ask user if they want to update the environment variables
 $envVarUpdate = Read-Host "Do you want to update the environment variables? ([Y]es/[n]o)"
 if ($envVarUpdate -eq "n") {
-    Write-Host "Skipping updating environment variables..."
+    Write-Host "Skipping updating environment variables..." -ForegroundColor White
 }
 else {
     # Update environment variables
@@ -288,20 +360,20 @@ else {
             Write-Host "Updated: $key"
         }
     }
-    Write-Host "Environment variables updated successfully."
+    Write-Host "Environment variables updated successfully." -ForegroundColor Green
 
     # Update PATH environment variable
     $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
     # check if new paths are already in PATH
     $newPathsToAdd = $newPaths | Where-Object { $currentPath -notcontains $_ }
     if ($newPathsToAdd.Count -eq 0) {
-        Write-Host "No new paths to add to PATH."
+        Write-Host "No new paths to add to PATH." -ForegroundColor White
     }
     else {
         $newPath = $newPathsToAdd -join ";"
         $newPath = $currentPath + ";" + $newPath
         [System.Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
-        Write-Host "PATH updated successfully."
+        Write-Host "PATH updated successfully." -ForegroundColor Green
     }
 }
 
@@ -313,13 +385,13 @@ else {
 ######################################################
 ######################################################
 Write-Host ""
-Write-Host "==============================="
-Write-Host "CUSTOM PROFILES SECTION"
-Write-Host "==============================="
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "CUSTOM PROFILES SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
 
 $setupYazi = Read-Host "Setup custom yazi profile? ([Y]es/[n]o)"
 if ($setupYazi -eq "n") {
-    Write-Host "Skipping setting up custom yazi profile..."
+    Write-Host "Skipping setting up custom yazi profile..." -ForegroundColor White
 }
 else {
     $dirFrom = $scriptRootDir + "\yazi_config"
@@ -333,5 +405,5 @@ else {
 
     $yaziDirTo = $dirTo + "\yazi_config"
     Get-ChildItem -Path $yaziDirTo -Recurse | Move-Item -Destination $dirTo -Force
-    Write-Host "yazi config has been setup successfully."
+    Write-Host "yazi config has been setup successfully." -ForegroundColor Green
 }
