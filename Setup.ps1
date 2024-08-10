@@ -1,0 +1,337 @@
+######################################################
+######################################################
+# PREAMBLE
+######################################################
+######################################################
+
+## Custom Functions
+function Test-CommandExists {
+    param($command)
+    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
+    return $exists
+}
+
+# Install Scoop if not already installed
+if (-not (Test-CommandExists "scoop")) {
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+}
+
+# Install Git if not already installed
+if (-not (Test-CommandExists "git")) {
+    winget install --id=Git.Git -e
+}
+
+
+## Required Variables
+$border1 = "========================================"
+$border2 = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
+$border3 = "----------------------------------------"
+
+$scriptRootDir = $PSScriptRoot
+$scriptDir = "$scriptRootDir\windows_config"
+$programFiles = (Get-Item "C:\Program Files").FullName
+$appDataRoamingDir = $env:APPDATA
+$gitDir = (Get-Command "git").Source.Replace("\cmd\git.exe", "")
+$fileOnePath = "$gitDir\usr\bin\file.exe"
+
+$scoopPackages = @(
+    "7zip",
+    "main/btop",
+    "chafa"
+    "fd",
+    "ghostscript",
+	"hyperfine",
+    "gsudo",
+    "imagemagick",
+    "jid",
+    "jq",
+    "ripgrep",
+    "yazi"
+)
+$wingetRegularPackages = @(
+    "LocalSend.LocalSend",
+    "VideoLAN.VLC",
+    "Spotify.Spotify",
+    "Google.Chrome",
+    "Google.GoogleDrive"
+    "Microsoft.PowerToys",
+    "Flow-Launcher.Flow-Launcher",
+    "voidtools.Everything"
+)
+$wingetDevPackages = @(
+    "vim.vim",
+    "junegunn.fzf",
+    "ajeetdsouza.zoxide",
+    "JanDeDobbeleer.OhMyPosh",
+    "Fastfetch-cli.Fastfetch"
+)
+$wingetBuildPackages = @(
+    "Anaconda.Miniconda3",
+    "Microsoft.VisualStudio.Community"
+)
+$wingetEditorPackages = @(
+    "SublimeHQ.SublimeText.4",
+    "Microsoft.VisualStudioCode"
+)
+
+# Ask user to launch in admin mode if not already in admin mode
+$inAdminMode = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+if (-not $inAdminMode) {
+    Write-Host "Script is not running in admin mode. Installing packages may require admin privileges." 
+}
+
+######################################################
+######################################################
+# PACKAGE INSTALL SECTION
+######################################################
+######################################################
+Write-Host "$border1"
+Write-Host "PACKAGE INSTALLATION SECTION"
+Write-Host "$border1"
+
+Write-Host ""
+Write-Host "$border3"
+# Show apps within each category
+Write-Host ">>> (1) Scoop packages:"
+$scoopPackages | ForEach-Object {
+    Write-Host "- $_"
+}
+Write-Host "$border2"
+
+Write-Host ">>> (2) Winget regular packages:"
+$wingetRegularPackages | ForEach-Object {
+    Write-Host "- $_"
+}
+Write-Host "$border2"
+
+Write-Host ">>> (3) Winget developer packages:"
+$wingetDevPackages | ForEach-Object {
+    Write-Host "- $_"
+}
+Write-Host "$border2"
+
+Write-Host ">>> (4) Winget build packages:"
+$wingetBuildPackages | ForEach-Object {
+    Write-Host "- $_"
+}
+Write-Host "$border2"
+
+Write-Host ">>> (5) Winget editor packages:"
+$wingetEditorPackages | ForEach-Object {
+    Write-Host "- $_"
+}
+Write-Host "$border2"
+
+# Menu-driven system for selecting package category
+Write-Host ""
+Write-Host "$border3"
+
+Write-Host "Select the category of packages to install:"
+Write-Host "1. Scoop packages"
+Write-Host "2. Winget regular packages"
+Write-Host "3. Winget developer packages"
+Write-Host "4. Winget build packages"
+Write-Host "5. Winget editor packages"
+Write-Host "(Default: Continue to next section)"
+
+$choice = Read-Host "Enter your choice (1-5):"
+
+switch ($choice) {
+    1 {
+        # Ask User to Run Install or Update
+        $installOrUpdate = Read-Host "Do you want to install or update Scoop packages? ([I]nstall/[u]pdate)"
+
+        if ($installOrUpdate -eq "u") {
+            scoop update *
+        }
+        else {
+            # Install Scoop packages
+            foreach ($package in $scoopPackages) {
+                scoop install $package
+            }
+        }
+    }
+    2 {
+        # Install Winget regular packages
+        foreach ($package in $wingetRegularPackages) {
+            winget install --id=$package -e
+        }
+    }
+    3 {
+        # Install Winget developer packages
+        foreach ($package in $wingetDevPackages) {
+            winget install --id=$package -e
+        }
+    }
+    4 {
+        # Install Winget build packages
+        foreach ($package in $wingetBuildPackages) {
+            winget install --id=$package -e
+        }
+    }
+    5 {
+        # Install Winget editor packages
+        foreach ($package in $wingetEditorPackages) {
+            winget install --id=$package -e
+        }
+    }
+    default {
+        Write-Host "Continuing to next section..."
+    }
+}
+
+
+######################################################
+######################################################
+# CONFIG FILES SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "==============================="
+Write-Host "CONFIG FILES SECTION"
+Write-Host "==============================="
+
+$fromPaths = @{
+    "oh_my_posh" = "$scriptDir\custom.omp.json"
+    "fastfetch" = "$scriptDir\fastfetch_custom.jsonc"
+    "powershell" = "$scriptDir\Microsoft.PowerShell_profile.ps1"
+    "vim" = "$scriptDir\.vimrc"
+    "glaze" = "$scriptDir\glaze_config.yaml"
+}
+$toPaths = @{
+    "oh_my_posh" = "$env:POSH_THEMES_PATH\custom.omp.json"
+    "fastfetch" = (Get-Command "fastfetch").Source.Replace("\fastfetch.exe", "") + "\presets\custom.jsonc"
+    "powershell" = "$profile"
+    "vim" = "$env:USERPROFILE\_vimrc"
+    "glaze" = "$env:USERPROFILE\.glaze-wm\config.yaml"
+}
+$keys = $fromPaths.Keys
+
+Write-Host "Following files will be copied:"
+foreach ($key in $keys) {
+    Write-Host "> $($fromPaths[$key]) --> $($toPaths[$key])"
+}
+
+$runCopy = Read-Host "Do you want to copy these files? ([Y]es/[n]o)"
+if ($runCopy -eq "n") {
+    Write-Host "Skipping copying files..."
+}
+else {
+    # copy files
+    foreach ($key in $keys) {
+        Copy-Item -Path $fromPaths[$key] -Destination $toPaths[$key]
+    }
+    Write-Host "Files copied successfully."
+}
+
+######################################################
+######################################################
+# ENVIRONMENT VARIABLES SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "==============================="
+Write-Host "ENVIRONMENT VARIABLES SECTION"
+Write-Host "==============================="
+
+# Iterate through possible vim directories and select the one which exists, without 
+# throwing an error if it doesn't exist
+$possibleVimDirs = @("$programFiles\Vim", "C:\Vim", "$env:USERPROFILE\scoop\apps\vim\current", "$env:USERPROFILE\scoop\apps\vim\current\vim")
+foreach ($dir in $possibleVimDirs) {
+    if (Test-Path $dir) {
+        # Select the most recently modified directory - this is the latest version of Vim
+        $vimDir = Get-ChildItem -Path $dir -Directory | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        break
+    }
+}
+
+
+# Define paths to be added to $env:PATH
+$newPaths = @(
+    $vimDir.FullName
+)
+
+# Define environment variables to update for installed packages
+$newEnvironmentVariables = @{
+    "EDITOR" = "vim"
+    "SHELL" = "pwsh"
+    "YAZI_FILE_ONE" = $fileOnePath
+    "YAZI_CONFIG_HOME" = "$appDataRoamingDir\yazi\config"
+}
+# create yazi_config_home directory if it doesn't exist
+if (-not (Test-Path $newEnvironmentVariables["YAZI_CONFIG_HOME"])) {
+    New-Item -ItemType Directory -Path $newEnvironmentVariables["YAZI_CONFIG_HOME"]
+}
+
+# Print all environment variables to update
+Write-Host "Environment variables to update:"
+foreach ($key in $newEnvironmentVariables.Keys) {
+    Write-Host "$key = $($newEnvironmentVariables[$key])"
+}
+
+
+# Ask user if they want to update the environment variables
+$envVarUpdate = Read-Host "Do you want to update the environment variables? ([Y]es/[n]o)"
+if ($envVarUpdate -eq "n") {
+    Write-Host "Skipping updating environment variables..."
+}
+else {
+    # Update environment variables
+    foreach ($key in $newEnvironmentVariables.Keys) {
+        $currentValue = [System.Environment]::GetEnvironmentVariable($key, "User")
+        if ($currentValue -eq $newEnvironmentVariables[$key]) {
+            Write-Host "No Change: $key"
+        }
+        else {
+            [System.Environment]::SetEnvironmentVariable($key, $newEnvironmentVariables[$key], "User")
+            Write-Host "Updated: $key"
+        }
+    }
+    Write-Host "Environment variables updated successfully."
+
+    # Update PATH environment variable
+    $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    # check if new paths are already in PATH
+    $newPathsToAdd = $newPaths | Where-Object { $currentPath -notcontains $_ }
+    if ($newPathsToAdd.Count -eq 0) {
+        Write-Host "No new paths to add to PATH."
+    }
+    else {
+        $newPath = $newPathsToAdd -join ";"
+        $newPath = $currentPath + ";" + $newPath
+        [System.Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
+        Write-Host "PATH updated successfully."
+    }
+}
+
+
+
+######################################################
+######################################################
+# CUSTOM PROFILES SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "==============================="
+Write-Host "CUSTOM PROFILES SECTION"
+Write-Host "==============================="
+
+$setupYazi = Read-Host "Setup custom yazi profile? ([Y]es/[n]o)"
+if ($setupYazi -eq "n") {
+    Write-Host "Skipping setting up custom yazi profile..."
+}
+else {
+    $dirFrom = $scriptRootDir + "\yazi_config"
+    $dirTo = $env:YAZI_CONFIG_HOME
+
+    # Remove everything in dirTo
+    Remove-Item -Path $dirTo -Recurse -Force
+
+    # Find all files and subdirs inside dirFrom, and copy all of them into dirTo
+    Copy-Item -Path $dirFrom -Destination $dirTo -Recurse
+
+    $yaziDirTo = $dirTo + "\yazi_config"
+    Get-ChildItem -Path $yaziDirTo -Recurse | Move-Item -Destination $dirTo -Force
+    Write-Host "yazi config has been setup successfully."
+}

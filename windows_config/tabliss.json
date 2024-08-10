@@ -1,0 +1,142 @@
+{
+    "background": {
+        "display": {
+            "blur": 0,
+            "luminosity": -0.4
+        },
+        "id": "3nJuvFRD9gPL",
+        "key": "background/unsplash"
+    },
+    "data/0RCkxrwYbgPH": {
+        "items": [],
+        "keyBind": "T",
+        "show": 10
+    },
+    "data/3nJuvFRD9gPL": {
+        "by": "official",
+        "collections": "",
+        "featured": false,
+        "paused": false,
+        "search": "",
+        "timeout": 86400,
+        "topics": "bo8jQKTaE0Y"
+    },
+    "data/LWAoEagIhRKj": {
+        "latitude": 12.938,
+        "longitude": 77.6179,
+        "showDetails": true,
+        "units": "si"
+    },
+    "data/SdqNDbsSzcRg": {
+        "days": [
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        "endTime": "19:00",
+        "startTime": "11:00"
+    },
+    "data/TensGfE6y4vx": {
+        "hour12": false,
+        "mode": "digital",
+        "name": "Austin",
+        "showDate": false,
+        "showDayPeriod": true,
+        "showMinutes": true,
+        "showSeconds": false,
+        "timeZone": "America/Indiana/Knox"
+    },
+    "data/default-time": {
+        "hour12": false,
+        "mode": "digital",
+        "name": "Bangalore",
+        "showDate": false,
+        "showDayPeriod": true,
+        "showMinutes": true,
+        "showSeconds": false,
+        "timeZone": "Asia/Kolkata"
+    },
+    "data/lDRGluxlSDgd": {
+        "messages": [
+            "I never dreamed about success;\nI worked for it.\n- Estée Lauder"
+        ]
+    },
+    "focus": false,
+    "widget/0RCkxrwYbgPH": {
+        "display": {
+            "fontWeight": 700,
+            "position": "bottomRight"
+        },
+        "id": "0RCkxrwYbgPH",
+        "key": "widget/todo",
+        "order": 4
+    },
+    "widget/BymJSzUFcnRx": null,
+    "widget/G-5uE2rtVhxR": null,
+    "widget/LWAoEagIhRKj": {
+        "display": {
+            "fontSize": 40,
+            "fontWeight": 700,
+            "position": "topRight"
+        },
+        "id": "LWAoEagIhRKj",
+        "key": "widget/weather",
+        "order": 1
+    },
+    "widget/SdqNDbsSzcRg": {
+        "display": {
+            "position": "bottomCentre"
+        },
+        "id": "SdqNDbsSzcRg",
+        "key": "widget/workHours",
+        "order": 0
+    },
+    "widget/TensGfE6y4vx": {
+        "display": {
+            "fontSize": 16,
+            "fontWeight": 300,
+            "position": "middleCentre"
+        },
+        "id": "TensGfE6y4vx",
+        "key": "widget/time",
+        "order": 3
+    },
+    "widget/Z8n97eJzEkQQ": null,
+    "widget/ZhBkUFyBPUsT": null,
+    "widget/bsD-NgChexKS": null,
+    "widget/dLkHVH-lC32H": null,
+    "widget/default-greeting": null,
+    "widget/default-time": {
+        "display": {
+            "fontSize": 18,
+            "fontWeight": 300,
+            "position": "middleCentre"
+        },
+        "id": "default-time",
+        "key": "widget/time",
+        "order": 2
+    },
+    "widget/fA_kXY5OSgvB": null,
+    "widget/hNsDyhdwLsDk": null,
+    "widget/k9lgt476JSI2": null,
+    "widget/lDRGluxlSDgd": {
+        "display": {
+            "colour": "#ffffff",
+            "fontFamily": "Garamond",
+            "fontSize": 16,
+            "fontWeight": 100,
+            "position": "topCentre"
+        },
+        "id": "lDRGluxlSDgd",
+        "key": "widget/message",
+        "order": 5
+    },
+    "widget/yQr-RAN2wKCz": null,
+    "widget/zmnM62C6W0H7": null,
+    "locale": "en",
+    "timeZone": null,
+    "widget/UtjKL97FkLza": null,
+    "version": 3
+}
