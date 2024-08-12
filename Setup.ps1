@@ -86,6 +86,57 @@ if (-not $inAdminMode) {
     Write-Host "$border1$border1" -ForegroundColor Red -BackgroundColor Black    
 }
 
+
+######################################################
+######################################################
+# FONT INSTALL SECTION
+######################################################
+######################################################
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "FONT INSTALLATION SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
+
+$FontsFolder = "$scriptRootDir\CascadiaCode"
+$FONTS = 0x14
+
+$CopyOptions = 4 + 16
+$objShell = New-Object -ComObject Shell.Application
+$objFolder = $objShell.Namespace($FONTS)
+
+# Get all font files in the directory
+$allFonts = Get-ChildItem -Path $FontsFolder -File | Where-Object { $_.Extension -eq ".ttf" }
+
+# Print all font files to install, and get user confirmation to install
+Write-Host ">>> Following fonts will be installed:"
+foreach ($font in $allFonts) {
+    Write-Host "- $($font.Name)"
+}
+Write-Host "$border3$border3"
+
+$installFonts = Read-Host "Do you want to install these fonts? ([Y]es/[n]o)"
+if ($installFonts -eq "n") {
+    Write-Host "Skipping font installation..." -ForegroundColor White
+}
+else {
+    # Install fonts
+    foreach ($font in $allFonts) {
+        $dest1 = "C:\Windows\Fonts\$($font.Name)"
+        $dest2 = "$env:USERPROFILE\AppData\Local\Microsoft\Windows\Fonts\$($font.Name)"
+        if (Test-Path -Path $dest1) {
+            Write-Host "Font $($font.Name) already installed" -ForegroundColor White
+        }
+        elseif (Test-Path -Path $dest2) {
+            Write-Host "Font $($font.Name) already installed" -ForegroundColor White
+        }
+        else {
+            Write-Host "Installing $($font.Name)" -ForegroundColor Green
+            $CopyFlag = [String]::Format("{0:x}", $CopyOptions)
+            $objFolder.CopyHere($font.FullName, $CopyFlag)
+        }
+    }
+}
+
+
 ######################################################
 ######################################################
 # PACKAGE INSTALL SECTION
