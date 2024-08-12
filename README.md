@@ -1,6 +1,15 @@
 # Prajwal's OS Customizations
 Repository of all the customizations I have made to my Windows and Linux systems.
 
+
+## Table of Contents
+- [Prajwal's OS Customizations](#prajwals-os-customizations)
+  - [Table of Contents](#table-of-contents)
+  - [Windows](#windows)
+    - [Automated Setup](#automated-setup)
+  - [Linux](#linux)
+
+
 ## Windows
 - All of the `dotfiles`  can be found in the `./windows_config` directory.
 - Refer to the [`windows_config/README.md`](windows_config/README.md) file for more details.
@@ -24,4 +33,7 @@ To run the setup script:
 > .\Setup.ps1
 ```
 6. Follow the on-screen instructions to complete the setup.
-    
+
+
+## Linux
+- WIP 🙂
