@@ -3,7 +3,7 @@ Repository of all the customizations I have made to my Windows and Linux systems
 
 ## Windows
 - All of the `dotfiles`  can be found in the `./windows_config` directory.
-- Refer to the [Customizations.md](windows_config/Customizations.md) file for more details.
+- Refer to the [`windows_config/README.md`](windows_config/README.md) file for more details.
 
 ### Automated Setup
 To run the setup script:
