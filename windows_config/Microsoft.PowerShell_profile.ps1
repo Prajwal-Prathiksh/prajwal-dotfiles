@@ -1,8 +1,8 @@
 # Oh My Posh
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
 
-# Utility functions for zoxide.
-# Call zoxide binary, returning the output as UTF-8.
+# Utility functions for zoxide
+# Call zoxide binary, returning the output as UTF-8
 function global:__zoxide_bin {
     $encoding = [Console]::OutputEncoding
     try {
