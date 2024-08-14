@@ -108,6 +108,9 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 # Predictive IntelliSense Options
 Set-PSReadLineOption -PredictionViewStyle ListView
 
+# Set Tab Completion to MenuComplete
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+
 # Import Custom Modules
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
     # https://github.com/devblackops/Terminal-Icons
