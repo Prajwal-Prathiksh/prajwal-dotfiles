@@ -55,7 +55,7 @@ $wingetRegularPackages = @(
     "LocalSend.LocalSend",
     "VideoLAN.VLC",
     "Spotify.Spotify",
-    "Google.Chrome",
+    "Alex313031.Thorium.AVX2",
     "Google.GoogleDrive"
     "Microsoft.PowerToys",
     "Flow-Launcher.Flow-Launcher",
