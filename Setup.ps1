@@ -286,11 +286,11 @@ function Get-ParsedPath {
 }
 
 $spotifyParsedPath = Get-ParsedPath -ShortcutName "Spotify"
-$chromeParsedPath = Get-ParsedPath -ShortcutName "Chrome"
+$browserParsedPath = Get-ParsedPath -ShortcutName "Thorium"
 
 $replaceKeys = @{
     "{SPOTIFY_PATH}" = $spotifyParsedPath
-    "{BROWSER_PATH}" = $chromeParsedPath
+    "{BROWSER_PATH}" = $browserParsedPath
 }
 
 $glazeConfigPath = "$scriptDir\glaze_config.yaml"
