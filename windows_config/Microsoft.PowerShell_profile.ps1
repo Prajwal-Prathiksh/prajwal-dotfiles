@@ -149,6 +149,14 @@ function ff($name) {
     }
 }
 
+function ll($name) {
+    # if name is not provided, use the current directory
+    if (-not $name) {
+        $name = Get-Location
+    }
+    PowerColorLS --long --all --show-directory-size "$name"
+}
+
 function uptime {
     if ($PSVersionTable.PSVersion.Major -eq 5) {
         $lastBoot = (Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}}).LastBootUpTime
@@ -277,6 +285,8 @@ Edit-Profile - Opens the current user's profile for editing using the configured
 touch <file> - Creates a new empty file.
 
 ff <name> - Finds files recursively with the specified name.
+
+ll [name] - Lists files and directories with additional information.
 
 Get-PubIP - Retrieves the public IP address of the machine.
 
