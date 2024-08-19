@@ -70,7 +70,7 @@ $wingetDevPackages = @(
 )
 $wingetBuildPackages = @(
     "Anaconda.Miniconda3",
-    "Microsoft.VisualStudio.Community"
+    "Rustlang.Rustup"
 )
 $wingetEditorPackages = @(
     "SublimeHQ.SublimeText.4",
@@ -254,14 +254,20 @@ function Get-ShortcutTargetPath {
         [string]$ShortcutName
     )
 
-    $possibleShortcutPaths = @(
+    $possibleAppPaths = @(
         "$env:APPDATA\Microsoft\Windows\Start Menu\Programs",
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
-        "$env:USERPROFILE\Desktop"
+        "$env:USERPROFILE\Desktop",
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Packages"
     )
 
-    $shortcutPath = Get-ChildItem -Path $possibleShortcutPaths -Recurse -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+    $shortcutPath = Get-ChildItem -Path $possibleAppPaths -Recurse -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
 
+    $executablePath = Get-ChildItem -Path $possibleAppPaths -Recurse -Filter "*$ShortcutName*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+
+    if ($executablePath) {
+        return $executablePath
+    }
     if ($shortcutPath) {
         $shortcut = New-Object -ComObject WScript.Shell
         $shortcutTarget = $shortcut.CreateShortcut($shortcutPath).TargetPath
@@ -271,6 +277,7 @@ function Get-ShortcutTargetPath {
         return $null
     }
 }
+
 function Get-ParsedPath {
     param (
         [Parameter(Mandatory=$true)]
@@ -315,6 +322,9 @@ Write-Host "$border1$border1" -ForegroundColor Yellow
 Write-Host "CONFIG FILES SECTION" -ForegroundColor Yellow
 Write-Host "$border1$border1" -ForegroundColor Yellow
 
+$fastfetchParsedPath = Get-ParsedPath -ShortcutName "FastFetch"
+$fastfetchPath = (($fastfetchParsedPath.Replace("'", "")).Replace("\fastfetch.exe", "")).Replace("\\", "\")
+
 $fromPaths = @{
     "oh_my_posh" = "$scriptDir\custom.omp.json"
     "fastfetch" = "$scriptDir\fastfetch_custom.jsonc"
@@ -324,7 +334,7 @@ $fromPaths = @{
 }
 $toPaths = @{
     "oh_my_posh" = "$env:POSH_THEMES_PATH\custom.omp.json"
-    "fastfetch" = (Get-Command "fastfetch").Source.Replace("\fastfetch.exe", "") + "\presets\custom.jsonc"
+    "fastfetch" = "$fastfetchPath" + "presets\custom.jsonc"
     "powershell" = "$profile"
     "vim" = "$env:USERPROFILE\_vimrc"
     "glaze" = "$env:USERPROFILE\.glaze-wm\config.yaml"
@@ -343,6 +353,10 @@ if ($runCopy -eq "n") {
 else {
     # copy files
     foreach ($key in $keys) {
+        $destinationDir = Split-Path -Path $toPaths[$key] -Parent
+        if (-not (Test-Path -Path $destinationDir)) {
+            New-Item -ItemType Directory -Path $destinationDir | Out-Null
+        }
         Copy-Item -Path $fromPaths[$key] -Destination $toPaths[$key]
     }
     Write-Host "Files copied successfully." -ForegroundColor Green
@@ -385,6 +399,12 @@ $newEnvironmentVariables = @{
 # create yazi_config_home directory if it doesn't exist
 if (-not (Test-Path $newEnvironmentVariables["YAZI_CONFIG_HOME"])) {
     New-Item -ItemType Directory -Path $newEnvironmentVariables["YAZI_CONFIG_HOME"]
+}
+
+# Print all paths to update
+Write-Host "Paths to add to PATH:"
+foreach ($path in $newPaths) {
+    Write-Host "$path"
 }
 
 # Print all environment variables to update
@@ -448,8 +468,13 @@ else {
     $dirFrom = $scriptRootDir + "\yazi_config"
     $dirTo = $env:YAZI_CONFIG_HOME
 
-    # Remove everything in dirTo
-    Remove-Item -Path $dirTo -Recurse -Force
+    # Remove everything in dirTo if it exists
+    if (Test-Path $dirTo) {
+        Remove-Item -Path $dirTo -Recurse -Force
+    }
+    else {
+        New-Item -ItemType Directory -Path $dirTo
+    }
 
     # Find all files and subdirs inside dirFrom, and copy all of them into dirTo
     Copy-Item -Path $dirFrom -Destination $dirTo -Recurse
