@@ -66,7 +66,8 @@ $wingetDevPackages = @(
     "junegunn.fzf",
     "ajeetdsouza.zoxide",
     "JanDeDobbeleer.OhMyPosh",
-    "Fastfetch-cli.Fastfetch"
+    "Fastfetch-cli.Fastfetch",
+    "Ookla.Speedtest.CLI"
 )
 $wingetBuildPackages = @(
     "Anaconda.Miniconda3",
