@@ -70,12 +70,12 @@
                 "elevate": true,
                 "guid": "{22955798-e802-40f5-883e-4f3b818131a9}",
                 "hidden": false,
-                "icon": "D:\\prajwal-code\\notes\\OS Customisation\\config\\admin.png",
+                "icon": "D:\\prajwal-code\\prajwal-dotfiles\\windows_config\\admin.png",
                 "name": "PowerShell (Admin)",
                 "startingDirectory": "D:\\"
             },
             {
-                "commandline": "cmd.exe /K C:\\Users\\prajw\\miniconda3\\Scripts\\activate.bat",
+                "commandline": "cmd.exe /K C:\\Users\\prajwal\\miniconda3\\Scripts\\activate.bat",
                 "guid": "{c6c50f30-3a75-4e18-9777-6bf312ba7af2}",
                 "hidden": false,
                 "icon": "ms-appx:///ProfileIcons/{0caa0dad-35be-5f56-a8ff-afceeeaa6101}.png",
@@ -92,7 +92,7 @@
                 "source": "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
             },
             {
-                "commandline": "\"C:\\Program Files\\PowerShell\\7\\pwsh.exe\" -ExecutionPolicy ByPass -NoExit -Command \"& C:\\Users\\prajw\\miniconda3\\shell\\condabin\\conda-hook.ps1; oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH/custom.omp.json\" | Invoke-Expression\"",
+                "commandline": "\"C:\\Program Files\\PowerShell\\7\\pwsh.exe\" -ExecutionPolicy ByPass -NoExit -Command \"& C:\\Users\\prajwal\\miniconda3\\shell\\condabin\\conda-hook.ps1; oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH/custom.omp.json\" | Invoke-Expression\"",
                 "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
                 "hidden": false,
                 "name": "PowerShell",

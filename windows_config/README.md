@@ -40,16 +40,17 @@
 ## Plugins
 - Audio Device Selector
 - Browser Bookmarks
-- Calculator (10)
-- DevToys Launcher
+- Calculator
 - Explorer (5)
-- MyIPs
-- Obsidian Notes
-- URL
+- Plugin Indicator
+- Plugins Manager
+- Process Killer
 - Program (10)
+- System Commands (10)
 - Visual Studio Code Workspaces
-- URL (-2)
-- Web Searches (-1)
+- Volume Flow
+- Web Searches
+- Windows Settings
 
 
 # Automation Scripts
