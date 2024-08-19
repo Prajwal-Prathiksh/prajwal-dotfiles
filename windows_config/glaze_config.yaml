@@ -45,9 +45,9 @@ bar:
   height: "28px"
   position: "top"
   opacity: 0.9
-  background: "#1b304b"
+  background: "#000000"
   foreground: "#ffffff"
-  font_family: "Cascadia Code"
+  font_family: "Cascadia Code Bold"
   font_size: "20px"
   padding: "4px 1px"
   offset_x: "0"
