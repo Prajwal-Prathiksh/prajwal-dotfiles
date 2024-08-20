@@ -167,6 +167,10 @@ function yy {
     Remove-Item -Path $tmp
 }
 
+function fz {
+    fzf --preview "bat --color=always --style=numbers --line-range=:500 {}"
+}
+
 function uptime {
     if ($PSVersionTable.PSVersion.Major -eq 5) {
         $lastBoot = (Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}}).LastBootUpTime
@@ -299,6 +303,8 @@ ff <name> - Finds files recursively with the specified name.
 ll [name] - Lists files and directories with additional information.
 
 yy - Opens yazi, and on exit, changes to the directory which yazi was in.
+
+fz - Uses fzf to search for files and preview them with bat.
 
 Get-PubIP - Retrieves the public IP address of the machine.
 
