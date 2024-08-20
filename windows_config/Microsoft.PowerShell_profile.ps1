@@ -157,6 +157,16 @@ function ll($name) {
     PowerColorLS --long --all --show-directory-size "$name"
 }
 
+function yy {
+    $tmp = [System.IO.Path]::GetTempFileName()
+    yazi $args --cwd-file="$tmp"
+    $cwd = Get-Content -Path $tmp
+    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
+        Set-Location -LiteralPath $cwd
+    }
+    Remove-Item -Path $tmp
+}
+
 function uptime {
     if ($PSVersionTable.PSVersion.Major -eq 5) {
         $lastBoot = (Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}}).LastBootUpTime
@@ -287,6 +297,8 @@ touch <file> - Creates a new empty file.
 ff <name> - Finds files recursively with the specified name.
 
 ll [name] - Lists files and directories with additional information.
+
+yy - Opens yazi, and on exit, changes to the directory which yazi was in.
 
 Get-PubIP - Retrieves the public IP address of the machine.
 
