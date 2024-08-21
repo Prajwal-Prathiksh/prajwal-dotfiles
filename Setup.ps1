@@ -486,3 +486,7 @@ else {
     Get-ChildItem -Path $yaziDirTo -Recurse | Move-Item -Destination $dirTo -Force
     Write-Host "yazi config has been setup successfully." -ForegroundColor Green
 }
+
+
+# TODO: Add custom config for `bat`
+# TODO: Add automated setup for windows terminal settings
