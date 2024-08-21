@@ -59,7 +59,8 @@ $wingetRegularPackages = @(
     "Google.GoogleDrive"
     "Microsoft.PowerToys",
     "Flow-Launcher.Flow-Launcher",
-    "voidtools.Everything"
+    "voidtools.Everything",
+	"File-New-Project.EarTrumpet"
 )
 $wingetDevPackages = @(
     "vim.vim",
