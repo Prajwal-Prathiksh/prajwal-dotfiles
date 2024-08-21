@@ -60,7 +60,7 @@ $wingetRegularPackages = @(
     "Microsoft.PowerToys",
     "Flow-Launcher.Flow-Launcher",
     "voidtools.Everything",
-	"File-New-Project.EarTrumpet"
+    "File-New-Project.EarTrumpet"
 )
 $wingetDevPackages = @(
     "vim.vim",
