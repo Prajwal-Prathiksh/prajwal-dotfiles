@@ -496,3 +496,5 @@ else {
 
 # TODO: Add custom config for `bat`
 # TODO: Add automated setup for windows terminal settings
+# TODO: (Optional) Add battery full notification for laptops
+# TODO: Add WSL installation and setup
