@@ -196,6 +196,10 @@ Write-Host "(Default: Continue to next section)"
 
 $choice = Read-Host "Enter your choice (1-5):"
 
+# TODO: Add option to install all packages at once as well
+# TODO: Add Glaze installation option
+# TODO: Remove installation of PS modules from profile.ps1 and add them here
+
 switch ($choice) {
     1 {
         # Ask User to Run Install or Update
@@ -239,6 +243,8 @@ switch ($choice) {
         Write-Host "Continuing to next section..." -ForegroundColor White
     }
 }
+
+# TODO: Add message here asking user to restart the shell or do it automatically
 
 
 ######################################################
