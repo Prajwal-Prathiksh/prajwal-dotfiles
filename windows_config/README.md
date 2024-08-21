@@ -23,17 +23,13 @@
 # Oh My Posh
 - Custom Theme: [custom.omp.json](custom.omp.json)
 
-# Rainmeter
-- Windows desktop customisation: https://www.rainmeter.net/
-- Custome Settings: [Rainmeter.ini](Rainmeter.ini)
-
 # Tabliss (Chrome Extension)
 - A beautiful new tab page: https://chromewebstore.google.com/detail/hipekcciheckooncpjeljhnekcoolahp
 - Custom Settings: [tabliss.json](tabliss.json)
 
-
 # Flow Launcher 
 - Windows launcher: https://flow-launcher.github.io/
+
 ## Custom Query Shortcuts
 - dw: Downloads
 
@@ -51,7 +47,3 @@
 - Volume Flow
 - Web Searches
 - Windows Settings
-
-
-# Automation Scripts
-- Notification when battery is 95% charged: [FullBattery.vbs](FullBattery.vbs)
