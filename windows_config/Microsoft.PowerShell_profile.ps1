@@ -154,7 +154,7 @@ function ll($name) {
     if (-not $name) {
         $name = Get-Location
     }
-    PowerColorLS --long --all --show-directory-size "$name"
+    PowerColorLS --long --all "$name"
 }
 
 function yy {
