@@ -42,7 +42,7 @@
             "keys": "ctrl+v"
         }
     ],
-    "alwaysShowTabs": false,
+    "alwaysShowTabs": true,
     "centerOnLaunch": true,
     "copyFormatting": "none",
     "copyOnSelect": false,
@@ -379,9 +379,9 @@
             "yellow": "#808000"
         }
     ],
-    "showTabsInTitlebar": false,
-    "showTerminalTitleInTitlebar": true,
+    "showTabsInTitlebar": true,
+    "showTerminalTitleInTitlebar": false,
     "tabSwitcherMode": "mru",
     "themes": [],
-    "useAcrylicInTabRow": false
+    "useAcrylicInTabRow": true
 }
