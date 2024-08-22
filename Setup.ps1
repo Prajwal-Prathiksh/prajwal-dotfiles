@@ -538,6 +538,7 @@ else {
     if (-not (Get-Module -ListAvailable -Name Import-VisualStudioEnvironment)) {
         # https://github.com/olegsych/posh-vs
         Install-Module posh-vs -Scope CurrentUser
+        Write-Host "posh-vs installed successfully." -ForegroundColor Green
     }
     else {
         Write-Host "posh-vs already installed." -ForegroundColor White
