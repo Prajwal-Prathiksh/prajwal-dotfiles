@@ -535,7 +535,7 @@ else {
         Write-Host "PowerColorLS already installed." -ForegroundColor White
     }
 
-    if (-not (Get-Module -ListAvailable -Name Import-VisualStudioEnvironment)) {
+    if (-not (Get-Module -ListAvailable -Name posh-vs)) {
         # https://github.com/olegsych/posh-vs
         Install-Module posh-vs -Scope CurrentUser
         Write-Host "posh-vs installed successfully." -ForegroundColor Green
