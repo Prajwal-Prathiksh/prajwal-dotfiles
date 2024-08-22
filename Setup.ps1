@@ -198,7 +198,6 @@ $choice = Read-Host "Enter your choice (1-5):"
 
 # TODO: Add option to install all packages at once as well
 # TODO: Add Glaze installation option
-# TODO: Remove installation of PS modules from profile.ps1 and add them here
 
 switch ($choice) {
     1 {
@@ -492,6 +491,44 @@ else {
     Get-ChildItem -Path $yaziDirTo -Recurse | Move-Item -Destination $dirTo -Force
     Write-Host "yazi config has been setup successfully." -ForegroundColor Green
 }
+
+
+
+######################################################
+######################################################
+# POWERSHELL MODULES INSTALLATION SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "POWERSHELL MODULES INSTALLATION SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
+
+
+# echo that Terminal-Icons, PSReadLine, and PSFzf are being installed
+$modulesToInstall = @("Terminal-Icons", "PowerColorLS", "posh-vs")
+Write-Host "Following modules will be installed:"
+foreach ($module in $modulesToInstall) {
+    Write-Host "- $module"
+}
+Install-Module -Name Terminal-Icons -Repository PSGallery -Scope CurrentUser
+Install-Module -Name PowerColorLS -Repository PSGallery -Scope CurrentUser
+Install-Module posh-vs -Scope CurrentUser
+
+Write-Host "Modules installed successfully." -ForegroundColor Green
+
+
+
+######################################################
+######################################################
+# BYE BYE SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "$border1$border1" -ForegroundColor White
+Write-Host "SETUP COMPLETED" -ForegroundColor Green
+Write-Host "Bye Bye!!" -ForegroundColor Green
+Write-Host "$border1$border1" -ForegroundColor White
 
 
 # TODO: Add custom config for `bat`
