@@ -363,5 +363,5 @@ code - Opens Visual Studio Code in the current directory.
 Use 'Show-Help' to display this help message.
 "@
 }
-Write-Host "Use 'Show-Help' to display help"
+# Write-Host "Use 'Show-Help' to display help"
 fastfetch -c custom
