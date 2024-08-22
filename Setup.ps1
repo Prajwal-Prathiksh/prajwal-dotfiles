@@ -49,7 +49,8 @@ $scoopPackages = @(
     "jid",
     "jq",
     "ripgrep",
-    "yazi"
+    "yazi",
+    "tokei"
 )
 $wingetRegularPackages = @(
     "LocalSend.LocalSend",
@@ -565,3 +566,4 @@ Write-Host "$border1$border1" -ForegroundColor White
 # TODO: Add automated setup for windows terminal settings
 # TODO: (Optional) Add battery full notification for laptops
 # TODO: Add WSL installation and setup
+# TODO: Add fzf support for powershell
