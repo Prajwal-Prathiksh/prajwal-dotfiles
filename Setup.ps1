@@ -511,11 +511,40 @@ Write-Host "Following modules will be installed:"
 foreach ($module in $modulesToInstall) {
     Write-Host "- $module"
 }
-Install-Module -Name Terminal-Icons -Repository PSGallery -Scope CurrentUser
-Install-Module -Name PowerColorLS -Repository PSGallery -Scope CurrentUser
-Install-Module posh-vs -Scope CurrentUser
+$installModules = Read-Host "Do you want to install these modules? ([Y]es/[n]o)"
 
-Write-Host "Modules installed successfully." -ForegroundColor Green
+if ($installModules -eq "n") {
+    Write-Host "Skipping module installation..." -ForegroundColor White
+}
+else {
+    # Install modules
+    if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
+        # https://github.com/devblackops/Terminal-Icons
+        Install-Module -Name Terminal-Icons -Repository PSGallery -Scope CurrentUser
+        Write-Host "Terminal-Icons installed successfully." -ForegroundColor Green
+    }
+    else {
+        Write-Host "Terminal-Icons already installed." -ForegroundColor White
+    }
+
+    if (-not (Get-Module -ListAvailable -Name PowerColorLS)) {
+        # https://github.com/gardebring/PowerColorLS
+        Install-Module -Name PowerColorLS -Repository PSGallery -Scope CurrentUser
+    }
+    else {
+        Write-Host "PowerColorLS already installed." -ForegroundColor White
+    }
+
+    if (-not (Get-Module -ListAvailable -Name Import-VisualStudioEnvironment)) {
+        # https://github.com/olegsych/posh-vs
+        Install-Module posh-vs -Scope CurrentUser
+    }
+    else {
+        Write-Host "posh-vs already installed." -ForegroundColor White
+    }
+
+    Write-Host "Modules installed successfully." -ForegroundColor Green
+}
 
 
 
