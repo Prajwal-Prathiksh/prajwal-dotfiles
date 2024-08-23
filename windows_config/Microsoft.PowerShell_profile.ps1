@@ -1,3 +1,9 @@
+# =============================================================================
+#
+# PowerShell Profile Setup
+#
+
+
 # Run Fastfetch with custom configuration
 fastfetch --config custom
 
@@ -15,6 +21,12 @@ Import-Module Terminal-Icons
 Import-Module PowerColorLS
 Set-Alias -Name ls -Value PowerColorLS -Option AllScope
 # Import-VisualStudioEnvironment
+
+
+# =============================================================================
+#
+# Custom Aliases
+#
 
 ## Custom Functions
 function Edit-Profile {
@@ -92,10 +104,10 @@ function tail {
 
 # =============================================================================
 #
-# Utility functions for zoxide.
+# Utility functions for zoxide
 #
 
-# Call zoxide binary, returning the output as UTF-8.
+# Call zoxide binary, returning the output as UTF-8
 function global:__zoxide_bin {
     $encoding = [Console]::OutputEncoding
     try {
@@ -107,7 +119,7 @@ function global:__zoxide_bin {
     }
 }
 
-# pwd based on zoxide's format.
+# pwd based on zoxide's format
 function global:__zoxide_pwd {
     $cwd = Get-Location
     if ($cwd.Provider.Name -eq "FileSystem") {
@@ -115,7 +127,7 @@ function global:__zoxide_pwd {
     }
 }
 
-# cd + custom logic based on the value of _ZO_ECHO.
+# cd + custom logic based on the value of _ZO_ECHO
 function global:__zoxide_cd($dir, $literal) {
     $dir = if ($literal) {
         Set-Location -LiteralPath $dir -Passthru -ErrorAction Stop
@@ -134,10 +146,10 @@ function global:__zoxide_cd($dir, $literal) {
 
 # =============================================================================
 #
-# Hook configuration for zoxide.
+# Hook configuration for zoxide
 #
 
-# Hook to add new entries to the database.
+# Hook to add new entries to the database
 $global:__zoxide_oldpwd = __zoxide_pwd
 function global:__zoxide_hook {
     $result = __zoxide_pwd
@@ -149,7 +161,7 @@ function global:__zoxide_hook {
     }
 }
 
-# Initialize hook.
+# Initialize hook
 $global:__zoxide_hooked = (Get-Variable __zoxide_hooked -ErrorAction SilentlyContinue -ValueOnly)
 if ($global:__zoxide_hooked -ne 1) {
     $global:__zoxide_hooked = 1
@@ -165,10 +177,10 @@ if ($global:__zoxide_hooked -ne 1) {
 
 # =============================================================================
 #
-# When using zoxide with --no-cmd, alias these internal functions as desired.
+# When using zoxide with --no-cmd, alias these internal functions as desired
 #
 
-# Jump to a directory using only keywords.
+# Jump to a directory using only keywords
 function global:__zoxide_z {
     if ($args.Length -eq 0) {
         __zoxide_cd ~ $true
@@ -203,13 +215,21 @@ function global:__zoxide_zi {
 
 # =============================================================================
 #
-# Commands for zoxide. Disable these using --no-cmd.
+# Commands for zoxide. Disable these using --no-cmd
 #
 
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
-# Reference: https://dev.to/kevinnitro/fzf-advanced-integration-in-powershell-53p0
+
+# =============================================================================
+#
+# Setup Keybindings for FZF & Ripgrep
+#
+# The below functionality was inspired by the following article:
+# https://dev.to/kevinnitro/fzf-advanced-integration-in-powershell-53p0
+#
+
 $env:FZF_DEFAULT_OPTS=@"
 --layout=reverse
 --cycle
@@ -252,7 +272,7 @@ function _fzf_open_path {
     }
     'remove' = { Remove-Item -Recurse -Force $input_path }
     }
-    $cmd = $cmds.Keys | fzf --prompt 'Select command> '
+    $cmd = $cmds.Keys | Sort-Object | fzf --prompt 'Select command> '
 
     # If no command is selected, return
     if (-not $cmd)
@@ -293,7 +313,6 @@ function _fzf_get_path_using_rg {
     return $input_path
 }
 
-
 function fdg {
     $input_path = _fzf_get_path_using_fd
     if (-not [string]::IsNullOrEmpty($input_path)) {
@@ -308,7 +327,6 @@ function rgg {
         _fzf_open_path $input_path
     }
 }
-
 
 # SET KEYBOARD SHORTCUTS TO CALL FUNCTION
 Set-PSReadLineKeyHandler -Key "Ctrl+f" -ScriptBlock {
