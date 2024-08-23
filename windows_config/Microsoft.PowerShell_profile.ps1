@@ -271,6 +271,10 @@ function _fzf_get_path_using_fd
         --preview 'bat --color=always {} --style=plain'
 
     # Prepend the current directory if the path is relative
+    if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "")
+    {
+        $input_path = Join-Path $PWD $input_path
+    }
     return $input_path
 }
 
