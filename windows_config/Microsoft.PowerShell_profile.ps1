@@ -246,51 +246,56 @@ $env:FZF_DEFAULT_OPTS=@"
 --bind ctrl-b:preview-page-up
 --bind ctrl-g:preview-top
 --bind ctrl-h:preview-bottom
---bind alt-w:toggle-preview-wrap
+--bind alt-z:toggle-preview-wrap
 --bind ctrl-e:toggle-preview
 "@
 
 function _fzf_open_path
 {
-  param (
-    [Parameter(Mandatory=$true)]
-    [string]$input_path
-  )
-  if ($input_path -match "^.*:\d+:.*$")
-  {
-    $input_path = ($input_path -split ":")[0]
-  }
-  if (-not (Test-Path $input_path))
-  {
-    return
-  }
-  $cmds = @{
-    'bat' = { bat $input_path }
-    'cat' = { Get-Content $input_path }
-    'cd' = {
-      if (Test-Path $input_path -PathType Leaf)
-      {
-        $input_path = Split-Path $input_path -Parent
-      }
-      Set-Location $input_path
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$input_path
+    )
+    if ($input_path -match "^.*:\d+:.*$")
+    {
+        $input_path = ($input_path -split ":")[0]
     }
-    'nvim' = { nvim $input_path }
+    if (-not (Test-Path $input_path))
+    {
+        return
+    }
+    $cmds = @{
+    'bat' = { bat $input_path }
+    'vim' = { vim $input_path }
+    'code' = { code $input_path }
+    'cd' = {
+        if (Test-Path $input_path -PathType Leaf)
+        {
+        $input_path = Split-Path $input_path -Parent
+        }
+        Set-Location $input_path
+    }
     'remove' = { Remove-Item -Recurse -Force $input_path }
-    'echo' = { Write-Output $input_path }
-  }
-  $cmd = $cmds.Keys | fzf --prompt 'Select command> '
-  & $cmds[$cmd]
+    }
+    $cmd = $cmds.Keys | fzf --prompt 'Select command> '
+
+    # If no command is selected, return
+    if (-not $cmd)
+    {
+        return
+    }
+    & $cmds[$cmd]
 }
 
 function _fzf_get_path_using_fd
 {
-  $input_path = fd --type file --follow --hidden --exclude .git |
-    fzf --prompt 'Files> ' `
-      --header-first `
-      --header 'CTRL-S: Switch between Files/Directories' `
-      --bind 'ctrl-s:transform:if not "%FZF_PROMPT%"=="Files> " (echo ^change-prompt^(Files^> ^)^+^reload^(fd --type file^)) else (echo ^change-prompt^(Directory^> ^)^+^reload^(fd --type directory^))' `
-      --preview 'if "%FZF_PROMPT%"=="Files> " (bat --color=always {} --style=plain) else (eza -T --colour=always --icons=always {})'
-  return $input_path
+    $input_path = fd --type file --follow --hidden --exclude .git |
+        fzf --prompt 'Files> ' `
+        --header 'Files' `
+        --preview 'bat --color=always {} --style=plain'
+
+    # Prepend the current directory if the path is relative
+    return $input_path
 }
 
 function _fzf_get_path_using_rg
@@ -313,9 +318,11 @@ function _fzf_get_path_using_rg
   return $input_path
 }
 
-function fdg
-{
-  _fzf_open_path $(_fzf_get_path_using_fd)
+function fdg {
+    $input_path = _fzf_get_path_using_fd
+    if (-not [string]::IsNullOrEmpty($input_path)) {
+        _fzf_open_path $input_path
+    }
 }
 
 function rgg
