@@ -1,3 +1,9 @@
+# =============================================================================
+#
+# PowerShell Profile Setup
+#
+
+
 # Run Fastfetch with custom configuration
 fastfetch --config custom
 
@@ -15,6 +21,12 @@ Import-Module Terminal-Icons
 Import-Module PowerColorLS
 Set-Alias -Name ls -Value PowerColorLS -Option AllScope
 # Import-VisualStudioEnvironment
+
+
+# =============================================================================
+#
+# Custom Aliases
+#
 
 ## Custom Functions
 function Edit-Profile {
@@ -51,10 +63,6 @@ function yy {
     Remove-Item -Path $tmp
 }
 
-function fz {
-    fzf --preview "bat --color=always --style=numbers --line-range=:500 {}"
-}
-
 ### Linux-like Commands
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 
@@ -62,26 +70,6 @@ function unzip ($file) {
     Write-Output("Extracting", $file, "to", $pwd)
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
-}
-
-function grep()
-{
-    param(
-        [Parameter(Mandatory=$true)][string]$regex,
-        [Parameter(Mandatory=$true)][string]$dir,
-        [Parameter(Mandatory=$false)][string]$recurse
-    )
-    if ($recurse) {
-        if ($recurse -ne "--r") {
-            Write-Error "Invalid argument for recurse. Use --r."
-            return
-        } else {
-            Get-ChildItem $dir -Recurse -Attributes !Hidden | Select-String -Pattern $regex
-        }
-    } else {
-        Get-ChildItem $dir | Select-String -Pattern $regex
-    }
-    $input | select-string $regex
 }
 
 function df {
@@ -116,10 +104,10 @@ function tail {
 
 # =============================================================================
 #
-# Utility functions for zoxide.
+# Utility functions for zoxide
 #
 
-# Call zoxide binary, returning the output as UTF-8.
+# Call zoxide binary, returning the output as UTF-8
 function global:__zoxide_bin {
     $encoding = [Console]::OutputEncoding
     try {
@@ -131,7 +119,7 @@ function global:__zoxide_bin {
     }
 }
 
-# pwd based on zoxide's format.
+# pwd based on zoxide's format
 function global:__zoxide_pwd {
     $cwd = Get-Location
     if ($cwd.Provider.Name -eq "FileSystem") {
@@ -139,7 +127,7 @@ function global:__zoxide_pwd {
     }
 }
 
-# cd + custom logic based on the value of _ZO_ECHO.
+# cd + custom logic based on the value of _ZO_ECHO
 function global:__zoxide_cd($dir, $literal) {
     $dir = if ($literal) {
         Set-Location -LiteralPath $dir -Passthru -ErrorAction Stop
@@ -158,10 +146,10 @@ function global:__zoxide_cd($dir, $literal) {
 
 # =============================================================================
 #
-# Hook configuration for zoxide.
+# Hook configuration for zoxide
 #
 
-# Hook to add new entries to the database.
+# Hook to add new entries to the database
 $global:__zoxide_oldpwd = __zoxide_pwd
 function global:__zoxide_hook {
     $result = __zoxide_pwd
@@ -173,7 +161,7 @@ function global:__zoxide_hook {
     }
 }
 
-# Initialize hook.
+# Initialize hook
 $global:__zoxide_hooked = (Get-Variable __zoxide_hooked -ErrorAction SilentlyContinue -ValueOnly)
 if ($global:__zoxide_hooked -ne 1) {
     $global:__zoxide_hooked = 1
@@ -189,10 +177,10 @@ if ($global:__zoxide_hooked -ne 1) {
 
 # =============================================================================
 #
-# When using zoxide with --no-cmd, alias these internal functions as desired.
+# When using zoxide with --no-cmd, alias these internal functions as desired
 #
 
-# Jump to a directory using only keywords.
+# Jump to a directory using only keywords
 function global:__zoxide_z {
     if ($args.Length -eq 0) {
         __zoxide_cd ~ $true
@@ -227,8 +215,128 @@ function global:__zoxide_zi {
 
 # =============================================================================
 #
-# Commands for zoxide. Disable these using --no-cmd.
+# Commands for zoxide. Disable these using --no-cmd
 #
 
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
+
+
+# =============================================================================
+#
+# Setup Keybindings for FZF & Ripgrep
+#
+# The below functionality was inspired by the following article:
+# https://dev.to/kevinnitro/fzf-advanced-integration-in-powershell-53p0
+#
+
+$env:FZF_DEFAULT_OPTS=@"
+--layout=reverse
+--cycle
+--scroll-off=5
+--border
+--preview-window=right,60%,border-left
+--bind ctrl-u:preview-half-page-up
+--bind ctrl-d:preview-half-page-down
+--bind ctrl-f:preview-page-down
+--bind ctrl-b:preview-page-up
+--bind ctrl-g:preview-top
+--bind ctrl-h:preview-bottom
+--bind alt-z:toggle-preview-wrap
+--bind ctrl-e:toggle-preview
+"@
+
+function _fzf_open_path {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$input_path
+    )
+    if ($input_path -match "^.*:\d+:.*$")
+    {
+        $input_path = ($input_path -split ":")[0]
+    }
+    if (-not (Test-Path $input_path))
+    {
+        return
+    }
+    $cmds = @{
+    'bat' = { bat $input_path }
+    'vim' = { vim $input_path }
+    'code' = { code $input_path }
+    'cd' = {
+        if (Test-Path $input_path -PathType Leaf)
+        {
+        $input_path = Split-Path $input_path -Parent
+        }
+        Set-Location $input_path
+    }
+    'remove' = { Remove-Item -Recurse -Force $input_path }
+    }
+    $cmd = $cmds.Keys | Sort-Object | fzf --prompt 'Select command> '
+
+    # If no command is selected, return
+    if (-not $cmd)
+    {
+        return
+    }
+    & $cmds[$cmd]
+}
+
+function _fzf_get_path_using_fd {
+    $input_path = fd --type file --follow --hidden --exclude .git |
+        fzf --prompt 'Files> ' `
+        --header 'Files' `
+        --preview 'bat --color=always {} --style=plain'
+
+    # Prepend the current directory if the path is relative
+    if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "")
+    {
+        $input_path = Join-Path $PWD $input_path
+    }
+    return $input_path
+}
+
+function _fzf_get_path_using_rg {
+    $INITIAL_QUERY = "${*:-}"
+    $RG_PREFIX = "rg --column --line-number --no-heading --color=always --smart-case"
+    $input_path = $null |
+        fzf --ansi --disabled --query "$INITIAL_QUERY" `
+            --bind "start:reload:($RG_PREFIX {q} || Write-Host NoResultsFound)" `
+            --bind "change:reload:($RG_PREFIX {q} || Write-Host NoResultsFound)" `
+            --color "hl:-1:underline,hl+:-1:underline:reverse" `
+            --delimiter ':' `
+            --prompt "1. ripgrep> " `
+            --preview-label "Preview" `
+            --header-first `
+            --preview "bat --color=always {1} --highlight-line {2} --style=plain" `
+            --preview-window "up,60%,border-bottom,+{2}+3/3"
+    return $input_path
+}
+
+function fdg {
+    $input_path = _fzf_get_path_using_fd
+    if (-not [string]::IsNullOrEmpty($input_path)) {
+        _fzf_open_path $input_path
+    }
+}
+
+function rgg {
+    $input_path = _fzf_get_path_using_rg
+    if (-not [string]::IsNullOrEmpty($input_path))
+    {
+        _fzf_open_path $input_path
+    }
+}
+
+# SET KEYBOARD SHORTCUTS TO CALL FUNCTION
+Set-PSReadLineKeyHandler -Key "Ctrl+f" -ScriptBlock {
+  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("fdg")
+  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
+
+Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
+  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("rgg")
+  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
