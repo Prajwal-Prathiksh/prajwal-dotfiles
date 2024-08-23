@@ -51,10 +51,6 @@ function yy {
     Remove-Item -Path $tmp
 }
 
-function fz {
-    fzf --preview "bat --color=always --style=numbers --line-range=:500 {}"
-}
-
 ### Linux-like Commands
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 
@@ -62,26 +58,6 @@ function unzip ($file) {
     Write-Output("Extracting", $file, "to", $pwd)
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
-}
-
-function grep()
-{
-    param(
-        [Parameter(Mandatory=$true)][string]$regex,
-        [Parameter(Mandatory=$true)][string]$dir,
-        [Parameter(Mandatory=$false)][string]$recurse
-    )
-    if ($recurse) {
-        if ($recurse -ne "--r") {
-            Write-Error "Invalid argument for recurse. Use --r."
-            return
-        } else {
-            Get-ChildItem $dir -Recurse -Attributes !Hidden | Select-String -Pattern $regex
-        }
-    } else {
-        Get-ChildItem $dir | Select-String -Pattern $regex
-    }
-    $input | select-string $regex
 }
 
 function df {
