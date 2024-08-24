@@ -286,7 +286,7 @@ function _fzf_get_path_using_fd {
     $input_path = fd --type file --follow --hidden --exclude .git |
         fzf --prompt 'Files> ' `
         --header 'Files' `
-        --preview 'bat --color=always {} --style=plain'
+        --preview 'bat --color=always {} --style=numbers'
 
     # Prepend the current directory if the path is relative
     if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "")
@@ -308,7 +308,7 @@ function _fzf_get_path_using_rg {
             --prompt "1. ripgrep> " `
             --preview-label "Preview" `
             --header-first `
-            --preview "bat --color=always {1} --highlight-line {2} --style=plain" `
+            --preview "bat --color=always {1} --highlight-line {2} --style=numbers" `
             --preview-window "up,60%,border-bottom,+{2}+3/3"
     return $input_path
 }
