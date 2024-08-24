@@ -286,7 +286,7 @@ function _fzf_get_path_using_fd {
     $input_path = fd --type file --follow --hidden --exclude .git |
         fzf --prompt 'Files> ' `
         --header 'Files' `
-        --preview 'bat --color=always {} --style=numbers'
+        --preview 'if ((Get-Item {}).Extension -eq ".jpg" -or (Get-Item {}).Extension -eq ".png") { chafa --symbols vhalf -w 1 --color-extractor median {} } else { bat --color=always {} --style=plain }'
 
     # Prepend the current directory if the path is relative
     if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "")
