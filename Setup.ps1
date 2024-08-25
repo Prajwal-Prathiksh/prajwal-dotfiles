@@ -567,3 +567,4 @@ Write-Host "$border1$border1" -ForegroundColor White
 # TODO: Add automated setup for windows terminal settings
 # TODO: (Optional) Add battery full notification for laptops
 # TODO: Add WSL installation and setup
+# TODO: Use scoop instead of winget where possible for installation of apps (Ref: aria2)
