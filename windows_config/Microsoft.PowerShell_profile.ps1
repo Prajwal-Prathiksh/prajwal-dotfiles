@@ -221,6 +221,13 @@ function global:__zoxide_zi {
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
+# SET KEYBOARD SHORTCUTS TO CALL FUNCTION
+Set-PSReadLineKeyHandler -Key "Ctrl+z" -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("zi")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+  }
+
 
 # =============================================================================
 #
@@ -339,4 +346,16 @@ Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
   [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
   [Microsoft.PowerShell.PSConsoleReadLine]::Insert("rgg")
   [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
+
+
+# =============================================================================
+#
+# Setup Keybindings for Cheatsheets
+#
+
+# SET KEYBOARD SHORTCUTS TO CALL CHEAT
+Set-PSReadLineKeyHandler -Key "Ctrl+t" -ScriptBlock {
+  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA")
 }
