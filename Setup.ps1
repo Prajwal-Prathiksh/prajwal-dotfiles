@@ -405,6 +405,7 @@ $newEnvironmentVariables = @{
     "SHELL" = "pwsh"
     "YAZI_FILE_ONE" = $fileOnePath
     "YAZI_CONFIG_HOME" = "$appDataRoamingDir\yazi\config"
+    "POWERSHELL_UPDATECHECK" = "Off"
 }
 # create yazi_config_home directory if it doesn't exist
 if (-not (Test-Path $newEnvironmentVariables["YAZI_CONFIG_HOME"])) {
