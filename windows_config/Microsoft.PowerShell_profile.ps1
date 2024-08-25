@@ -3,7 +3,6 @@
 # PowerShell Profile Setup
 #
 
-
 # Run Fastfetch with custom configuration
 fastfetch --config custom
 
@@ -16,7 +15,7 @@ Set-PSReadLineOption -PredictionViewStyle ListView
 # Set Tab Completion to MenuComplete
 # Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 
-# # Import Custom Modules
+# Import Custom Modules
 Import-Module Terminal-Icons
 Import-Module PowerColorLS
 Set-Alias -Name ls -Value PowerColorLS -Option AllScope
@@ -29,6 +28,34 @@ Set-Alias -Name ls -Value PowerColorLS -Option AllScope
 #
 
 ## Custom Functions
+function Import-Conda ($envName) {
+<#
+.SYNOPSIS
+Imports the conda environment and activates it.
+
+.DESCRIPTION
+The Import-Conda function imports the conda environment and activates it. It also initializes Oh My Posh with a custom configuration file, and activates the conda environment if the environment name is provided.
+
+.PARAMETER envName
+The envName parameter specifies the name of the conda environment to activate.
+#>
+    
+    # Run conda hook
+    $condaPath = "$env:LOCALAPPDATA\miniconda3\shell\condabin\conda-hook.ps1"
+    & $condaPath
+    Write-Host "Conda environment activated." -ForegroundColor Green
+
+    # Re-run Oh My Posh with custom configuration to update the prompt
+    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
+    
+    # Activate the conda environment if the environment name is provided
+    if ($envName) {
+        conda activate $envName
+        Write-Host "Conda environment '$envName' activated." -ForegroundColor Green
+    }
+    Write-Host ""
+}
+
 function Edit-Profile {
 <#
 .SYNOPSIS
@@ -496,13 +523,17 @@ The Show-Help function displays custom keybindings and help information for Powe
 .PARAMETER None
 This function does not accept any parameters.
 #>
-    Write-Host "Custom Keybindings & Help" -ForegroundColor Green
     Write-Host "<F1> - Show Custom Keybindings & Help" -ForegroundColor Green
-    Write-Host "Press <Enter> to view more content." -ForegroundColor Green
-    Write-Host "Press <Esc> or <q> to exit." -ForegroundColor Green
+    Write-Host "Press <Enter> to view more content. Press <Esc> or <q> to exit." -ForegroundColor Green
     Write-Host ""
 
     $helpContent = @(
+        $border1,
+        "Developer Profiles",
+        $border1,
+        "Import-Conda : Imports the conda environment and activates it (conda).",
+        "Import-VisualStudioEnvironment : Imports the Visual Studio environment (cl).",
+        "",
         $border1,
         "Keybindings for PowerShell",
         $border1,
@@ -544,7 +575,7 @@ This function does not accept any parameters.
         "Show-Help : Displays custom keybindings and help information."
     )
 
-    $pageSize = 15
+    $pageSize = 20
     $lineIndex = $pageSize
 
     # Print initial page
