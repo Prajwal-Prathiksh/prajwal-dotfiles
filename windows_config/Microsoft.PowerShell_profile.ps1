@@ -127,10 +127,21 @@ The file parameter specifies the name of the file to create.
 }
 
 function unzip ($file) {
-    Write-Output("Extracting", $file, "to", $pwd)
-    $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
-    Expand-Archive -Path $fullFile -DestinationPath $pwd
-}
+    <#
+    .SYNOPSIS
+    Extracts files from a compressed archive.
+    
+    .DESCRIPTION
+    The unzip function extracts files from a compressed archive.
+    
+    .PARAMETER file
+    The file parameter specifies the name of the compressed archive to extract files from.
+    #>
+        Write-Output("Extracting", $file, "to", $pwd)
+        $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
+        Expand-Archive -Path $fullFile -DestinationPath $pwd
+    }
+    
 
 function df {
 <#
@@ -402,7 +413,7 @@ function _fzf_get_path_using_rg {
 function fdg {
 <#
 .SYNOPSIS
-Find files using fd and fzf.
+Find files interactively using fd and fzf.
 
 .DESCRIPTION
 The fdg function uses the fd command to find files and fzf to interactively select a file.
@@ -419,7 +430,7 @@ This function does not accept any parameters.
 function rgg {
 <#
 .SYNOPSIS
-Find patterns in files using rg and fzf.
+Find patterns in files interactively using rg and fzf.
 
 .DESCRIPTION
 The rgg function uses the rg command to find patterns in files and fzf to interactively select a file.
@@ -479,17 +490,19 @@ The Show-Help function displays custom keybindings and help information for Powe
 .PARAMETER None
 This function does not accept any parameters.
 #>
+    Write-Host "Custom Keybindings & Help" -ForegroundColor Green
+    Write-Host "<F1> - Show Custom Keybindings & Help" -ForegroundColor Green
+    Write-Host "Press <Enter> to view more content." -ForegroundColor Green
+    Write-Host "Press <Esc> or <q> to exit." -ForegroundColor Green
+    Write-Host ""
+
     $helpContent = @(
-        "<F1> - Show Custom Keybindings & Help",
-        "Press <Enter> to view more content.",
-        "Press <Esc> or <q> to exit.",
-        "",
         $border1,
         "Keybindings for PowerShell",
         $border1,
         "<Ctrl+z> - zi : Jump to a directory using interactive search.",
-        "<Ctrl+f> - fdg : Find files using fd and fzf.",
-        "<Ctrl+g> - rgg : Find patterns in files using rg and fzf.",
+        "<Ctrl+f> - fdg : Find files interactively using fd and fzf.",
+        "<Ctrl+g> - rgg : Find patterns in files interactively using rg and fzf.",
         "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
         "",
         $border1,
@@ -502,10 +515,29 @@ This function does not accept any parameters.
         "<Ctrl-g> - Preview top.",
         "<Ctrl-h> - Preview bottom.",
         "<Alt-z> - Toggle preview wrap.",
-        "<Ctrl-e> - Toggle preview."
+        "<Ctrl-e> - Toggle preview.",
+        "",
+        $border1,
+        "Custom Functions/Aliases",
+        $border1,
+        "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
+        "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
+        "Get-PubIP : Retrieves the public IP address of the current machine.",
+        "ll : Lists files only in long format with color highlighting.",
+        "yy : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
+        "touch : Creates a new file.",
+        "unzip : Extracts files from a compressed archive.",
+        "df : Displays disk space usage. Alias for Get-Volume.",
+        "sed : Searches and replaces text in a file.",
+        "which : Locates the executable of a command.",
+        "z : Jump to a directory using only keywords (zoxide).",
+        "zi : Jump to a directory using interactive search (zoxide).",
+        "fdg : Find files interactively using fd and fzf.",
+        "rgg : Find patterns in files interactively using rg and fzf.",
+        "Show-Help : Displays custom keybindings and help information."
     )
 
-    $pageSize = 18
+    $pageSize = 15
     $lineIndex = $pageSize
 
     # Print initial page
