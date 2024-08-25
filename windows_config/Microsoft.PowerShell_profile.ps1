@@ -311,12 +311,18 @@ function global:__zoxide_zi {
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
-# SET KEYBOARD SHORTCUTS TO CALL FUNCTION
+# SET CUSTOM KEYBOARD SHORTCUTS
 Set-PSReadLineKeyHandler -Key "Ctrl+z" -ScriptBlock {
     [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
     [Microsoft.PowerShell.PSConsoleReadLine]::Insert("zi")
     [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
-  }
+}
+
+Set-PSReadLineKeyHandler -Key "Ctrl+e" -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("explorer.exe .")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
 
 
 # =============================================================================
@@ -501,6 +507,7 @@ This function does not accept any parameters.
         "Keybindings for PowerShell",
         $border1,
         "<Ctrl+z> - zi : Jump to a directory using interactive search.",
+        "<Ctrl+e> - explorer.exe . : Open the current directory in File Explorer.",
         "<Ctrl+f> - fdg : Find files interactively using fd and fzf.",
         "<Ctrl+g> - rgg : Find patterns in files interactively using rg and fzf.",
         "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
