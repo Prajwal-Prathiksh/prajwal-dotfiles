@@ -359,3 +359,71 @@ Set-PSReadLineKeyHandler -Key "Ctrl+t" -ScriptBlock {
   [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
   [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA")
 }
+
+
+# =============================================================================
+#
+# Setup Keybindings for Help
+#
+
+## Required Variables
+$border1 = "========================================"
+
+function Show-Help {
+    $helpContent = @(
+        "<F1> - Show Custom Keybindings & Help",
+        "Press <Enter> to view more content.",
+        "Press <Esc> or <q> to exit.",
+        "",
+        $border1,
+        "Keybindings for PowerShell",
+        $border1,
+        "<Ctrl+z> - zi : Jump to a directory using interactive search.",
+        "<Ctrl+f> - fdg : Find files using fd and fzf.",
+        "<Ctrl+g> - rgg : Find patterns in files using rg and fzf.",
+        "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
+        "",
+        $border1,
+        "Keybindings for fzf",
+        $border1,
+        "<Ctrl-u> - Preview half page up.",
+        "<Ctrl-d> - Preview half page down.",
+        "<Ctrl-f> - Preview page down.",
+        "<Ctrl-b> - Preview page up.",
+        "<Ctrl-g> - Preview top.",
+        "<Ctrl-h> - Preview bottom.",
+        "<Alt-z> - Toggle preview wrap.",
+        "<Ctrl-e> - Toggle preview."
+    )
+
+    $pageSize = 18
+    $lineIndex = $pageSize
+
+    # Print initial page
+    $helpContent[0..($pageSize - 1)] | ForEach-Object { Write-Host $_ }
+
+    while ($lineIndex -lt $helpContent.Count) {
+        $keyInfo = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        if ($keyInfo.VirtualKeyCode -eq 27 -or $keyInfo.VirtualKeyCode -eq 81 -or $keyInfo.Character -eq "q" ) {
+            # 27 is the virtual key code for 'Esc'
+            # 81 is the virtual key code for 'q'
+            return
+        } 
+        if ($keyInfo.VirtualKeyCode -eq 13) { 
+            # 13 is the virtual key code for Enter
+            Write-Host $helpContent[$lineIndex]
+            $lineIndex++
+        }
+    }
+
+    # Clear any remaining input and return to the prompt immediately
+    while ($host.UI.RawUI.KeyAvailable) {
+        $null = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    }
+}
+
+Set-PSReadLineKeyHandler -Key "F1" -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("Show-Help")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
