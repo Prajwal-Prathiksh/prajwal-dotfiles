@@ -90,7 +90,7 @@
                 "source": "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
             },
             {
-                "commandline": "\"C:\\Program Files\\PowerShell\\7\\pwsh.exe\" -ExecutionPolicy ByPass -NoExit -Command \"& C:\\Users\\prajwal\\miniconda3\\shell\\condabin\\conda-hook.ps1; oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH/custom.omp.json\" | Invoke-Expression\"",
+                "commandline": "\"C:\\Program Files\\PowerShell\\7\\pwsh.exe\"",
                 "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
                 "hidden": false,
                 "name": "PowerShell",
