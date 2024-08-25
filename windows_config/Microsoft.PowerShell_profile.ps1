@@ -500,7 +500,7 @@ Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
 # SET KEYBOARD SHORTCUTS TO CALL CHEAT
 Set-PSReadLineKeyHandler -Key "Ctrl+t" -ScriptBlock {
   [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA")
+  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA ")
 }
 
 
@@ -524,7 +524,7 @@ The Show-Help function displays custom keybindings and help information for Powe
 This function does not accept any parameters.
 #>
     Write-Host "<F1> - Show Custom Keybindings & Help" -ForegroundColor Green
-    Write-Host "Press <Enter> to view more content. Press <Esc> or <q> to exit." -ForegroundColor Green
+    Write-Host "Press <Enter> or <Down Arrow> to view more content. Press <Esc> or <q> to exit." -ForegroundColor Green
     Write-Host ""
 
     $helpContent = @(
@@ -588,8 +588,9 @@ This function does not accept any parameters.
             # 81 is the virtual key code for 'q'
             return
         } 
-        if ($keyInfo.VirtualKeyCode -eq 13) { 
+        if ($keyInfo.VirtualKeyCode -eq 13 -or $keyInfo.VirtualKeyCode -eq 40) { 
             # 13 is the virtual key code for Enter
+            # 40 is the virtual key code for Down Arrow
             Write-Host $helpContent[$lineIndex]
             $lineIndex++
         }
