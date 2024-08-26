@@ -52,10 +52,13 @@ $scoopPackages = @(
     "yazi",
     "tokei",
     "cht",
-	"fzf",
-	"zoxide",
-	"bat",
-	"fastfetch"
+    "fzf",
+    "zoxide",
+    "bat",
+    "fastfetch",
+    "vim",
+    "oh-my-posh",
+    "speedtest-cli"
 )
 $wingetRegularPackages = @(
     "LocalSend.LocalSend",
@@ -67,11 +70,6 @@ $wingetRegularPackages = @(
     "Flow-Launcher.Flow-Launcher",
     "voidtools.Everything",
     "File-New-Project.EarTrumpet"
-)
-$wingetDevPackages = @(
-    "vim.vim",
-    "JanDeDobbeleer.OhMyPosh",
-    "Ookla.Speedtest.CLI"
 )
 $wingetBuildPackages = @(
     "Anaconda.Miniconda3",
@@ -166,19 +164,13 @@ $wingetRegularPackages | ForEach-Object {
 }
 Write-Host "$border2"
 
-Write-Host ">>> (3) Winget developer packages:"
-$wingetDevPackages | ForEach-Object {
-    Write-Host "- $_"
-}
-Write-Host "$border2"
-
-Write-Host ">>> (4) Winget build packages:"
+Write-Host ">>> (3) Winget build packages:"
 $wingetBuildPackages | ForEach-Object {
     Write-Host "- $_"
 }
 Write-Host "$border2"
 
-Write-Host ">>> (5) Winget editor packages:"
+Write-Host ">>> (4) Winget editor packages:"
 $wingetEditorPackages | ForEach-Object {
     Write-Host "- $_"
 }
@@ -191,9 +183,8 @@ Write-Host "$border3$border3"
 Write-Host "Select the category of packages to install:"
 Write-Host "1. Scoop packages"
 Write-Host "2. Winget regular packages"
-Write-Host "3. Winget developer packages"
-Write-Host "4. Winget build packages"
-Write-Host "5. Winget editor packages"
+Write-Host "3. Winget build packages"
+Write-Host "4. Winget editor packages"
 Write-Host "(Default: Continue to next section)"
 
 $choice = Read-Host "Enter your choice (1-5):"
@@ -223,18 +214,12 @@ switch ($choice) {
         }
     }
     3 {
-        # Install Winget developer packages
-        foreach ($package in $wingetDevPackages) {
-            winget install --id=$package -e
-        }
-    }
-    4 {
         # Install Winget build packages
         foreach ($package in $wingetBuildPackages) {
             winget install --id=$package -e
         }
     }
-    5 {
+    4 {
         # Install Winget editor packages
         foreach ($package in $wingetEditorPackages) {
             winget install --id=$package -e
