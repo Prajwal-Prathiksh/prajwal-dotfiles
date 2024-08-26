@@ -268,7 +268,8 @@ function Get-ShortcutTargetPath {
         "$env:APPDATA\Microsoft\Windows\Start Menu\Programs",
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
         "$env:USERPROFILE\Desktop",
-        "$env:LOCALAPPDATA\Microsoft\WinGet\Packages"
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Packages",
+        "$env:USERPROFILE\scoop\apps"
     )
 
     $shortcutPath = Get-ChildItem -Path $possibleAppPaths -Recurse -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
