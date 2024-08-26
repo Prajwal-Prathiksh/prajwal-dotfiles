@@ -71,7 +71,7 @@ $wingetRegularPackages = @(
 $wingetDevPackages = @(
     "vim.vim",
     "JanDeDobbeleer.OhMyPosh",
-    "Ookla.Speedtest.CLI",
+    "Ookla.Speedtest.CLI"
 )
 $wingetBuildPackages = @(
     "Anaconda.Miniconda3",
