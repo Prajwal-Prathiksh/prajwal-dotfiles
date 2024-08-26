@@ -51,7 +51,11 @@ $scoopPackages = @(
     "ripgrep",
     "yazi",
     "tokei",
-    "cht"
+    "cht",
+	"fzf",
+	"zoxide",
+	"bat",
+	"fastfetch"
 )
 $wingetRegularPackages = @(
     "LocalSend.LocalSend",
@@ -66,12 +70,8 @@ $wingetRegularPackages = @(
 )
 $wingetDevPackages = @(
     "vim.vim",
-    "junegunn.fzf",
-    "ajeetdsouza.zoxide",
     "JanDeDobbeleer.OhMyPosh",
-    "Fastfetch-cli.Fastfetch",
     "Ookla.Speedtest.CLI",
-	"sharkdp.bat"
 )
 $wingetBuildPackages = @(
     "Anaconda.Miniconda3",
