@@ -37,10 +37,6 @@
         "wifi",
         "locale",
         "users",
-        "bluetooth",
-        {
-            "type": "weather",
-            "timeout": 1000
-        }
+        "bluetooth"
     ]
 }
