@@ -94,7 +94,6 @@ if [[ $installFonts == "y" ]]; then
         echo -e "\e[32mFonts installed successfully!!\e[0m"
     else
         echo -e "\e[33mFonts directory already exists. Skipping font installation...\e[0m"
-        exit 0
     fi
 else
     echo -e "\e[33mSkipping font installation...\e[0m"
