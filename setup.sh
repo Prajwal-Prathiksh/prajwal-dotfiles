@@ -205,8 +205,7 @@ else
     echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
 fi
 
-
-
+# TODO: Add the following packages
 # Rust Build
 # - yazi
 # - tokei
@@ -220,3 +219,7 @@ fi
 # Speedtest cli
 # curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
 # sudo apt-get install speedtest
+
+# Github CLI
+# Rust
+# Miniconda

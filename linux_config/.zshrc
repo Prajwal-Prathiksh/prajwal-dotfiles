@@ -32,3 +32,5 @@ alias bat='batcat'
 
 # Add zoxide
 eval "$(zoxide init zsh)"
+
+# TODO: Feature parity with powershell aliases
