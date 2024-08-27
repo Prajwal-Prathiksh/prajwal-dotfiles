@@ -16,6 +16,7 @@ plugins=(
     zsh-autocomplete
     zsh-autosuggestions
     shrink-path
+
 )
 source $ZSH/oh-my-zsh.sh
 
@@ -28,3 +29,6 @@ fi
 
 # Alias definitions
 alias bat='batcat'
+
+# Add zoxide
+eval "$(zoxide init zsh)"
