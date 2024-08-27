@@ -28,7 +28,6 @@
         "memory",
         "swap",
         "battery",
-        "publicip",
         {
             "type": "localip",
             "showIpv6": true,

@@ -14,7 +14,7 @@
 > **NOTE:** Before using the settings, make sure to update the paths to the correct ones on your system, and install the required extensions!
 
 # Vim
-- `vimrc`: [vimrc](.vimrc)
+- `.vimrc`: [.vimrc](.vimrc)
 
 # Powershell
 -  `Microsoft.PowerShell_profile.ps1`: [Microsoft.PowerShell_profile.ps1](Microsoft.PowerShell_profile.ps1)
