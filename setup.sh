@@ -147,8 +147,12 @@ fi
 
 read -p "Do you want to install oh-my-zsh? ([y]es/[N]o): " installOhMyZsh
 if [[ $installOhMyZsh == "y" ]]; then
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-    echo -e "\e[32mOh-my-zsh installed successfully!!\e[0m"
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        echo -e "\e[32mOh-my-zsh installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mOh-my-zsh is already installed. Skipping installation...\e[0m"
+    fi
 else
     echo -e "\e[33mSkipping oh-my-zsh installation...\e[0m"
 fi
@@ -176,9 +180,9 @@ else
     echo -e "\e[33mSkipping zsh plugins installation...\e[0m"
 fi
 
+linuxConfigDir="$scriptRootDir/linux_config"
+windowsConfigDir="$scriptRootDir/windows_config"
 read -p "Do you want to copy the .zshrc & .vimrc files? ([y]es/[N]o): " copyConfigFiles
-$linuxConfigDir = "$scriptRootDir/linux_config"
-$windowsConfigDir = "$scriptRootDir/windows_config"
 if [[ $copyConfigFiles == "y" ]]; then
     cp "$linuxConfigDir/.zshrc" "$HOME/.zshrc"
     cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
