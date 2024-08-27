@@ -50,7 +50,11 @@ fi
 
 read -p "Do you want to add repositories for some packages? ([y]es/[N]o): " addRepos
 if [[ $addRepos == "y" ]]; then
-    sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
+    if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+        sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
+    else
+        echo -e "\e[33mRepository already added. Skipping...\e[0m"
+    fi
     echo -e "\e[32mRepositories added successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping adding repositories...\e[0m"
@@ -82,13 +86,18 @@ if [[ $installFonts == "y" ]]; then
     mkdir -p "$HOME/.local/share/fonts"
 
     for font in $allFonts; do
-        cp "$font" "$HOME/.local/share/fonts"
+        if [ ! -f "$HOME/.local/share/fonts/$(basename "$font")" ]; then
+            cp "$font" "$HOME/.local/share/fonts"
+        else
+            echo "Skipping copying $(basename "$font") as it already exists."
+        fi
     done
 
     # Update the font cache
     fc-cache -f -v
 
     echo -e "\e[32mFonts installed successfully!!\e[0m"
+fi
 else
     echo -e "\e[33mSkipping font installation...\e[0m"
 fi
