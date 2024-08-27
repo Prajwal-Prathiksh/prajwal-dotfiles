@@ -37,48 +37,24 @@ fi
 # Install curl if not already installed
 if ! command_exists curl; then
     sudo apt install -y curl
+    echo -e "\e[32mCurl installed successfully!!\e[0m"
 fi
 
 # Install Git if not already installed
 if ! command_exists git; then
     sudo apt install -y git
+    echo -e "\e[32mGit installed successfully!!\e[0m"
 fi
 
-aptPackages=(
-    "build-essential"
-    "zsh"
-    "htop"
-    "chafa"
-    "fd-find"
-    "ghostscript"
-    "hyperfine"
-    "imagemagick"
-    "jq"
-    "ripgrep"
-    "fzf"
-    "zoxide"
-    "bat"
-    "fastfetch"
-    "vim"
-    "unzip"
-)
+# Install font-config if not already installed
+if ! command_exists fc-cache; then
+    sudo apt install -y fontconfig
+    echo -e "\e[32mFont-config installed successfully!!\e[0m"
+fi
 
-
-# Rust Build
-# - yazi
-# - tokei
-
-# Install cht
-# PATH_DIR="$HOME/bin"  # or another directory on your $PATH
-# mkdir -p "$PATH_DIR"
-# curl https://cht.sh/:cht.sh > "$PATH_DIR/cht.sh"
-# chmod +x "$PATH_DIR/cht.sh"
-
-# Speedtest cli
-# curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
-# sudo apt-get install speedtest
-
-
+# Add repositories for some packages
+sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
+echo -e "\e[32mRepositories added successfully!!\e[0m"
 
 
 ######################################################
@@ -90,6 +66,7 @@ echo -e "\e[33m$border1$border1\e[0m"
 echo -e "\e[33mFONT INSTALLATION SECTION\e[0m"
 echo -e "\e[33m$border1$border1\e[0m"
 
+scriptRootDir=$(dirname "$(readlink -f "$0")")
 FontsFolder="$scriptRootDir/CascadiaCode"
 
 # Get all font files in the directory
@@ -120,12 +97,31 @@ else
     echo -e "\e[33mSkipping font installation...\e[0m"
 fi
 
-
 ######################################################
 ######################################################
 # PACKAGE INSTALL SECTION
 ######################################################
 ######################################################
+aptPackages=(
+    "build-essential"
+    "zsh"
+    "htop"
+    "chafa"
+    "fd-find"
+    "ghostscript"
+    "hyperfine"
+    "imagemagick"
+    "jq"
+    "ripgrep"
+    "fzf"
+    "zoxide"
+    "bat"
+    "fastfetch"
+    "vim"
+    "unzip"
+)
+
+
 echo -e "\e[33m$border1$border1\e[0m"
 echo -e "\e[33mPACKAGE INSTALLATION SECTION\e[0m"
 echo -e "\e[33m$border1$border1\e[0m"
@@ -157,12 +153,53 @@ else
     echo -e "\e[33mSkipping setting zsh as default shell...\e[0m"
 fi
 
-# Ask user to install oh-my-posh
-read -p "Do you want to install oh-my-posh? ([y]es/[N]o): " installOhMyPosh
-if [[ $installOhMyPosh == "y" ]]; then
-    # Install oh-my-posh
-    curl -s https://ohmyposh.dev/install.sh | bash -s
-    echo -e "\e[32mOh-my-posh installed successfully!!\e[0m"
+# Ask user to install oh-my-zsh
+read -p "Do you want to install oh-my-zsh? ([y]es/[N]o): " installOhMyZsh
+if [[ $installOhMyZsh == "y" ]]; then
+    # Install oh-my-zsh
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    echo -e "\e[32mOh-my-zsh installed successfully!!\e[0m"
 else
-    echo -e "\e[33mSkipping oh-my-posh installation...\e[0m"
+    echo -e "\e[33mSkipping oh-my-zsh installation...\e[0m"
 fi
+
+# Ask user to install zsh plugins
+declare -A zshPlugins=(
+    ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    ["zsh-autocomplete"]="https://github.com/marlonrichert/zsh-autocomplete"
+)
+
+echo -e "$border3$border3"
+echo ">>> (2) Zsh plugins:"
+for plugin in "${!zshPlugins[@]}"; do
+    echo "- $plugin"
+done
+echo -e "$border2"
+
+read -p "Do you want to install these zsh plugins? ([y]es/[N]o): " installZshPlugins
+
+if [[ $installZshPlugins == "y" ]]; then
+    # Install zsh plugins
+    for plugin in "${!zshPlugins[@]}"; do
+        git clone "${zshPlugins[$plugin]}" "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin"
+    done
+    echo -e "\e[32mZsh plugins installed successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping zsh plugins installation...\e[0m"
+fi
+
+
+
+# Rust Build
+# - yazi
+# - tokei
+
+# Install cht
+# PATH_DIR="$HOME/bin"  # or another directory on your $PATH
+# mkdir -p "$PATH_DIR"
+# curl https://cht.sh/:cht.sh > "$PATH_DIR/cht.sh"
+# chmod +x "$PATH_DIR/cht.sh"
+
+# Speedtest cli
+# curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
+# sudo apt-get install speedtest
