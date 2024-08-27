@@ -83,20 +83,19 @@ echo -e "$border3$border3"
 
 read -p "Do you want to install these fonts? ([y]es/[N]o): " installFonts
 if [[ $installFonts == "y" ]]; then
-    mkdir -p "$HOME/.local/share/fonts"
-
-    for font in $allFonts; do
-        if [ ! -f "$HOME/.local/share/fonts/$(basename "$font")" ]; then
+    if [ ! -d "$HOME/.local/share/fonts" ]; then
+        mkdir -p "$HOME/.local/share/fonts"
+        for font in $allFonts; do
             cp "$font" "$HOME/.local/share/fonts"
-        else
-            echo -e "\e[33mFont $(basename "$font") is already installed. Skipping...\e[0m"
-        fi
-    done
-
-    # Update the font cache
-    fc-cache -f -v
-
-    echo -e "\e[32mFonts installed successfully!!\e[0m"
+        done
+        
+        # Update the font cache
+        fc-cache -f -v
+        echo -e "\e[32mFonts installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mFonts directory already exists. Skipping font installation...\e[0m"
+        exit 0
+    fi
 else
     echo -e "\e[33mSkipping font installation...\e[0m"
 fi
