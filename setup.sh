@@ -50,7 +50,7 @@ fi
 
 read -p "Do you want to add repositories for some packages? ([y]es/[N]o): " addRepos
 if [[ $addRepos == "y" ]]; then
-    if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+    if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list /etc/apt/sources.list.d/* >/dev/null 2>&1; then
         sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
     else
         echo -e "\e[33mRepository already added. Skipping...\e[0m"
