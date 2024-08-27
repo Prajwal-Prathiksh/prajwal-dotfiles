@@ -173,7 +173,12 @@ echo -e "$border2"
 read -p "Do you want to install these zsh plugins? ([y]es/[N]o): " installZshPlugins
 if [[ $installZshPlugins == "y" ]]; then
     for plugin in "${!zshPlugins[@]}"; do
-        git clone "${zshPlugins[$plugin]}" "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin"
+        pluginDir="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin"
+        if [ ! -d "$pluginDir" ]; then
+            git clone "${zshPlugins[$plugin]}" "$pluginDir"
+        else
+            echo "Skipping cloning $plugin as it already exists."
+        fi
     done
     echo -e "\e[32mZsh plugins installed successfully!!\e[0m"
 else
