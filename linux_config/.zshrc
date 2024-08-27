@@ -23,3 +23,6 @@ if [[ -n $SSH_CONNECTION ]]; then
 else
     export EDITOR='vim'
 fi
+
+# Alias definitions
+alias bat='batcat'
