@@ -15,6 +15,7 @@ plugins=(
     zsh-syntax-highlighting
     zsh-autocomplete
     zsh-autosuggestions
+    shrink-path
 )
 source $ZSH/oh-my-zsh.sh
 
