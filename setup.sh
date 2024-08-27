@@ -49,7 +49,7 @@ if ! command_exists fc-cache; then
 fi
 
 read -p "Do you want to add repositories for some packages? ([y]es/[N]o): " addRepos
-if [[ $addRepos == 'y;']]; then
+if [[ $addRepos == "y" ]]; then
     sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
     echo -e "\e[32mRepositories added successfully!!\e[0m"
 else
