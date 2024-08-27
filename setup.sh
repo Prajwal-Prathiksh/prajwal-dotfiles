@@ -89,7 +89,7 @@ if [[ $installFonts == "y" ]]; then
         if [ ! -f "$HOME/.local/share/fonts/$(basename "$font")" ]; then
             cp "$font" "$HOME/.local/share/fonts"
         else
-            echo "Skipping copying $(basename "$font") as it already exists."
+            echo -e "\e[33mFont $(basename "$font") is already installed. Skipping...\e[0m"
         fi
     done
 
@@ -97,7 +97,6 @@ if [[ $installFonts == "y" ]]; then
     fc-cache -f -v
 
     echo -e "\e[32mFonts installed successfully!!\e[0m"
-fi
 else
     echo -e "\e[33mSkipping font installation...\e[0m"
 fi
