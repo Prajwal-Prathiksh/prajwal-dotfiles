@@ -121,6 +121,7 @@ aptPackages=(
     "fastfetch"
     "vim"
     "unzip"
+    "dos2unix"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
@@ -196,7 +197,9 @@ windowsConfigDir="$scriptRootDir/windows_config"
 read -p "Do you want to copy the .zshrc & .vimrc files? ([y]es/[N]o): " copyConfigFiles
 if [[ $copyConfigFiles == "y" ]]; then
     cp "$linuxConfigDir/.zshrc" "$HOME/.zshrc"
+    dos2unix "$HOME/.zshrc"
     cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
+    dos2unix "$HOME/.vimrc"
     echo -e "\e[32m.zshrc and .vimrc files copied successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
