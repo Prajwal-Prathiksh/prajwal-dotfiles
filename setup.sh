@@ -164,68 +164,6 @@ else
     echo -e "\e[33mSkipping package installation...\e[0m"
 fi
 
-read -p "Do you want to set zsh as default shell? ([y]es/[N]o): " setZsh
-if [[ $setZsh == "y" ]]; then
-    chsh -s "$(which zsh)"
-    echo -e "\e[32mZsh set as default shell successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping setting zsh as default shell...\e[0m"
-fi
-
-read -p "Do you want to install oh-my-zsh? ([y]es/[N]o): " installOhMyZsh
-if [[ $installOhMyZsh == "y" ]]; then
-    if [ ! -d "$HOME/.oh-my-zsh" ]; then
-        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-        echo -e "\e[32mOh-my-zsh installed successfully!!\e[0m"
-    else
-        echo -e "\e[33mOh-my-zsh is already installed. Skipping installation...\e[0m"
-    fi
-else
-    echo -e "\e[33mSkipping oh-my-zsh installation...\e[0m"
-fi
-
-declare -A zshPlugins=(
-    ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
-    ["zsh-autocomplete"]="https://github.com/marlonrichert/zsh-autocomplete"
-    ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
-)
-
-echo -e "$border3$border3"
-echo ">>> (2) Zsh plugins:"
-for plugin in "${!zshPlugins[@]}"; do
-    echo "- $plugin"
-done
-echo -e "$border2"
-
-read -p "Do you want to install these zsh plugins? ([y]es/[N]o): " installZshPlugins
-if [[ $installZshPlugins == "y" ]]; then
-    for plugin in "${!zshPlugins[@]}"; do
-        pluginDir="$HOME/.oh-my-zsh/custom/plugins/$plugin"
-        if [ ! -d "$pluginDir" ]; then
-            git clone "${zshPlugins[$plugin]}" "$pluginDir"
-        else
-            echo "Skipping cloning $plugin as it already exists."
-        fi
-    done
-    echo -e "\e[32mZsh plugins installed successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping zsh plugins installation...\e[0m"
-fi
-
-linuxConfigDir="$scriptRootDir/linux_config"
-windowsConfigDir="$scriptRootDir/windows_config"
-read -p "Do you want to copy the .zshrc & .vimrc files? ([y]es/[N]o): " copyConfigFiles
-if [[ $copyConfigFiles == "y" ]]; then
-    cp "$linuxConfigDir/.zshrc" "$HOME/.zshrc"
-    dos2unix "$HOME/.zshrc"
-    cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
-    dos2unix "$HOME/.vimrc"
-    source "$HOME/.zshrc"
-    echo -e "\e[32m.zshrc and .vimrc files copied successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
-fi
-
 read -p "Do you want to install GitHub CLI? ([y]es/[N]o): " installGitHubCLI
 if [[ $installGitHubCLI == "y" ]]; then
     if ! command_exists gh; then
@@ -306,6 +244,74 @@ if [[ $installTokeiYazi == "y" ]]; then
     fi
 else
     echo -e "\e[33mSkipping Tokei & Yazi installation...\e[0m"
+fi
+
+
+######################################################
+######################################################
+# ZSH CONFIG SECTION
+######################################################
+######################################################
+read -p "Do you want to set zsh as default shell? ([y]es/[N]o): " setZsh
+if [[ $setZsh == "y" ]]; then
+    chsh -s "$(which zsh)"
+    echo -e "\e[32mZsh set as default shell successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping setting zsh as default shell...\e[0m"
+fi
+
+read -p "Do you want to install oh-my-zsh? ([y]es/[N]o): " installOhMyZsh
+if [[ $installOhMyZsh == "y" ]]; then
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        echo -e "\e[32mOh-my-zsh installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mOh-my-zsh is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping oh-my-zsh installation...\e[0m"
+fi
+
+declare -A zshPlugins=(
+    ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    ["zsh-autocomplete"]="https://github.com/marlonrichert/zsh-autocomplete"
+    ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
+)
+
+echo -e "$border3$border3"
+echo ">>> (2) Zsh plugins:"
+for plugin in "${!zshPlugins[@]}"; do
+    echo "- $plugin"
+done
+echo -e "$border2"
+
+read -p "Do you want to install these zsh plugins? ([y]es/[N]o): " installZshPlugins
+if [[ $installZshPlugins == "y" ]]; then
+    for plugin in "${!zshPlugins[@]}"; do
+        pluginDir="$HOME/.oh-my-zsh/custom/plugins/$plugin"
+        if [ ! -d "$pluginDir" ]; then
+            git clone "${zshPlugins[$plugin]}" "$pluginDir"
+        else
+            echo "Skipping cloning $plugin as it already exists."
+        fi
+    done
+    echo -e "\e[32mZsh plugins installed successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping zsh plugins installation...\e[0m"
+fi
+
+linuxConfigDir="$scriptRootDir/linux_config"
+windowsConfigDir="$scriptRootDir/windows_config"
+read -p "Do you want to copy the .zshrc & .vimrc files? ([y]es/[N]o): " copyConfigFiles
+if [[ $copyConfigFiles == "y" ]]; then
+    cp "$linuxConfigDir/.zshrc" "$HOME/.zshrc"
+    dos2unix "$HOME/.zshrc"
+    cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
+    dos2unix "$HOME/.vimrc"
+    source "$HOME/.zshrc"
+    echo -e "\e[32m.zshrc and .vimrc files copied successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
 fi
 
 
