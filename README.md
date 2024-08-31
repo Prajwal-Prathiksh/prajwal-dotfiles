@@ -7,14 +7,16 @@ Repository of all the customizations I have made to my Windows and Linux systems
   - [Table of Contents](#table-of-contents)
   - [Windows](#windows)
     - [Automated Setup](#automated-setup)
+    - [TODOs](#todos)
   - [Linux (Ubuntu only)](#linux-ubuntu-only)
     - [Automated Setup](#automated-setup-1)
+    - [TODOs](#todos-1)
 
 
 ## Windows
 - All of the `dotfiles`  can be found in the `./windows_config` directory.
 - Refer to the [`windows_config/README.md`](windows_config/README.md) file for more details.
-> The `Setup.ps1` script is more or less stable. Run it to setup the configurations on a Windows system 🚀.
+> The `Setup.ps1` script is still a work in progress. Run it only if you know what you are doing 🚧.
 
 ### Automated Setup
 To run the setup script:
@@ -30,17 +32,28 @@ To run the setup script:
 # ----
 # C:\...\prajwal-dotfiles
 ```
-5. Run the following command to execute the setup script:
+1. Run the following command to execute the setup script:
 ```powershell
 > .\Setup.ps1
 ```
-6. Follow the on-screen instructions to complete the setup.
+1. Follow the on-screen instructions to complete the setup.
+
+
+### TODOs
+- [ ] Add custom config for `bat`
+- [ ] Add automated setup for windows terminal settings
+- [ ] (Optional) Add battery full notification for laptops
+- [ ] Add WSL installation and setup
+- [ ] Use scoop aria2 for faster downloads
+- [ ] Add option to install all packages at once as well
+- [ ] Add Glaze installation option
+- [ ] Add message here asking user to restart the shell or do it automatically
 
 
 ## Linux (Ubuntu only)
 - All of the `dotfiles`  can be found in the `./linux_config` directory.
 - Refer to the [`linux_config/README.md`](linux_config/README.md) file for more details.
-> The `setup.sh` script is still a work in progress. Run it at your own risk for now 😲.
+> The `setup.sh` script is more or less stable. Run it to setup the configurations on your WSL system 🚀.
 
 ### Automated Setup
 To run the setup script:
@@ -63,3 +76,9 @@ $ chmod +x setup.sh
 $ ./setup.sh
 ```
 7. Follow the on-screen instructions to complete the setup.
+
+
+### TODOs
+- [ ] Add similar custom keybindings for `zsh` as those created for `PowerShell`
+- [ ] Add custom config for `bat`
+
