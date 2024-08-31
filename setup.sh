@@ -184,10 +184,7 @@ fi
 read -p "Do you want to install Cheat.sh? ([y]es/[N]o): " installCheatSh
 if [[ $installCheatSh == "y" ]]; then
     if ! command_exists cht.sh; then
-        PATH_DIR="$HOME/bin"  # or another directory on your $PATH
-        mkdir -p "$PATH_DIR"
-        curl https://cht.sh/:cht.sh > "$PATH_DIR/cht.sh"
-        chmod +x "$PATH_DIR/cht.sh"
+        curl -s https://cht.sh/:cht.sh | sudo tee /usr/local/bin/cht.sh && sudo chmod +x /usr/local/bin/cht.sh
         echo -e "\e[32mCheat.sh installed successfully!!\e[0m"
     else
         echo -e "\e[33mCheat.sh is already installed. Skipping installation...\e[0m"
