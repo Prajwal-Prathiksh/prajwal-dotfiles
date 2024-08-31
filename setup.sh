@@ -142,6 +142,7 @@ aptPackages=(
     "btop"
     "cmatrix"
     "speedtest"
+    "7zip"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
