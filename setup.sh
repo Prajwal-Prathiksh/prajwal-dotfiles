@@ -214,7 +214,6 @@ if [[ $installMiniconda == "y" ]]; then
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
         bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
         rm ~/miniconda3/miniconda.sh
-        ~/miniconda3/bin/conda init zsh
         source "$HOME/.zshrc"
         echo -e "\e[32mMiniconda installed successfully!!\e[0m"
     else
@@ -222,6 +221,14 @@ if [[ $installMiniconda == "y" ]]; then
     fi
 else
     echo -e "\e[33mSkipping Miniconda installation...\e[0m"
+fi
+read -p "Do you want to initialize Miniconda? ([y]es/[N]o): " initMiniconda
+if [[ $initMiniconda == "y" ]]; then
+    ~/miniconda3/bin/conda init zsh
+    source "$HOME/.zshrc"
+    echo -e "\e[32mMiniconda initialized successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping Miniconda initialization...\e[0m"
 fi
 
 read -p "Do you want to install Tokei & Yazi? ([y]es/[N]o): " installTokeiYazi
