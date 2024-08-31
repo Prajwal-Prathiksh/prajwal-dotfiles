@@ -313,6 +313,37 @@ fi
 
 ######################################################
 ######################################################
+# CUSTOM CONFIG SECTION
+######################################################
+######################################################
+read -p "Do you want to setup custom Yazi config? ([y]es/[N]o): " setupYazi
+if [[ $setupYazi == "y" ]]; then
+    yaziConfigDir="$HOME/.config/yazi"
+    if [ ! -d "$yaziConfigDir" ]; then
+        mkdir -p "$yaziConfigDir"
+    fi
+    customYaziConfig="$scriptRootDir/yazi_config"
+    # copy everything from yazi_config to ~/.config/yazi recursively while maintaining the directory structure
+    cp -r "$customYaziConfig/." "$yaziConfigDir"
+    echo -e "\e[32mYazi config setup successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping Yazi config setup...\e[0m"
+fi
+
+read -p "Do you want to setup custom fastfetch config? ([y]es/[N]o): " setupFastfetch
+if [[ $setupFastfetch == "y" ]]; then
+    fromFastfetch="$scriptRootDir/windows_config/fastfetch_custom.jsonc"
+    toFastfetch="/usr/share/fastfetch/presets/custom.jsonc"
+    sudo cp "$fromFastfetch" "$toFastfetch"
+    echo -e "\e[32mFastfetch config setup successfully!!\e[0m"
+else
+    echo -e "\e[33mSkipping Fastfetch config setup...\e[0m"
+fi
+
+
+
+######################################################
+######################################################
 # BYE BYE SECTION
 ######################################################
 ######################################################
