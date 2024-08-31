@@ -34,5 +34,3 @@ alias bat='batcat'
 eval "$(zoxide init zsh)"
 
 fastfetch -c custom
-
-# TODO: Feature parity with powershell aliases

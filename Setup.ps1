@@ -189,8 +189,6 @@ Write-Host "(Default: Continue to next section)"
 
 $choice = Read-Host "Enter your choice (1-5):"
 
-# TODO: Add option to install all packages at once as well
-# TODO: Add Glaze installation option
 
 switch ($choice) {
     1 {
@@ -229,8 +227,6 @@ switch ($choice) {
         Write-Host "Continuing to next section..." -ForegroundColor White
     }
 }
-
-# TODO: Add message here asking user to restart the shell or do it automatically
 
 
 ######################################################
@@ -550,8 +546,3 @@ Write-Host "Bye Bye!!" -ForegroundColor Green
 Write-Host "$border1$border1" -ForegroundColor White
 
 
-# TODO: Add custom config for `bat`
-# TODO: Add automated setup for windows terminal settings
-# TODO: (Optional) Add battery full notification for laptops
-# TODO: Add WSL installation and setup
-# TODO: Use scoop instead of winget where possible for installation of apps (Ref: aria2)
