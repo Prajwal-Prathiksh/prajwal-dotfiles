@@ -216,21 +216,12 @@ if [[ $installMiniconda == "y" ]]; then
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
         bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
         rm ~/miniconda3/miniconda.sh
-        source "$HOME/.zshrc"
         echo -e "\e[32mMiniconda installed successfully!!\e[0m"
     else
         echo -e "\e[33mMiniconda is already installed. Skipping installation...\e[0m"
     fi
 else
     echo -e "\e[33mSkipping Miniconda installation...\e[0m"
-fi
-read -p "Do you want to initialize Miniconda? ([y]es/[N]o): " initMiniconda
-if [[ $initMiniconda == "y" ]]; then
-    ~/miniconda3/bin/conda init zsh
-    source "$HOME/.zshrc"
-    echo -e "\e[32mMiniconda initialized successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping Miniconda initialization...\e[0m"
 fi
 
 read -p "Do you want to install Tokei & Yazi? ([y]es/[N]o): " installTokeiYazi
@@ -314,7 +305,6 @@ if [[ $copyConfigFiles == "y" ]]; then
     dos2unix "$HOME/.zshrc"
     cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
     dos2unix "$HOME/.vimrc"
-    source "$HOME/.zshrc"
     echo -e "\e[32m.zshrc and .vimrc files copied successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
