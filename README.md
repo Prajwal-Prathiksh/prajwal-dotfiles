@@ -41,13 +41,14 @@ To run the setup script:
 
 ### TODOs
 - [ ] Add custom config for `bat`
-- [ ] Add automated setup for windows terminal settings
+- [ ] Add automated setup for `windows terminal` settings
 - [ ] (Optional) Add battery full notification for laptops
 - [ ] Add WSL installation and setup
 - [ ] Use scoop aria2 for faster downloads
 - [ ] Add option to install all packages at once as well
 - [ ] Add Glaze installation option
-- [ ] Add message here asking user to restart the shell or do it automatically
+- [ ] Add a prompt asking the user to restart the shell or to do it automatically at the end of certain sections
+- [ ] Update `git config` to use `delta` for `diff`
 
 
 ## Linux (Ubuntu only)
