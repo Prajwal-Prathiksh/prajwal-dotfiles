@@ -26,25 +26,42 @@ echo -e "\e[33m$border1$border1\e[0m"
 
 read -p "Do you want to update and upgrade all packages? ([y]es/[N]o): " updateUpgrade
 if [[ $updateUpgrade == "y" ]]; then
-    sudo apt update && sudo apt upgrade -y
+    if command_exists nala; then
+        sudo nala update && sudo nala upgrade -y
+    else
+        sudo apt update && sudo apt upgrade -y
+    fi
     echo -e "\e[32mPackages updated and upgraded successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping update and upgrade...\e[0m"
 fi
 
 
+read -p "Do you want to install nala? ([y]es/[N]o): " installNala
+if [[ $installNala == "y" ]]; then
+    if ! command_exists nala; then
+        sudo apt install -y nala
+        sudo nala fetch
+        echo -e "\e[32mNala installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mNala is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping nala installation...\e[0m"
+fi
+
 if ! command_exists curl; then
-    sudo apt install -y curl
+    sudo nala install -y curl
     echo -e "\e[32mCurl installed successfully!!\e[0m"
 fi
 
 if ! command_exists git; then
-    sudo apt install -y git
+    sudo nala install -y git
     echo -e "\e[32mGit installed successfully!!\e[0m"
 fi
 
 if ! command_exists fc-cache; then
-    sudo apt install -y fontconfig
+    sudo nala install -y fontconfig
     echo -e "\e[32mFont-config installed successfully!!\e[0m"
 fi
 
@@ -55,11 +72,11 @@ if [[ $addRepos == "y" ]]; then
     else
         echo -e "\e[33mRepository already added. Skipping...\e[0m"
     fi
+    curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
     echo -e "\e[32mRepositories added successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping adding repositories...\e[0m"
 fi
-
 
 ######################################################
 ######################################################
@@ -122,6 +139,9 @@ aptPackages=(
     "vim"
     "unzip"
     "dos2unix"
+    "btop"
+    "cmatrix"
+    "speedtest"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
@@ -138,7 +158,7 @@ echo -e "$border2"
 
 read -p "Do you want to install these packages? ([y]es/[N]o): " installPackages
 if [[ $installPackages == "y" ]]; then
-    sudo apt install -y "${aptPackages[@]}"
+    sudo nala install -y "${aptPackages[@]}"
     echo -e "\e[32mApt packages installed successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping package installation...\e[0m"
@@ -200,26 +220,101 @@ if [[ $copyConfigFiles == "y" ]]; then
     dos2unix "$HOME/.zshrc"
     cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
     dos2unix "$HOME/.vimrc"
+    source "$HOME/.zshrc"
     echo -e "\e[32m.zshrc and .vimrc files copied successfully!!\e[0m"
 else
     echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
 fi
 
-# TODO: Add the following packages
-# Rust Build
-# - yazi
-# - tokei
+read -p "Do you want to install GitHub CLI? ([y]es/[N]o): " installGitHubCLI
+if [[ $installGitHubCLI == "y" ]]; then
+    if ! command_exists gh; then
+    sudo mkdir -p -m 755 /etc/apt/keyrings \
+    && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+    && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && sudo nala update \
+    && sudo nala install gh -y
+        echo -e "\e[32mGitHub CLI installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mGitHub CLI is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping GitHub CLI installation...\e[0m"
+fi
 
-# Install cht
-# PATH_DIR="$HOME/bin"  # or another directory on your $PATH
-# mkdir -p "$PATH_DIR"
-# curl https://cht.sh/:cht.sh > "$PATH_DIR/cht.sh"
-# chmod +x "$PATH_DIR/cht.sh"
+read -p "Do you want to install Cheat.sh? ([y]es/[N]o): " installCheatSh
+if [[ $installCheatSh == "y" ]]; then
+    if ! command_exists cht.sh; then
+        PATH_DIR="$HOME/bin"  # or another directory on your $PATH
+        mkdir -p "$PATH_DIR"
+        curl https://cht.sh/:cht.sh > "$PATH_DIR/cht.sh"
+        chmod +x "$PATH_DIR/cht.sh"
+        echo -e "\e[32mCheat.sh installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mCheat.sh is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping Cheat.sh installation...\e[0m"
+fi
 
-# Speedtest cli
-# curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
-# sudo apt-get install speedtest
+read -p "Do you want to install Rust? ([y]es/[N]o): " installRust
+if [[ $installRust == "y" ]]; then
+    if ! command_exists rustup; then
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        source "$HOME/.cargo/env"
+        rustup update
+        echo -e "\e[32mRust installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mRust is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping Rust installation...\e[0m"
+fi
 
-# Github CLI
-# Rust
-# Miniconda
+read -p "Do you want to install Miniconda? ([y]es/[N]o): " installMiniconda
+if [[ $installMiniconda == "y" ]]; then
+    if ! command_exists conda; then
+        mkdir -p ~/miniconda3
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+        bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+        rm ~/miniconda3/miniconda.sh
+        ~/miniconda3/bin/conda init zsh
+        source "$HOME/.zshrc"
+        echo -e "\e[32mMiniconda installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mMiniconda is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping Miniconda installation...\e[0m"
+fi
+
+read -p "Do you want to install Tokei & Yazi? ([y]es/[N]o): " installTokeiYazi
+if [[ $installTokeiYazi == "y" ]]; then
+    if ! command_exists tokei; then
+        cargo install tokei
+        echo -e "\e[32mTokei installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mTokei are already installed. Skipping installation...\e[0m"
+    fi
+
+    if ! command_exists yazi; then
+        cargo install --locked yazi-fm yazi-cli
+        echo -e "\e[32mYazi installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mYazi is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping Tokei & Yazi installation...\e[0m"
+fi
+
+
+######################################################
+######################################################
+# BYE BYE SECTION
+######################################################
+######################################################
+echo -e "\e[33m$border1$border1\e[0m"
+echo -e "\e[33mSETUP COMPLETED SUCCESSFULLY!!\e[0m"
+echo -e "\e[33mBye Bye!!\e[0m"
+echo -e "\e[33m$border1$border1\e[0m"
