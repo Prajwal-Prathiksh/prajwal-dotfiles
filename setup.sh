@@ -299,15 +299,22 @@ fi
 
 linuxConfigDir="$scriptRootDir/linux_config"
 windowsConfigDir="$scriptRootDir/windows_config"
-read -p "Do you want to copy the .zshrc & .vimrc files? ([y]es/[N]o): " copyConfigFiles
-if [[ $copyConfigFiles == "y" ]]; then
+read -p "Do you want to copy the .zshrc & .vimrc files? ([Y]es/[n]o): " copyConfigFiles
+if [[ $copyConfigFiles == "n" ]]; then
+    echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
+else
     cp "$linuxConfigDir/.zshrc" "$HOME/.zshrc"
     dos2unix "$HOME/.zshrc"
+
+    # check if ~/miniconda3/bin/conda exists
+    if [ -f "$HOME/miniconda3/bin/conda" ]; then
+        ~/miniconda3/bin/conda init zsh
+    fi
+
+
     cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
     dos2unix "$HOME/.vimrc"
     echo -e "\e[32m.zshrc and .vimrc files copied successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
 fi
 
 
@@ -316,8 +323,10 @@ fi
 # CUSTOM CONFIG SECTION
 ######################################################
 ######################################################
-read -p "Do you want to setup custom Yazi config? ([y]es/[N]o): " setupYazi
-if [[ $setupYazi == "y" ]]; then
+read -p "Do you want to setup custom Yazi config? ([Y]es/[n]o): " setupYazi
+if [[ $setupYazi == "n" ]]; then
+    echo -e "\e[33mSkipping Yazi config setup...\e[0m"
+else
     yaziConfigDir="$HOME/.config/yazi"
     if [ ! -d "$yaziConfigDir" ]; then
         mkdir -p "$yaziConfigDir"
@@ -326,18 +335,16 @@ if [[ $setupYazi == "y" ]]; then
     # copy everything from yazi_config to ~/.config/yazi recursively while maintaining the directory structure
     cp -r "$customYaziConfig/." "$yaziConfigDir"
     echo -e "\e[32mYazi config setup successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping Yazi config setup...\e[0m"
 fi
 
-read -p "Do you want to setup custom fastfetch config? ([y]es/[N]o): " setupFastfetch
-if [[ $setupFastfetch == "y" ]]; then
+read -p "Do you want to setup custom fastfetch config? ([Y]es/[n]o): " setupFastfetch
+if [[ $setupFastfetch == "n" ]]; then
+    echo -e "\e[33mSkipping Fastfetch config setup...\e[0m"
+else
     fromFastfetch="$scriptRootDir/windows_config/fastfetch_custom.jsonc"
     toFastfetch="/usr/share/fastfetch/presets/custom.jsonc"
     sudo cp "$fromFastfetch" "$toFastfetch"
     echo -e "\e[32mFastfetch config setup successfully!!\e[0m"
-else
-    echo -e "\e[33mSkipping Fastfetch config setup...\e[0m"
 fi
 
 
