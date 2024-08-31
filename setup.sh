@@ -143,6 +143,7 @@ aptPackages=(
     "cmatrix"
     "speedtest"
     "7zip"
+    "rlwrap"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
