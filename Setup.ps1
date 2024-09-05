@@ -58,7 +58,8 @@ $scoopPackages = @(
     "fastfetch",
     "vim",
     "oh-my-posh",
-    "speedtest-cli"
+    "speedtest-cli",
+    "lua"
 )
 $wingetRegularPackages = @(
     "LocalSend.LocalSend",
