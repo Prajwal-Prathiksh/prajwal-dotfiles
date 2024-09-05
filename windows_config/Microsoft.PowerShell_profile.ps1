@@ -138,6 +138,23 @@ This function does not accept any parameters.
     Remove-Item -Path $tmp
 }
 
+function lazyg ($commitMessage) {
+<#
+.SYNOPSIS
+Lazy Git: Adds all files, commits with a message, and pushes to the current branch.
+
+.DESCRIPTION
+The lazyg function adds all files, commits with a message, and pushes to the current branch in Git.
+
+.PARAMETER commitMessage
+The commitMessage parameter specifies the message to use for the commit.
+
+#>
+    git add .
+    git commit -m $commitMessage
+    git push origin $(git rev-parse --abbrev-ref HEAD)
+}
+
 ### Linux-like Commands
 function touch($file) {
 <#
