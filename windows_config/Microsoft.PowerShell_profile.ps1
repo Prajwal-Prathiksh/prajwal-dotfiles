@@ -19,7 +19,6 @@ Set-PSReadLineOption -PredictionViewStyle ListView
 Import-Module Terminal-Icons
 Import-Module PowerColorLS
 Set-Alias -Name ls -Value PowerColorLS -Option AllScope
-# Import-VisualStudioEnvironment
 
 
 # =============================================================================
@@ -28,13 +27,13 @@ Set-Alias -Name ls -Value PowerColorLS -Option AllScope
 #
 
 ## Custom Functions
-function Import-Conda ($envName) {
+function Activate-Conda ($envName) {
 <#
 .SYNOPSIS
 Imports the conda environment and activates it.
 
 .DESCRIPTION
-The Import-Conda function imports the conda environment and activates it. It also initializes Oh My Posh with a custom configuration file, and activates the conda environment if the environment name is provided.
+The Activate-Conda function imports the conda environment and activates it. It also initializes Oh My Posh with a custom configuration file, and activates the conda environment if the environment name is provided.
 
 .PARAMETER envName
 The envName parameter specifies the name of the conda environment to activate.
@@ -54,6 +53,59 @@ The envName parameter specifies the name of the conda environment to activate.
         Write-Host "Conda environment '$envName' activated." -ForegroundColor Green
     }
     Write-Host ""
+}
+
+function Activate-Node {
+<#
+.SYNOPSIS
+Imports the Node.js environment and activates it.
+
+.DESCRIPTION
+The Activate-Node function activates the Node.js environment by adding the Node.js environment variables to the PATH environment variable.
+
+.PARAMETER None
+This function does not accept any parameters.
+
+#>
+    fnm env --use-on-cd | Out-String | Invoke-Expression
+    Write-Host "Node.js environment activated." -ForegroundColor Green
+}
+
+function Activate-VisualStudioEnvironment {
+<#
+.SYNOPSIS
+Imports the Visual Studio environment and activates it.
+
+.DESCRIPTION
+The Activate-VisualStudioEnvironment function imports the Visual Studio environment by adding the Visual Studio environment variables to the PATH, INCLUDE, and LIB environment variables.
+
+.PARAMETER None
+This function does not accept any parameters.
+#>
+
+    $ENV:PATH += "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\bin\HostX64\x64;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VC\VCPackages;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer;C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\bin\Roslyn;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\x64\;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\FSharp\Tools;C:\Program Files\Microsoft Visual Studio\2022\Community\Team Tools\DiagnosticsHub\Collector;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\\x64;C:\Program Files (x86)\Windows Kits\10\bin\\x64;C:\Program Files\Microsoft Visual Studio\2022\Community\\MSBuild\Current\Bin\amd64;C:\Windows\Microsoft.NET\Framework64\v4.0.30319;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\;C:\Program Files\dotnet\;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VC\Linux\bin\ConnectionManagerExe;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\vcpkg"
+
+    $ENV:INCLUDE = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\ATLMFC\include;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include;C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\um;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\shared;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\winrt;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\cppwinrt;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\ATLMFC\include;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\VS\include;C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\um;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\shared;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\winrt;C:\Program Files (x86)\Windows Kits\10\\include\10.0.22621.0\\cppwinrt;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"
+
+    $ENV:LIB = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\ATLMFC\lib\x64;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\lib\x64;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x64;C:\Program Files (x86)\Windows Kits\10\lib\10.0.22621.0\ucrt\x64;C:\Program Files (x86)\Windows Kits\10\\lib\10.0.22621.0\\um\x64;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\ATLMFC\lib\x64;C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\lib\x64;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x64;C:\Program Files (x86)\Windows Kits\10\lib\10.0.22621.0\ucrt\x64;C:\Program Files (x86)\Windows Kits\10\\lib\10.0.22621.0\\um\x64"
+    
+    Write-Host "Visual Studio environment activated." -ForegroundColor Green
+}
+
+function Activate-DevEnv {
+<#
+.SYNOPSIS
+Activates the development environment (Conda, Node.js, and Visual Studio).
+
+.DESCRIPTION
+The Import-DevEnv function activates the development environment by importing the Conda environment, activating the Node.js environment, and importing the Visual Studio environment.
+
+.PARAMETER None
+This function does not accept any parameters.
+#>
+    Activate-Conda
+    Activate-Node
+    Activate-VisualStudioEnvironment
 }
 
 function Edit-Profile {
@@ -511,13 +563,20 @@ Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
 
 # =============================================================================
 #
-# Setup Keybindings for Cheatsheets
+# Setup Keybindings for Cheatsheets & Neovim
 #
 
-# SET KEYBOARD SHORTCUTS TO CALL CHEAT
+# SET KEYBOARD SHORTCUT TO CALL CHEAT
 Set-PSReadLineKeyHandler -Key "Ctrl+t" -ScriptBlock {
   [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
   [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA ")
+}
+
+# SET KEYBOARD SHORTCUT TO OPEN NEOVIM IN THE CURRENT DIRECTORY
+Set-PSReadLineKeyHandler -Key "Ctrl+n" -ScriptBlock {
+  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("nvim .")
+  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
 
 
@@ -548,8 +607,10 @@ This function does not accept any parameters.
         $border1,
         "Developer Profiles",
         $border1,
-        "Import-Conda : Imports the conda environment and activates it (conda).",
-        "Import-VisualStudioEnvironment : Imports the Visual Studio environment (cl).",
+        "Activate-Conda : Imports the conda environment and activates it.",
+        "Activate-Node : Imports the Node.js environment and activates it.",
+        "Activate-VisualStudioEnvironment : Imports the Visual Studio environment and activates it.",
+        "Activate-DevEnv : Activates the development environment (Conda, Node.js, and Visual Studio).",
         "",
         $border1,
         "Keybindings for PowerShell",
@@ -559,6 +620,7 @@ This function does not accept any parameters.
         "<Ctrl+f> - fdg : Find files interactively using fd and fzf.",
         "<Ctrl+g> - rgg : Find patterns in files interactively using rg and fzf.",
         "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
+        "<Ctrl+n> - nvim . : Open Neovim in the current directory.",
         "",
         $border1,
         "Keybindings for fzf",
