@@ -492,7 +492,7 @@ Write-Host "$border1$border1" -ForegroundColor Yellow
 
 
 # echo that Terminal-Icons, PSReadLine, and PSFzf are being installed
-$modulesToInstall = @("Terminal-Icons", "PowerColorLS", "posh-vs")
+$modulesToInstall = @("Terminal-Icons", "PowerColorLS")
 Write-Host "Following modules will be installed:"
 foreach ($module in $modulesToInstall) {
     Write-Host "- $module"
@@ -519,15 +519,6 @@ else {
     }
     else {
         Write-Host "PowerColorLS already installed." -ForegroundColor White
-    }
-
-    if (-not (Get-Module -ListAvailable -Name posh-vs)) {
-        # https://github.com/olegsych/posh-vs
-        Install-Module posh-vs -Scope CurrentUser
-        Write-Host "posh-vs installed successfully." -ForegroundColor Green
-    }
-    else {
-        Write-Host "posh-vs already installed." -ForegroundColor White
     }
 
     Write-Host "Modules installed successfully." -ForegroundColor Green
