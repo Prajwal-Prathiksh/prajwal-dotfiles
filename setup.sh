@@ -74,6 +74,12 @@ if [[ $addRepos == "y" ]]; then
     fi
     curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
     echo -e "\e[32mRepositories added successfully!!\e[0m"
+
+    if ! grep -q "ytvwld/asciiquarium" /etc/apt/sources.list /etc/apt/sources.list.d/* >/dev/null 2>&1; then
+        sudo add-apt-repository ppa:ytvwld/asciiquarium -y
+    else
+        echo -e "\e[33mRepository already added. Skipping...\e[0m"
+    fi
 else
     echo -e "\e[33mSkipping adding repositories...\e[0m"
 fi
@@ -145,6 +151,7 @@ aptPackages=(
     "7zip"
     "rlwrap"
     "lua5.4"
+    "asciiquarium"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
