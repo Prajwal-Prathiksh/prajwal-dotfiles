@@ -4,7 +4,7 @@
 #
 
 # Run Fastfetch with custom configuration
-fastfetch --config custom
+# fastfetch --config custom
 
 # Run Oh My Posh with custom configuration
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
@@ -52,7 +52,6 @@ The envName parameter specifies the name of the conda environment to activate.
         conda activate $envName
         Write-Host "Conda environment '$envName' activated." -ForegroundColor Green
     }
-    Write-Host ""
 }
 
 function Activate-Node {
@@ -686,3 +685,10 @@ Set-PSReadLineKeyHandler -Key "F1" -ScriptBlock {
     [Microsoft.PowerShell.PSConsoleReadLine]::Insert("Show-Help")
     [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
+
+
+
+# =============================================================================
+# START UP FUNCTIONS
+#
+Activate-DevEnv
