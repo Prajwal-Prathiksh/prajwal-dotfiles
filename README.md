@@ -81,5 +81,5 @@ $ ./setup.sh
 
 ### TODOs
 - [ ] Add similar custom keybindings for `zsh` as those created for `PowerShell`
-- [ ] Add custom config for `bat`
+- [x] Add custom config for `bat`
 
