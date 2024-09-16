@@ -384,7 +384,7 @@ $newPaths = @(
 
 # Define environment variables to update for installed packages
 $newEnvironmentVariables = @{
-    "EDITOR" = "vim"
+    "EDITOR" = "nvim"
     "SHELL" = "pwsh"
     "YAZI_FILE_ONE" = $fileOnePath
     "YAZI_CONFIG_HOME" = "$appDataRoamingDir\yazi\config"
