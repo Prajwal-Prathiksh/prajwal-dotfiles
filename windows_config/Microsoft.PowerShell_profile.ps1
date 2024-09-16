@@ -120,23 +120,18 @@ This function does not accept any parameters.
     
     $includePaths = @(
         'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\cppwinrt',
-        'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\cppwinrt',
-        'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\shared',
         'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\shared',
         'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\um',
-        'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\um',
-        'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\winrt',
         'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\winrt',
         'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\ucrt',
-        'C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.22621.0\\ucrt',
-        'C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\include\\um',
         'C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\include\\um',
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\VS\\include',
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\VS\\include',
-        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.39.33519\\ATLMFC\\include',
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.39.33519\\ATLMFC\\include',
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.39.33519\\include',
-        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.39.33519\\include'
+        # Additional Paths
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\ATLMFC\\include',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\include'
     )
     $joinedIncludePaths = $includePaths -join ';'
     $ENV:INCLUDE = $joinedIncludePaths
