@@ -154,10 +154,10 @@ This function does not accept any parameters.
 function ll($name) {
 <#
 .SYNOPSIS
-Lists files only in long format with color highlighting.
+Lists all files in long format with color highlighting.
 
 .DESCRIPTION
-The ll function lists files in the current directory in long format with color highlighting, using the PowerColorLS module.
+The ll function lists all files in long format with color highlighting using the PowerColorLS module.
 
 .PARAMETER name
 The name parameter specifies the directory to list. If not provided, the current directory is used.
@@ -166,16 +166,16 @@ The name parameter specifies the directory to list. If not provided, the current
     if (-not $name) {
         $name = Get-Location
     }
-    PowerColorLS --files --long --all "$name"
+    PowerColorLS --long --all "$name"
 }
 
-function yy {
+function y {
 <#
 .SYNOPSIS
 Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.
 
 .DESCRIPTION
-The yy function opens the current directory in yazi, a file manager, and changes the directory upon exit to the directory where yazi was last closed.
+The function opens the current directory in yazi, a file manager, and changes the directory upon exit to the directory where yazi was last closed.
 
 .PARAMETER None
 This function does not accept any parameters.
@@ -639,8 +639,8 @@ This function does not accept any parameters.
         "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
         "Get-PubIP : Retrieves the public IP address of the current machine.",
-        "ll : Lists files only in long format with color highlighting.",
-        "yy : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
+        "ll : Lists all files in long format with color highlighting.",
+        "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
         "df : Displays disk space usage. Alias for Get-Volume.",
