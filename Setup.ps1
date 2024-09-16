@@ -514,6 +514,22 @@ else {
     }
 }
 
+$setupBat = Read-Host "Setup custom bat profile? ([Y]es/[n]o)"
+if ($setupBat -eq "n") {
+    Write-Host "Skipping setting up custom bat profile..." -ForegroundColor White
+}
+else {
+    $batConfigFile = $(bat --config-file)
+    $batConfigDir = Split-Path -Path $batConfigFile -Parent
+    # create bat config directory if it doesn't exist
+    if (-not (Test-Path $batConfigDir)) {
+        New-Item -ItemType Directory -Path $batConfigDir
+    }
+    $fromBat = "$scriptDir\.bat_config"
+    Copy-Item -Path $fromBat -Destination $batConfigFile
+    Write-Host "bat config has been setup successfully." -ForegroundColor Green
+}
+
 
 ######################################################
 ######################################################
