@@ -404,6 +404,15 @@ else
     echo -e "\e[32mFastfetch config setup successfully!!\e[0m"
 fi
 
+read -p "Do you want to setup custom bat config? ([Y]es/[n]o): " setupBat
+if [[ $setupBat == "n" ]]; then
+    echo -e "\e[33mSkipping Bat config setup...\e[0m"
+else
+    fromBat="$scriptRootDir/windows_config/.bat_config"
+    toBat="$HOME/.config/bat/config"
+    mkdir -p "$HOME/.config/bat" && cp "$fromBat" "$toBat"
+    echo -e "\e[32mBat config setup successfully!!\e[0m"
+fi
 
 
 ######################################################
