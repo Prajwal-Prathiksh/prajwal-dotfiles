@@ -40,7 +40,7 @@ To run the setup script:
 
 
 ### TODOs
-- [ ] Add custom config for `bat`
+- [x] Add custom config for `bat`
 - [ ] Add automated setup for `windows terminal` settings
 - [ ] (Optional) Add battery full notification for laptops
 - [ ] Add WSL installation and setup
