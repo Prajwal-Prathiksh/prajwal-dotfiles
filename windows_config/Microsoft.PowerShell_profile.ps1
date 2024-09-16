@@ -40,7 +40,16 @@ The envName parameter specifies the name of the conda environment to activate.
 #>
     
     # Run conda hook
-    $condaPath = "$env:LOCALAPPDATA\miniconda3\shell\condabin\conda-hook.ps1"
+    $possibleCondaPaths = @(
+        "$env:LOCALAPPDATA\miniconda3\shell\condabin\conda-hook.ps1",
+        "$env:USERPROFILE\miniconda3\shell\condabin\conda-hook.ps1"
+    )
+    $condaPath = $possibleCondaPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $condaPath) {
+        Write-Host "Conda not found. Please install Conda or update possibleCondaPaths array, and try again." -ForegroundColor Red
+        return
+    }
+
     & $condaPath
     Write-Host "Conda environment activated." -ForegroundColor Green
 
