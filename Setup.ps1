@@ -59,7 +59,9 @@ $scoopPackages = @(
     "vim",
     "oh-my-posh",
     "speedtest-cli",
-    "lua"
+    "lua",
+    "fnm",
+    "neovim"
 )
 $wingetRegularPackages = @(
     "LocalSend.LocalSend",
@@ -226,6 +228,23 @@ switch ($choice) {
     }
     default {
         Write-Host "Continuing to next section..." -ForegroundColor White
+    }
+}
+
+$installNode = Read-Host "Do you want to install Node.js? ([Y]es/[n]o)"
+if ($installNode -eq "n") {
+    Write-Host "Skipping Node.js installation..." -ForegroundColor White
+}
+else {
+    if (-not (Test-CommandExists "fnm")) {
+        scoop install fnm
+    }
+    if (-not (Test-CommandExists "node")) {
+        fnm install --lts
+        Write-Host "Node.js installed successfully." -ForegroundColor Green
+    }
+    else {
+        Write-Host "Node.js already installed." -ForegroundColor White
     }
 }
 
@@ -478,6 +497,22 @@ else {
     Write-Host "yazi config has been setup successfully." -ForegroundColor Green
 }
 
+$setupNeovim = Read-Host "Setup custom neovim profile? ([Y]es/[n]o)"
+if ($setupNeovim -eq "n") {
+    Write-Host "Skipping setting up custom neovim profile..." -ForegroundColor White
+}
+else {
+    $dirToCopy = "${env:LOCALAPPDATA}\nvim"
+    if (Test-Path $dirToCopy) {
+        # run git pull
+        git -C $dirToCopy pull
+        Write-Host "neovim config has been updated successfully." -ForegroundColor Green
+    }
+    else {
+        git clone https://github.com/Prajwal-Prathiksh/prajwal-neovim $dirToCopy
+        Write-Host "neovim config has been setup successfully." -ForegroundColor Green
+    }
+}
 
 
 ######################################################
