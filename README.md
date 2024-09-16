@@ -10,7 +10,6 @@ Repository of all the customizations I have made to my Windows and Linux systems
     - [TODOs](#todos)
   - [Linux (Ubuntu only)](#linux-ubuntu-only)
     - [Automated Setup](#automated-setup-1)
-    - [TODOs](#todos-1)
 
 
 ## Windows
@@ -40,7 +39,6 @@ To run the setup script:
 
 
 ### TODOs
-- [x] Add custom config for `bat`
 - [ ] Add automated setup for `windows terminal` settings
 - [ ] (Optional) Add battery full notification for laptops
 - [ ] Add WSL installation and setup
@@ -77,9 +75,4 @@ $ chmod +x setup.sh
 $ ./setup.sh
 ```
 7. Follow the on-screen instructions to complete the setup.
-
-
-### TODOs
-- [ ] Add similar custom keybindings for `zsh` as those created for `PowerShell`
-- [x] Add custom config for `bat`
 
