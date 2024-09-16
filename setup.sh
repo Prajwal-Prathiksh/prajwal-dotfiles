@@ -152,7 +152,6 @@ aptPackages=(
     "rlwrap"
     "lua5.4"
     "asciiquarium"
-    "neovim"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
@@ -275,6 +274,30 @@ if [[ $installTokeiYazi == "y" ]]; then
     fi
 else
     echo -e "\e[33mSkipping Tokei & Yazi installation...\e[0m"
+fi
+
+read -p "Do you want to install neovim? ([y]es/[N]o): " installNeovim
+if [[ $installNeovim == "y" ]]; then
+    if ! command_exists nvim; then
+        curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+        sudo rm -rf /opt/nvim
+        sudo tar -C /opt -xzf nvim-linux64.tar.gz
+        rm nvim-linux64.tar.gz
+
+        echo -e "\e[32mNeovim installed successfully!!\e[0m"
+
+        # check if ~/.config/nvim exists if not clone the config
+        if [ ! -d "$HOME/.config/nvim" ]; then
+            git clone https://github.com/Prajwal-Prathiksh/prajwal-neovim.git "$HOME/.config/nvim"
+            echo -e "\e[32mNeovim config cloned successfully!!\e[0m"            
+        else
+            echo -e "\e[33mNeovim config already exists. Skipping cloning...\e[0m"
+        fi
+    else
+        echo -e "\e[33mNeovim is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping neovim installation...\e[0m"
 fi
 
 
