@@ -152,6 +152,7 @@ aptPackages=(
     "rlwrap"
     "lua5.4"
     "asciiquarium"
+    "neovim"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
@@ -216,6 +217,31 @@ if [[ $installRust == "y" ]]; then
 else
     echo -e "\e[33mSkipping Rust installation...\e[0m"
 fi
+
+read -p "Do you want to install nvm? ([y]es/[N]o): " installNvm
+if [[ $installNvm == "y" ]]; then
+    if ! command_exists nvm; then
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        echo -e "\e[32mnvm installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mnvm is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping nvm installation...\e[0m"
+fi
+
+read -p "Do you want to install node? ([y]es/[N]o): " installNode
+if [[ $installNode == "y" ]]; then
+    if ! command_exists node; then
+        nvm install --lts
+        echo -e "\e[32mNode installed successfully!!\e[0m"
+    else
+        echo -e "\e[33mNode is already installed. Skipping installation...\e[0m"
+    fi
+else
+    echo -e "\e[33mSkipping node installation...\e[0m"
+fi
+
 
 read -p "Do you want to install Miniconda? ([y]es/[N]o): " installMiniconda
 if [[ $installMiniconda == "y" ]]; then
