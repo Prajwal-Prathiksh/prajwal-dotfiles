@@ -152,6 +152,8 @@ aptPackages=(
     "rlwrap"
     "lua5.4"
     "asciiquarium"
+    "tree"
+    "exa"
 )
 
 echo -e "\e[33m$border1$border1\e[0m"
