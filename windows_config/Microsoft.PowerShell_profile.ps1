@@ -230,6 +230,41 @@ The name parameter specifies the directory to list. If not provided, the current
     PowerColorLS --long --all "$name"
 }
 
+function lazyg ($commitMessage) {
+<#
+.SYNOPSIS
+Lazy Git: Adds all files, commits with a message, and pushes to the current branch.
+
+.DESCRIPTION
+The lazyg function adds all files, commits with a message, and pushes to the current branch in Git.
+
+.PARAMETER commitMessage
+The commitMessage parameter specifies the message to use for the commit.
+
+#>
+    git add .
+    git commit -m $commitMessage
+    git push origin $(git rev-parse --abbrev-ref HEAD)
+}
+
+function weather($cityName) {
+<#
+.SYNOPSIS
+Displays the weather for a specific city. Uses the wttr.in service.
+
+.DESCRIPTION
+The weather function displays the weather for a specific city using the wttr.in service. If no city name is provided, wttr.in is called without any parameters to display the weather for the current location.
+
+.PARAMETER cityName
+The cityName parameter specifies the name of the city to display the weather for.
+#>
+    if ($cityName) {
+        Invoke-RestMethod "https://wttr.in/$cityName"
+    } else {
+        Invoke-RestMethod "https://wttr.in"
+    }
+}
+
 function y {
 <#
 .SYNOPSIS
@@ -248,23 +283,6 @@ This function does not accept any parameters.
         Set-Location -LiteralPath $cwd
     }
     Remove-Item -Path $tmp
-}
-
-function lazyg ($commitMessage) {
-<#
-.SYNOPSIS
-Lazy Git: Adds all files, commits with a message, and pushes to the current branch.
-
-.DESCRIPTION
-The lazyg function adds all files, commits with a message, and pushes to the current branch in Git.
-
-.PARAMETER commitMessage
-The commitMessage parameter specifies the message to use for the commit.
-
-#>
-    git add .
-    git commit -m $commitMessage
-    git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
 ### Linux-like Commands
@@ -701,6 +719,8 @@ This function does not accept any parameters.
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
         "Get-PubIP : Retrieves the public IP address of the current machine.",
         "ll : Lists all files in long format with color highlighting.",
+        "lazyg : Adds all files, commits with a message, and pushes to the current branch.",
+        "weather : Displays the weather for a specific city. Uses the wttr.in service.",
         "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
