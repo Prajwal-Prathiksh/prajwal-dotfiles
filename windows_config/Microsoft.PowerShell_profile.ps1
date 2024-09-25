@@ -303,6 +303,15 @@ This function does not accept any parameters.
     Remove-Item -Path $tmp
 }
 
+function tk {
+    $currentDir = (Get-Location).Path.Split('\')[-1]
+    # Print only the current directory name
+    Write-Host "Project Name: $currentDir" -ForegroundColor Green
+
+    # Display tokei in bat
+    tokei | bat --language ps1 --style plain
+}
+
 ### Linux-like Commands
 function touch($file) {
 <#
@@ -752,6 +761,7 @@ This function does not accept any parameters.
         "lazyg : Adds all files, commits with a message, and pushes to the current branch.",
         "weather : Displays the weather for a specific city. Uses the wttr.in service.",
         "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
+        "tk : Display tokei in bat.",
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
         "df : Displays disk space usage. Alias for Get-Volume.",
