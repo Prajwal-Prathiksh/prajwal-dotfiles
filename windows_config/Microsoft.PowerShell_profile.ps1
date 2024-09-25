@@ -258,6 +258,10 @@ The gswitch function switches to a different Git branch using fzf.
 .PARAMETER None
 This function does not accept any parameters.
 #>
+    if (-not (Test-Path .git)) {
+        Write-Host "Not a Git repository." -ForegroundColor Red
+        return
+    }
     git switch $(git branch --list | fzf | ForEach-Object { $_.Trim() -replace '^\* ', '' })
 }
 
