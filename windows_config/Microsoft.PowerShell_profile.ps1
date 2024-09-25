@@ -247,6 +247,20 @@ The commitMessage parameter specifies the message to use for the commit.
     git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
+function gswitch {
+<#
+.SYNOPSIS
+Switches to a different Git branch using fzf.
+
+.DESCRIPTION
+The gswitch function switches to a different Git branch using fzf.
+
+.PARAMETER None
+This function does not accept any parameters.
+#>
+    git switch $(git branch --list | fzf | ForEach-Object { $_.Trim() -replace '^\* ', '' })
+}
+
 function weather($cityName) {
 <#
 .SYNOPSIS
@@ -559,11 +573,23 @@ function _fzf_open_path {
     & $cmds[$cmd]
 }
 
+function file-is-image {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$path
+    )
+    $imageExtensions = @(".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff")
+    # Check if file extension is in the list of image extensions
+    # If it is, return true, otherwise return false
+    return $imageExtensions -contains (Get-Item $path).Extension
+}
+
 function _fzf_get_path_using_fd {
     $input_path = fd --type file --follow --hidden --exclude .git |
         fzf --prompt 'Files> ' `
         --header 'Files' `
-        --preview 'if ((Get-Item {}).Extension -eq ".jpg" -or (Get-Item {}).Extension -eq ".png") { chafa --symbols vhalf -w 1 --color-extractor median {} } else { bat --color=always {} --style=numbers }'
+        --preview 'if (file-is-image {}) { chafa -f sixel {} } else { bat --color=always {} --style=numbers }'
+        #--preview 'if ((Get-Item {}).Extension -eq ".jpg" -or (Get-Item {}).Extension -eq ".png") { chafa --symbols vhalf -w 1 --color-extractor median {} } else { bat --color=always {} --style=numbers }'
 
     # Prepend the current directory if the path is relative
     if ($input_path -notmatch "^([a-zA-Z]:|\\)" -and $input_path -ne "")
