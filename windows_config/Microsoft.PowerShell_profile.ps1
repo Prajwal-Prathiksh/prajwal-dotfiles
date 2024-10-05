@@ -152,18 +152,22 @@ This function does not accept any parameters.
     Write-Host "Visual Studio environment activated." -ForegroundColor Green
 }
 
-function Activate-DevEnv {
+function Activate-DevEnv ($envName) {
 <#
 .SYNOPSIS
 Activates the development environment (Conda, Node.js, and Visual Studio).
 
 .DESCRIPTION
-The Import-DevEnv function activates the development environment by importing the Conda environment, activating the Node.js environment, and importing the Visual Studio environment.
+The Activate-DevEnv function activates the development environment by importing the Conda, Node.js, and Visual Studio environments. An optional environment name can be provided to activate a specific Conda environment.
 
-.PARAMETER None
-This function does not accept any parameters.
+.PARAMETER envName
+The envName parameter specifies the name of the conda environment to activate.
 #>
-    Activate-Conda
+    if ($envName) {
+        Activate-Conda $envName
+    } else {
+        Activate-Conda
+    }
     Activate-Node
     Activate-VisualStudioEnvironment
 }
@@ -262,7 +266,14 @@ This function does not accept any parameters.
         Write-Host "Not a Git repository." -ForegroundColor Red
         return
     }
-    git switch $(git branch --list | fzf | ForEach-Object { $_.Trim() -replace '^\* ', '' })
+
+    $branch = git branch --list --all | fzf | ForEach-Object { $_.Trim() -replace '^\* ', '' }
+
+    if ($branch -like "remotes/*") {
+        $branch = $branch -replace '^remotes\/[^\/]+\/', ''
+    }
+
+    git switch $branch
 }
 
 function weather($cityName) {
@@ -812,4 +823,4 @@ Set-PSReadLineKeyHandler -Key "F1" -ScriptBlock {
 # =============================================================================
 # START UP FUNCTIONS
 #
-Activate-DevEnv
+Activate-DevEnv "py311"
