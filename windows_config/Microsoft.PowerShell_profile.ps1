@@ -276,7 +276,7 @@ This function does not accept any parameters.
     git switch $branch
 }
 
-function weather($cityName) {
+function weather($cityName, $version = "v1") {
 <#
 .SYNOPSIS
 Displays the weather for a specific city. Uses the wttr.in service.
@@ -286,11 +286,31 @@ The weather function displays the weather for a specific city using the wttr.in 
 
 .PARAMETER cityName
 The cityName parameter specifies the name of the city to display the weather for.
+
+.PARAMETER version
+The version parameter specifies the version of the wttr.in service to use. Default is v1.
+
+.EXAMPLE
+weather
+Displays the weather for the current location.
+
+.EXAMPLE
+weather "New York"
+Displays the weather for New York.
+
+.EXAMPLE
+weather "New York" v2
+Displays the weather for New York using the v2 version of the wttr.in service.
+
+.EXAMPLE
+weather "" v2
+Displays the weather for the current location using the v2 version of the wttr.in service.
 #>
+    $baseURL = "https://$version.wttr.in"
     if ($cityName) {
-        Invoke-RestMethod "https://wttr.in/$cityName"
+        Invoke-RestMethod "$baseURL/$cityName"
     } else {
-        Invoke-RestMethod "https://wttr.in"
+        Invoke-RestMethod "$baseURL"
     }
 }
 
