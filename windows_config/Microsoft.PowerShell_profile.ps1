@@ -617,26 +617,14 @@ function _fzf_open_path {
     & $cmds[$cmd]
 }
 
-function file-is-image {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$path
-    )
-    $imageExtensions = @(".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff")
-    # Check if file extension is in the list of image extensions
-    # If it is, return true, otherwise return false
-    return $imageExtensions -contains (Get-Item $path).Extension
-}
-
 function _fzf_get_path_using_fd {
     $input_path = fd --type file --follow --hidden --exclude .git |
         fzf --prompt 'Files> ' `
         --header 'Files' `
-        --preview 'if (file-is-image {}) { chafa -f sixel {} } else { bat --color=always {} --style=numbers }'
-        #--preview 'if ((Get-Item {}).Extension -eq ".jpg" -or (Get-Item {}).Extension -eq ".png") { chafa --symbols vhalf -w 1 --color-extractor median {} } else { bat --color=always {} --style=numbers }'
+        --preview 'if ((Get-Item {}).Extension -in ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".pdf") { chafa --symbols vhalf -w 1 --color-extractor median {} } else { bat --color=always {} --style=numbers }'
 
     # Prepend the current directory if the path is relative
-    if ($input_path -notmatch "^([a-zA-Z]:|\\)" -and $input_path -ne "")
+    if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "")
     {
         $input_path = Join-Path $PWD $input_path
     }
