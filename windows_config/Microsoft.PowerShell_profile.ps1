@@ -761,7 +761,7 @@ This function does not accept any parameters.
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
         "rgg : Find patterns in files interactively using rg and fzf.",
         "sed : Searches and replaces text in a file.",
-        "Show-Help : Displays custom keybindings and help information."
+        "Show-Help : Displays custom keybindings and help information.",
         "tk : Display tokei in bat.",
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
@@ -769,7 +769,7 @@ This function does not accept any parameters.
         "which : Locates the executable of a command.",
         "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
         "z : Jump to a directory using only keywords (zoxide).",
-        "zi : Jump to a directory using interactive search (zoxide).",
+        "zi : Jump to a directory using interactive search (zoxide)."
     )
 
     $pageSize = 20
