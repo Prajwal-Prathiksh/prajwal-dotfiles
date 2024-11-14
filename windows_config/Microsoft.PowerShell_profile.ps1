@@ -152,26 +152,6 @@ This function does not accept any parameters.
     Write-Host "Visual Studio environment activated." -ForegroundColor Green
 }
 
-function Activate-DevEnv ($envName) {
-<#
-.SYNOPSIS
-Activates the development environment (Conda, Node.js, and Visual Studio).
-
-.DESCRIPTION
-The Activate-DevEnv function activates the development environment by importing the Conda, Node.js, and Visual Studio environments. An optional environment name can be provided to activate a specific Conda environment.
-
-.PARAMETER envName
-The envName parameter specifies the name of the conda environment to activate.
-#>
-    if ($envName) {
-        Activate-Conda $envName
-    } else {
-        Activate-Conda
-    }
-    Activate-Node
-    Activate-VisualStudioEnvironment
-}
-
 function Edit-Profile {
 <#
 .SYNOPSIS
@@ -746,17 +726,16 @@ This function does not accept any parameters.
         "Activate-Conda : Imports the conda environment and activates it.",
         "Activate-Node : Imports the Node.js environment and activates it.",
         "Activate-VisualStudioEnvironment : Imports the Visual Studio environment and activates it.",
-        "Activate-DevEnv : Activates the development environment (Conda, Node.js, and Visual Studio).",
         "",
         $border1,
         "Keybindings for PowerShell",
         $border1,
-        "<Ctrl+z> - zi : Jump to a directory using interactive search.",
         "<Ctrl+e> - explorer.exe . : Open the current directory in File Explorer.",
         "<Ctrl+f> - fdg : Find files interactively using fd and fzf.",
         "<Ctrl+g> - rgg : Find patterns in files interactively using rg and fzf.",
-        "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
         "<Ctrl+n> - nvim . : Open Neovim in the current directory.",
+        "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
+        "<Ctrl+z> - zi : Jump to a directory using interactive search.",
         "",
         $border1,
         "Keybindings for fzf",
@@ -773,24 +752,24 @@ This function does not accept any parameters.
         $border1,
         "Custom Functions/Aliases",
         $border1,
+        "df : Displays disk space usage. Alias for Get-Volume.",
         "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
-        "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
+        "fdg : Find files interactively using fd and fzf.",
         "Get-PubIP : Retrieves the public IP address of the current machine.",
-        "ll : Lists all files in long format with color highlighting.",
         "lazyg : Adds all files, commits with a message, and pushes to the current branch.",
-        "weather : Displays the weather for a specific city. Uses the wttr.in service.",
-        "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
+        "ll : Lists all files in long format with color highlighting.",
+        "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
+        "rgg : Find patterns in files interactively using rg and fzf.",
+        "sed : Searches and replaces text in a file.",
+        "Show-Help : Displays custom keybindings and help information."
         "tk : Display tokei in bat.",
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
-        "df : Displays disk space usage. Alias for Get-Volume.",
-        "sed : Searches and replaces text in a file.",
+        "weather : Displays the weather for a specific city. Uses the wttr.in service.",
         "which : Locates the executable of a command.",
+        "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
         "z : Jump to a directory using only keywords (zoxide).",
         "zi : Jump to a directory using interactive search (zoxide).",
-        "fdg : Find files interactively using fd and fzf.",
-        "rgg : Find patterns in files interactively using rg and fzf.",
-        "Show-Help : Displays custom keybindings and help information."
     )
 
     $pageSize = 20
@@ -831,4 +810,9 @@ Set-PSReadLineKeyHandler -Key "F1" -ScriptBlock {
 # =============================================================================
 # START UP FUNCTIONS
 #
-Activate-DevEnv "py311"
+Activate-Node
+Activate-VisualStudioEnvironment
+
+# `uv` specific shell completions
+(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
+(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
