@@ -61,7 +61,8 @@ $scoopPackages = @(
     "speedtest-cli",
     "lua",
     "fnm",
-    "neovim"
+    "neovim",
+    "uv"
 )
 $wingetRegularPackages = @(
     "LocalSend.LocalSend",
