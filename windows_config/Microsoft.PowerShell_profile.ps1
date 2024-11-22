@@ -494,7 +494,7 @@ The bman function displays the manual page for a command using bat.
 .PARAMETER name
 The name parameter specifies the name of the command to display the manual page for.
 #>
-    man $name | bat --language=ps1
+    Get-Help $name -Full | bat --language=ps1
 }
 
 
