@@ -152,6 +152,32 @@ This function does not accept any parameters.
     Write-Host "Visual Studio environment activated." -ForegroundColor Green
 }
 
+function Show-CustomExecutables {
+<#
+.SYNOPSIS
+Displays custom executables in the "$env:USERPROFILE\.custom_bin" directory.
+
+.DESCRIPTION
+The Show-CustomExecutables function displays custom executables in the "$env:USERPROFILE\.custom_bin" directory.
+
+.PARAMETER None
+This function does not accept any parameters.
+#>
+    $customBinPath = "$env:USERPROFILE\.custom_bin"
+    if (-not (Test-Path $customBinPath)) {
+        Write-Host "No custom executables found in '$customBinPath'." -ForegroundColor Yellow
+        return
+    }
+
+    $customExecutables = Get-ChildItem -Path $customBinPath -File
+    if ($customExecutables) {
+        Write-Host "Custom Executables in '$customBinPath':" -ForegroundColor Green
+        $customExecutables | ForEach-Object { Write-Host $_.Name -ForegroundColor Cyan }
+    } else {
+        Write-Host "No custom executables found in '$customBinPath'." -ForegroundColor Yellow
+    }
+}
+
 function Edit-Profile {
 <#
 .SYNOPSIS
@@ -861,6 +887,7 @@ If the full switch is provided, the full help content is displayed without pagin
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
         "rgg : Find patterns in files interactively using rg and fzf.",
         "sed : Searches and replaces text in a file.",
+        "Show-CustomExecutables : Displays custom executables.",
         "Show-Help : Displays custom keybindings and help information.",
         "tk : Display tokei in bat.",
         "touch : Creates a new file.",
