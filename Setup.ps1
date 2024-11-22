@@ -410,7 +410,7 @@ else {
         New-Item -ItemType Directory -Path $customExesTo | Out-Null
     }
     # Copy executables
-    Copy-Item -Path $customExesFrom -Destination $customExesTo -Recurse
+    Copy-Item -Path $customExesFrom -Destination $customExesTo -Recurse -Force
     Write-Host "Executables copied successfully." -ForegroundColor Green
 }
 
@@ -440,7 +440,7 @@ foreach ($dir in $possibleVimDirs) {
 # Define paths to be added to $env:PATH
 $newPaths = @(
     $vimDir.FullName,
-    $customExesTo.FullName
+    $customExesTo
 )
 
 # Define environment variables to update for installed packages
@@ -461,6 +461,7 @@ Write-Host "Paths to add to PATH:"
 foreach ($path in $newPaths) {
     Write-Host "$path"
 }
+Write-Host ""
 
 # Print all environment variables to update
 Write-Host "Environment variables to update:"
@@ -489,17 +490,15 @@ else {
     Write-Host "Environment variables updated successfully." -ForegroundColor Green
 
     # Update PATH environment variable
-    $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
-    # check if new paths are already in PATH
-    $newPathsToAdd = $newPaths | Where-Object { $currentPath -notcontains $_ }
-    if ($newPathsToAdd.Count -eq 0) {
-        Write-Host "No new paths to add to PATH." -ForegroundColor White
-    }
-    else {
-        $newPath = $newPathsToAdd -join ";"
-        $newPath = $currentPath + ";" + $newPath
-        [System.Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
-        Write-Host "PATH updated successfully." -ForegroundColor Green
+    $currentUserPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    foreach ($tempPath in $newPaths) {
+        if ($currentUserPath.Split(";") -contains $tempPath) {
+            Write-Host "No Change: $tempPath" -ForegroundColor White
+        }
+        else {
+            $currentUserPath += ";" + $tempPath
+            Write-Host "Updated: $tempPath" -ForegroundColor Green
+        }
     }
 }
 
