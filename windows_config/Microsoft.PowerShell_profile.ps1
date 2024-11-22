@@ -806,9 +806,13 @@ Displays custom keybindings and help information.
 .DESCRIPTION
 The Show-Help function displays custom keybindings and help information for PowerShell and fzf.
 
-.PARAMETER None
-This function does not accept any parameters.
+.PARAMETER full
+If the full switch is provided, the full help content is displayed without pagination.
 #>
+    param (
+        [switch]$full
+    )
+
     Write-Host "<F1> - Show Custom Keybindings & Help" -ForegroundColor Green
     Write-Host "Press <Enter> or <Down Arrow> to view more content. Press <Esc> or <q> to exit." -ForegroundColor Green
     Write-Host ""
@@ -868,6 +872,11 @@ This function does not accept any parameters.
         "zi : Jump to a directory using interactive search (zoxide)."
     )
 
+    if ($full) {
+        $helpContent | ForEach-Object { Write-Host $_ }
+        return
+    }
+
     $pageSize = 20
     $lineIndex = $pageSize
 
@@ -912,3 +921,5 @@ Activate-VisualStudioEnvironment
 # `uv` specific shell completions
 (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
 (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
+
+Write-Host "Run Show-Help to view custom keybindings and help information." -ForegroundColor Yellow
