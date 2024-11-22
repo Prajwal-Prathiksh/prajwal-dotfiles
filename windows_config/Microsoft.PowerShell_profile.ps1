@@ -480,7 +480,21 @@ The which function locates the executable of a command in the system's PATH.
 .PARAMETER name
 The name parameter specifies the name of the command to locate.
 #>
-    Get-Command $name | Select-Object -ExpandProperty Definition
+    Get-Command $name | Select-Object -ExpandProperty Definition | bat --language=ps1
+}
+
+function bman($name) {
+<#
+.SYNOPSIS
+Displays the manual page for a command using bat.
+
+.DESCRIPTION
+The bman function displays the manual page for a command using bat.
+
+.PARAMETER name
+The name parameter specifies the name of the command to display the manual page for.
+#>
+    man $name | bat --language=ps1
 }
 
 
@@ -832,6 +846,7 @@ This function does not accept any parameters.
         $border1,
         "Custom Functions/Aliases",
         $border1,
+        "bman : Displays the manual page for a command using bat.",
         "Connect-WifiUsingFzf : Connects to a Wi-Fi network using fzf.",
         "df : Displays disk space usage. Alias for Get-Volume.",
         "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
@@ -847,7 +862,7 @@ This function does not accept any parameters.
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
         "weather : Displays the weather for a specific city. Uses the wttr.in service.",
-        "which : Locates the executable of a command.",
+        "which : Locates the executable of a command, and displays the path using bat.",
         "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
         "z : Jump to a directory using only keywords (zoxide).",
         "zi : Jump to a directory using interactive search (zoxide)."
