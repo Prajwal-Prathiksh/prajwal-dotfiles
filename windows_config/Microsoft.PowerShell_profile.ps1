@@ -196,6 +196,86 @@ This function does not accept any parameters.
     (Invoke-WebRequest http://ifconfig.me/ip).Content
 }
 
+function Connect-WifiUsingFzf {
+<#
+.SYNOPSIS
+Connects to a Wi-Fi network using fzf.
+
+.DESCRIPTION
+The Connect-WifiUsingFzf function lists all available Wi-Fi networks using netsh wlan show networks and allows the user to select a network using fzf. The function then attempts to connect to the selected Wi-Fi network.
+
+.PARAMETER AllProfiles
+The AllProfiles parameter specifies whether to show all saved Wi-Fi profiles or only the currently available networks which were previously saved. If the switch is provided, all saved profiles are shown.
+#>
+    param (
+        [switch]$AllProfiles
+    )
+
+    # Check if the Wi-Fi interface is powered down
+    $wifiStatus = netsh wlan show networks
+    if ($wifiStatus -match "The wireless local area network interface is powered down") {
+        Write-Output "Your Wi-Fi interface is powered down. Please enable it and try again."
+        return
+    }
+
+    # Fetch all available Wi-Fi profiles
+    $profiles = netsh wlan show profiles | Select-String -Pattern "All User Profile\s+: (.+)"
+    $savedNetworks = $profiles | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
+
+    # Fetch the currently connected Wi-Fi network
+    $connectedNetwork = (netsh wlan show interfaces | Select-String -Pattern "SSID\s+: (.+)").Matches.Groups[1].Value.Trim()
+
+    if ($AllProfiles) {
+        # Show all saved profiles
+        $fzfInput = $savedNetworks | ForEach-Object {
+            if ($_ -eq $connectedNetwork) {
+                "$_ *" # Mark connected network
+            } else {
+                $_
+            }
+        }
+    } else {
+        # Filter saved profiles for networks that are currently available
+        $networks = netsh wlan show networks | Select-String -Pattern "SSID \d+ : (.+)"
+        $fzfInput = $networks | ForEach-Object {
+            $networkName = $_.Matches.Groups[1].Value.Trim()
+            if ($networkName -in $savedNetworks) {
+                if ($networkName -eq $connectedNetwork) {
+                    "$networkName *" # Mark connected network
+                } else {
+                    $networkName
+                }
+            }
+        }
+    }
+
+    # Remove * from the connected network name
+    $fzfInput = $fzfInput -replace "\s\*\s*$", "*"
+
+    # Use fzf to select a network with profile details in the preview pane
+    $selectedNetwork = $fzfInput | fzf --prompt="Select Wi-Fi network: " `
+                                        --height=35 `
+                                        --ansi `
+                                        --preview "netsh wlan show profile {} key=clear" `
+
+    if ($selectedNetwork) {
+        # Replace all '*' characters with blank space
+        $selectedNetwork = $selectedNetwork -replace "\*", ""
+
+        # Attempt to connect to the selected Wi-Fi
+        $connectionResult = netsh wlan connect name=$selectedNetwork 2>&1
+
+        # Provide feedback to the user
+        if ($connectionResult -like "*successfully*") {
+            Write-Host "Connected to '$selectedNetwork' successfully." -ForegroundColor Green
+        } else {
+            Write-Host "Failed to connect to '$selectedNetwork'. Error: $connectionResult" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "No Wi-Fi network selected." -ForegroundColor Yellow
+    }
+}
+
 function ll($name) {
 <#
 .SYNOPSIS
@@ -752,6 +832,7 @@ This function does not accept any parameters.
         $border1,
         "Custom Functions/Aliases",
         $border1,
+        "Connect-WifiUsingFzf : Connects to a Wi-Fi network using fzf.",
         "df : Displays disk space usage. Alias for Get-Volume.",
         "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
         "fdg : Find files interactively using fd and fzf.",
