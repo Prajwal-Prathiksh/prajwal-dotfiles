@@ -94,6 +94,7 @@ if (-not $inAdminMode) {
 }
 
 
+
 ######################################################
 ######################################################
 # FONT INSTALL SECTION
@@ -142,6 +143,7 @@ else {
         }
     }
 }
+
 
 
 ######################################################
@@ -250,6 +252,7 @@ else {
 }
 
 
+
 ######################################################
 ######################################################
 # PRE-CONFIG FILES SECTION
@@ -325,6 +328,7 @@ $glazeConfigPath = "$scriptDir\glaze_config.yaml"
 Write-Host "glaze config file has been prepared successfully." -ForegroundColor Green
 
 
+
 ######################################################
 ######################################################
 # CONFIG FILES SECTION
@@ -375,6 +379,43 @@ else {
     Write-Host "Files copied successfully." -ForegroundColor Green
 }
 
+
+
+######################################################
+######################################################
+# CUSTOM EXECUTABLES SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "CUSTOM EXECUTABLES SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
+
+$customExesFrom = "$scriptDir\custom_executables"
+$customExesTo = "$env:USERPROFILE\.custom_bin"
+
+$listOfExes = Get-ChildItem -Path $customExesFrom -File
+Write-Host "Following executables will be copied:"
+foreach ($exe in $listOfExes) {
+    Write-Host "> $($exe.Name)"
+}
+
+$runCopy = Read-Host "Do you want to copy these executables? ([Y]es/[n]o)"
+if ($runCopy -eq "n") {
+    Write-Host "Skipping copying executables..." -ForegroundColor White
+}
+else {
+    # Create directory if it doesn't exist
+    if (-not (Test-Path -Path $customExesTo)) {
+        New-Item -ItemType Directory -Path $customExesTo | Out-Null
+    }
+    # Copy executables
+    Copy-Item -Path $customExesFrom -Destination $customExesTo -Recurse
+    Write-Host "Executables copied successfully." -ForegroundColor Green
+}
+
+
+
 ######################################################
 ######################################################
 # ENVIRONMENT VARIABLES SECTION
@@ -385,8 +426,7 @@ Write-Host "$border1$border1" -ForegroundColor Yellow
 Write-Host "ENVIRONMENT VARIABLES SECTION" -ForegroundColor Yellow
 Write-Host "$border1$border1" -ForegroundColor Yellow
 
-# Iterate through possible vim directories and select the one which exists, without 
-# throwing an error if it doesn't exist
+# Iterate through possible vim directories and select the one which exists
 $possibleVimDirs = @("$programFiles\Vim", "C:\Vim", "$env:USERPROFILE\scoop\apps\vim\current", "$env:USERPROFILE\scoop\apps\vim\current\vim")
 foreach ($dir in $possibleVimDirs) {
     if (Test-Path $dir) {
@@ -399,7 +439,8 @@ foreach ($dir in $possibleVimDirs) {
 
 # Define paths to be added to $env:PATH
 $newPaths = @(
-    $vimDir.FullName
+    $vimDir.FullName,
+    $customExesTo.FullName
 )
 
 # Define environment variables to update for installed packages
@@ -530,6 +571,7 @@ else {
     Copy-Item -Path $fromBat -Destination $batConfigFile
     Write-Host "bat config has been setup successfully." -ForegroundColor Green
 }
+
 
 
 ######################################################
