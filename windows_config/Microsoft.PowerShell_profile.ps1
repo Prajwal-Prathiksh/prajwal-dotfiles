@@ -232,9 +232,13 @@ The Connect-WifiUsingFzf function lists all available Wi-Fi networks using netsh
 
 .PARAMETER AllProfiles
 The AllProfiles parameter specifies whether to show all saved Wi-Fi profiles or only the currently available networks which were previously saved. If the switch is provided, all saved profiles are shown.
+
+.PARAMETER AllAvailable
+The AllAvailable parameter specifies whether to show all available Wi-Fi networks or only the saved profiles. If the switch is provided, all available networks are shown, irrespective of whether they were saved or not.
 #>
     param (
-        [switch]$AllProfiles
+        [switch]$AllProfiles,
+        [switch]$AllAvailable
     )
 
     # Check if the Wi-Fi interface is powered down
@@ -250,6 +254,9 @@ The AllProfiles parameter specifies whether to show all saved Wi-Fi profiles or 
 
     # Fetch the currently connected Wi-Fi network
     $connectedNetwork = (netsh wlan show interfaces | Select-String -Pattern "SSID\s+: (.+)").Matches.Groups[1].Value.Trim()
+    
+    # Fetch all available Wi-Fi networks
+    $networks = netsh wlan show networks | Select-String -Pattern "SSID \d+ : (.+)"
 
     if ($AllProfiles) {
         # Show all saved profiles
@@ -260,9 +267,10 @@ The AllProfiles parameter specifies whether to show all saved Wi-Fi profiles or 
                 $_
             }
         }
+    } elseif ($AllAvailable) {
+        $fzfInput = $networks | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
     } else {
         # Filter saved profiles for networks that are currently available
-        $networks = netsh wlan show networks | Select-String -Pattern "SSID \d+ : (.+)"
         $fzfInput = $networks | ForEach-Object {
             $networkName = $_.Matches.Groups[1].Value.Trim()
             if ($networkName -in $savedNetworks) {
