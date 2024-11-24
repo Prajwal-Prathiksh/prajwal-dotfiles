@@ -500,6 +500,7 @@ else {
             Write-Host "Updated: $tempPath" -ForegroundColor Green
         }
     }
+    Write-Host "PATH updated successfully." -ForegroundColor Green
 }
 
 
