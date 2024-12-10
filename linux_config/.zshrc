@@ -63,6 +63,7 @@ _z_cd() {
     fi
 }
 
+unalias z 2>/dev/null
 z() {
     if [ "$#" -eq 0 ]; then
         _z_cd ~
@@ -78,6 +79,7 @@ z() {
     fi
 }
 
+unalias zi 2>/dev/null
 zi() {
     _zoxide_result="$(zoxide query -i -- "$@")" && _z_cd "$_zoxide_result"
 }
