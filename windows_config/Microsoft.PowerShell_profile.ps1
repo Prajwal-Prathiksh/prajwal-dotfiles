@@ -113,7 +113,15 @@ This function does not accept any parameters.
         'C:\\Program Files\\dotnet\\',
         'C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319',
         # Additional Paths
-        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64'
+        'C:\\Windows\\',
+        'C:\\Windows\\system32',
+        'C:\\Windows\\System32\\OpenSSH\\',
+        'C:\\Windows\\System32\\Wbem',
+        'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\',
+        'C:\\Program Files (x86)\\Microsoft SQL Server\\160\\DTS\\Binn\\',
+        'C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64'
     )
     $joinedPaths = $envPaths -join ';'
     $ENV:PATH += ";$joinedPaths"
@@ -131,7 +139,9 @@ This function does not accept any parameters.
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.39.33519\\include',
         # Additional Paths
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\ATLMFC\\include',
-        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\include'
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\include',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\ATLMFC\\include',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\include'
     )
     $joinedIncludePaths = $includePaths -join ';'
     $ENV:INCLUDE = $joinedIncludePaths
@@ -144,7 +154,9 @@ This function does not accept any parameters.
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.39.33519\\lib\\x64',
         # Additional Paths
         'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\ATLMFC\\lib\\x64',
-        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\lib\\x64'
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\lib\\x64',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\ATLMFC\\lib\\x64',
+        'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\lib\\x64'
     )
     $joinedLibsPaths = $libsPaths -join ';'
     $ENV:LIB = $joinedLibsPaths
