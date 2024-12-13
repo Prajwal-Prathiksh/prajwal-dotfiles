@@ -316,17 +316,28 @@ $replaceKeys = @{
     "{BROWSER_PATH}" = $browserParsedPath
 }
 
-$glazeConfigPath = "$scriptDir\glaze_config.yaml"
-# Read 'glaze_config.yaml' and replace keys with the parsed paths
+$glazeConfigPath = "$scriptDir\glazewm_v2_config.yaml"
+# Read config file and replace keys with the parsed paths
 (Get-Content $glazeConfigPath) | ForEach-Object {
     $line = $_
     foreach ($key in $replaceKeys.Keys) {
         $line = $line -replace $key, $replaceKeys[$key]
     }
     $line
-} | Set-Content "$setupTempDir\glaze_config.yaml"
-Write-Host "glaze config file has been prepared successfully." -ForegroundColor Green
+} | Set-Content "$setupTempDir\glazewm_v2_config.yaml"
+Write-Host "glaze (v2) config file has been prepared successfully." -ForegroundColor Green
 
+
+$glazeConfigPath = "$scriptDir\glazewm_v3_config.yaml"
+# Read config file and replace keys with the parsed paths
+(Get-Content $glazeConfigPath) | ForEach-Object {
+    $line = $_
+    foreach ($key in $replaceKeys.Keys) {
+        $line = $line -replace $key, $replaceKeys[$key].Trim("'")
+    }
+    $line
+} | Set-Content "$setupTempDir\glazewm_v3_config.yaml"
+Write-Host "glaze (v3) config file has been prepared successfully." -ForegroundColor Green
 
 
 ######################################################
@@ -347,14 +358,16 @@ $fromPaths = @{
     "fastfetch" = "$scriptDir\fastfetch_custom.jsonc"
     "powershell" = "$scriptDir\Microsoft.PowerShell_profile.ps1"
     "vim" = "$scriptDir\.vimrc"
-    "glaze" = "$setupTempDir\glaze_config.yaml"
+    "glazev2" = "$setupTempDir\glazewm_v2_config.yaml"
+    "glazev3" = "$setupTempDir\glazewm_v3_config.yaml"
 }
 $toPaths = @{
     "oh_my_posh" = "$env:POSH_THEMES_PATH\custom.omp.json"
     "fastfetch" = "$fastfetchPath" + "presets\custom.jsonc"
     "powershell" = "$profile"
     "vim" = "$env:USERPROFILE\_vimrc"
-    "glaze" = "$env:USERPROFILE\.glaze-wm\config.yaml"
+    "glazev2" = "$env:USERPROFILE\.glaze-wm\config.yaml"
+    "glazev3" = "$env:USERPROFILE\.glzr\glazewm\config.yaml"
 }
 $keys = $fromPaths.Keys
 
@@ -537,6 +550,39 @@ else {
     $yaziDirTo = $dirTo + "\yazi_config"
     Get-ChildItem -Path $yaziDirTo -Recurse | Move-Item -Destination $dirTo -Force
     Write-Host "yazi config has been setup successfully." -ForegroundColor Green
+}
+
+$setupZebar = Read-Host "Setup custom zebar profile? ([Y]es/[n]o)"
+if ($setupZebar -eq "n") {
+    Write-Host "Skipping setting up custom zebar profile..." -ForegroundColor White
+}
+else {
+    $dirFrom = $scriptRootDir + "\windows_config\zebar_config\"
+    $dirTo = "$env:USERPROFILE\.glzr\zebar\custom"
+
+    # Remove everything in dirTo if it exists
+    if (Test-Path $dirTo) {
+        Remove-Item -Path $dirTo -Recurse -Force
+    }
+    else {
+        New-Item -ItemType Directory -Path $dirTo
+    }
+
+    # Find all files and subdirs inside dirFrom, and copy all of them into dirTo
+    Copy-Item -Path $dirFrom -Destination $dirTo -Recurse
+
+    $fromFile = "$scriptRootDir\windows_config\zebar_settings.json"
+    $toFile = "$env:USERPROFILE\.glzr\zebar\settings.json"
+
+    # Delete toFile if it exists
+    if (Test-Path $toFile) {
+        Remove-Item -Path $toFile -Force
+    }
+
+    # Copy fromFile to toFile
+    Copy-Item -Path $fromFile -Destination $toFile
+
+    Write-Host "zebar config has been setup successfully." -ForegroundColor Green
 }
 
 $setupNeovim = Read-Host "Setup custom neovim profile? ([Y]es/[n]o)"
