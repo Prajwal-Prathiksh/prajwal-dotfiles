@@ -32,7 +32,7 @@ body,
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   height: 100%;
-  padding: 4px 1.5vw;
+  padding: 4px 1vw;
   font-size: 18px; /* Increase the font size for the app container */
 }
 
@@ -56,14 +56,15 @@ button {
   font-size: 18px; /* Increase the font size for buttons */
 }
 
-.logo,
 .binding-mode,
 .tiling-direction,
 .network,
 .memory,
 .cpu,
-.battery {
-  margin-right: 20px;
+.battery,
+.audio,
+.weather {
+  margin-right: 25px;
 }
 
 .workspaces {
@@ -105,17 +106,6 @@ button {
   margin-right: 4px;
 }
 
-.cpu .high-usage {
-  color: #900029;
-}
-
 .battery {
   position: relative;
-}
-
-.battery .charging-icon {
-  position: absolute;
-  font-size: 7px;
-  left: -8px;
-  top: 3px;
 }

@@ -270,6 +270,13 @@
                 {output.audio.defaultPlaybackDevice.volume}%
               </div>
             )}
+
+            {output.weather && (
+                <div className="weather">
+                  {getWeatherIcon(output.weather)}
+                  {Math.round(output.weather.celsiusTemp)}°C
+                </div>
+            )}
           </div>
         </div>
       );
