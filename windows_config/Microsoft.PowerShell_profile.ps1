@@ -357,13 +357,13 @@ The commitMessage parameter specifies the message to use for the commit.
     git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
-function gswitch {
+function Switch-GitBranch {
 <#
 .SYNOPSIS
 Switches to a different Git branch using fzf.
 
 .DESCRIPTION
-The gswitch function switches to a different Git branch using fzf.
+The Switch-GitBranch function switches to a different Git branch using fzf.
 
 .PARAMETER None
 This function does not accept any parameters.
@@ -380,6 +380,34 @@ This function does not accept any parameters.
     }
 
     git switch $branch
+}
+
+function Select-CondaEnv {
+<#
+.SYNOPSIS
+Switches to a different conda environment using fzf.
+
+.DESCRIPTION
+The Select-CondaEnv function checks if conda is available. If not, it runs Activate-Conda, and then lists all available conda environments using fzf. The function then activates the selected conda environment.
+
+.PARAMETER None
+This function does not accept any parameters.
+#>
+    if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
+        Activate-Conda
+    }
+
+    $envs = conda env list | Select-String -Pattern "^\S+" | ForEach-Object { $_.Matches.Value.Trim() }
+    $envs = $envs | Where-Object { $_ -notmatch "^#" }
+
+    $selectedEnv = $envs | fzf --prompt="Select Conda environment: " --height=35
+
+    if ($selectedEnv) {
+        conda activate $selectedEnv
+        Write-Host "Conda environment '$selectedEnv' activated." -ForegroundColor Green
+    } else {
+        Write-Host "No Conda environment selected." -ForegroundColor Yellow
+    }
 }
 
 function weather($cityName, $version = "v1") {
@@ -907,8 +935,10 @@ If the full switch is provided, the full help content is displayed without pagin
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
         "rgg : Find patterns in files interactively using rg and fzf.",
         "sed : Searches and replaces text in a file.",
+        "Select-CondaEnv : Switches to a different conda environment using fzf.",
         "Show-CustomExecutables : Displays custom executables.",
         "Show-Help : Displays custom keybindings and help information.",
+        "Switch-GitBranch : Switches to a different Git branch using fzf.",
         "tk : Display tokei in bat.",
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
