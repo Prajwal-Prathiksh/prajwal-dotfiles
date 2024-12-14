@@ -82,7 +82,7 @@ window_effects:
     hide_title_bar:
       enabled: false
     corner_style:
-      enabled: false
+      enabled: true
       style: 'square'
 
 window_behavior:
@@ -157,23 +157,23 @@ binding_modes:
 keybindings:
   # Shift focus in a given direction.
   - commands: ['focus --direction left']
-    bindings: ['alt+ctrl+left']
+    bindings: ['LWin+ctrl+left']
   - commands: ['focus --direction right']
-    bindings: ['alt+ctrl+right']
+    bindings: ['LWin+ctrl+right']
   - commands: ['focus --direction up']
-    bindings: ['alt+ctrl+up']
+    bindings: ['LWin+ctrl+up']
   - commands: ['focus --direction down']
-    bindings: ['alt+ctrl+down']
+    bindings: ['LWin+ctrl+down']
 
   # Move focused window in a given direction.
   - commands: ['move --direction left']
-    bindings: ['alt+shift+left']
+    bindings: ['LWin+left']
   - commands: ['move --direction right']
-    bindings: ['alt+shift+right']
+    bindings: ['LWin+right']
   - commands: ['move --direction up']
-    bindings: ['alt+shift+up']
+    bindings: ['LWin+up']
   - commands: ['move --direction down']
-    bindings: ['alt+shift+down']
+    bindings: ['LWin+down']
 
   # Resize focused window by a percentage or pixel amount.
   - commands: ['resize --width -2%']
