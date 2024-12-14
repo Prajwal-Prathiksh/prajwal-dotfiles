@@ -32,14 +32,14 @@
     import * as zebar from 'https://esm.sh/zebar@2';
 
     const providers = zebar.createProviderGroup({
-      network: { type: 'network' },
       glazewm: { type: 'glazewm' },
-      cpu: { type: 'cpu' },
-      date: { type: 'date', formatting: 'EEE d MMM | HH:mm' },
-      battery: { type: 'battery' },
-      memory: { type: 'memory' },
-      weather: { type: 'weather' },
-      audio: { type: 'audio' },
+      date: { type: 'date', formatting: 'EEE d MMM | HH:mm', refreshInterval: 1 * 1000 },
+      weather: { type: 'weather', refreshInterval: 7200 * 1000 },
+      network: { type: 'network', refreshInterval: 30 * 1000 },
+      memory: { type: 'memory', refreshInterval: 5 * 1000 },
+      cpu: { type: 'cpu', refreshInterval: 5 * 1000 },
+      battery: { type: 'battery', refreshInterval: 10 * 1000 },
+      audio: { type: 'audio', refreshInterval: 0.1 * 1000 },
     });
 
     createRoot(document.getElementById('root')).render(<App />);
@@ -50,6 +50,77 @@
       useEffect(() => {
         providers.onOutput(() => setOutput(providers.outputMap));
       }, []);
+
+      // Get trimmed string
+      function trimString(string, length) {
+        if (string.length > length) {
+          return string.substring(0, length) + '...';
+        } else {
+          return string;
+        }
+      }
+
+      // Get hex color code based on weather status
+      function getWeatherColor(weatherOutput) {
+        switch (weatherOutput.status) {
+          case 'clear_day':
+            return '#FFD700';
+          case 'clear_night':
+            return '#B0E2FF';
+          case 'cloudy_day':
+            return '#E3C565';
+          case 'cloudy_night':
+            return '#B0E2FF';
+          case 'light_rain_day':
+            return '#1E90FF';
+          case 'light_rain_night':
+            return '#B0E2FF';
+          case 'heavy_rain_day':
+            return '#1E90FF';
+          case 'heavy_rain_night':
+            return '#B0E2FF';
+          case 'snow_day':
+            return '#FFFFFF';
+          case 'snow_night':
+            return '#FFFFFF';
+          case 'thunder_day':
+            return '#1E90FF';
+          case 'thunder_night':
+            return '#B0E2FF';
+        }
+      }
+
+      // Get icon to show for current weather status.
+      function getWeatherIcon(weatherOutput) {
+        const color = getWeatherColor(weatherOutput);
+        const fontSize = '22px';
+        switch (weatherOutput.status) {
+          case 'clear_day':
+            return <i className="nf nf-weather-day_sunny" style={{ color, fontSize }}></i>;
+          case 'clear_night':
+            return <i className="nf nf-weather-night_clear" style={{ color, fontSize }}></i>;
+          case 'cloudy_day':
+            return <i className="nf nf-weather-day_cloudy" style={{ color, fontSize }}></i>;
+          case 'cloudy_night':
+            return <i className="nf nf-weather-night_alt_cloudy" style={{ color, fontSize }}></i>;
+          case 'light_rain_day':
+            return <i className="nf nf-weather-day_sprinkle" style={{ color, fontSize }}></i>;
+          case 'light_rain_night':
+            return <i className="nf nf-weather-night_alt_sprinkle" style={{ color, fontSize }}></i>;
+          case 'heavy_rain_day':
+            return <i className="nf nf-weather-day_rain" style={{ color, fontSize }}></i>;
+          case 'heavy_rain_night':
+            return <i className="nf nf-weather-night_alt_rain" style={{ color, fontSize }}></i>;
+          case 'snow_day':
+            return <i className="nf nf-weather-day_snow" style={{ color, fontSize }}></i>;
+          case 'snow_night':
+            return <i className="nf nf-weather-night_alt_snow" style={{ color, fontSize }}></i>;
+          case 'thunder_day':
+            return <i className="nf nf-weather-day_lightning" style={{ color, fontSize }}></i>;
+          case 'thunder_night':
+            return <i className="nf nf-weather-night_alt_lightning" style={{ color, fontSize }}></i>;
+        }
+      }
 
       // Get icon to show for current network status.
       function getNetworkIcon(networkOutput) {
@@ -103,6 +174,24 @@
         }
       }
 
+      // Get volume icon
+      function getVolumeIcon(audioOutput) {
+        const volume = audioOutput.defaultPlaybackDevice.volume;
+        if (volume > 90) {
+          return <i className="nf nf-md-volume_high" style={{ color: '#00dd00' }}></i>;
+        } else if (volume > 70) {
+          return <i className="nf nf-md-volume_high"></i>;
+        } else if (volume > 30) {
+          return <i className="nf nf-md-volume_medium"></i>;
+        } else if (volume > 10) {
+          return <i className="nf nf-md-volume_low"></i>;
+        } else if (volume > 0) {
+          return <i className="nf nf-md-volume_low" style={{ color: 'red' }}></i>;
+        } else {
+          return <i className="nf nf-md-volume_mute" style={{ color: 'red' }}></i>;
+        }
+      }
+
       // Get icon for battery state
       function getBatteryStateIcon(batteryOutput) {
         switch (batteryOutput.state) {
@@ -111,7 +200,6 @@
 
           case 'discharging':
             const level = batteryOutput.chargePercent;
-
             if (level > 90) {
               return <i className="nf nf-fa-battery_4" style={{ color: 'green' }}></i>;
             } else if (level > 70) {
@@ -132,52 +220,6 @@
 
           case 'unknown':
             return <i className="nf nf-md-battery_unknown" style={{ color: 'gray' }}></i>;
-        }
-      }
-
-      // Get icon to show for current weather status.
-      function getWeatherIcon(weatherOutput) {
-        switch (weatherOutput.status) {
-          case 'clear_day':
-            return <i className="nf nf-weather-day_sunny"></i>;
-          case 'clear_night':
-            return <i className="nf nf-weather-night_clear"></i>;
-          case 'cloudy_day':
-            return <i className="nf nf-weather-day_cloudy"></i>;
-          case 'cloudy_night':
-            return <i className="nf nf-weather-night_alt_cloudy"></i>;
-          case 'light_rain_day':
-            return <i className="nf nf-weather-day_sprinkle"></i>;
-          case 'light_rain_night':
-            return <i className="nf nf-weather-night_alt_sprinkle"></i>;
-          case 'heavy_rain_day':
-            return <i className="nf nf-weather-day_rain"></i>;
-          case 'heavy_rain_night':
-            return <i className="nf nf-weather-night_alt_rain"></i>;
-          case 'snow_day':
-            return <i className="nf nf-weather-day_snow"></i>;
-          case 'snow_night':
-            return <i className="nf nf-weather-night_alt_snow"></i>;
-          case 'thunder_day':
-            return <i className="nf nf-weather-day_lightning"></i>;
-          case 'thunder_night':
-            return <i className="nf nf-weather-night_alt_lightning"></i>;
-        }
-      }
-
-      // Get volume icon
-      function getVolumeIcon(audioOutput) {
-        const volume = audioOutput.defaultPlaybackDevice.volume;
-        if (volume > 90) {
-          return <i className="nf nf-md-volume_high" style={{ color: '#00dd00' }}></i>;
-        } else if (volume > 70) {
-          return <i className="nf nf-md-volume_high"></i>;
-        } else if (volume > 30) {
-          return <i className="nf nf-md-volume_medium"></i>;
-        } else if (volume > 0) {
-          return <i className="nf nf-md-volume_low"></i>;
-        } else {
-          return <i className="nf nf-md-volume_mute" style={{ color: 'red' }}></i>;
         }
       }
 
@@ -203,7 +245,11 @@
             )}
           </div>
 
-          <div className="center">{output.date?.formatted}</div>
+          <div className="center">
+            <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
+              {output.date?.formatted}
+            </span>
+          </div>
 
           <div className="right">
             {output.glazewm && (
@@ -231,11 +277,21 @@
               </>
             )}
 
+            {output.weather && (
+              <div className="weather">
+                {getWeatherIcon(output.weather)}
+                <span style={{ color: getWeatherColor(output.weather) }}>
+                  {Math.round(output.weather.celsiusTemp)}°C
+                  <span style={{ fontSize: '11px' }}>({Math.round(output.weather.fahrenheitTemp)}°F)</span>
+                </span>
+              </div>
+            )}
+
             {output.network && (
               <div className="network">
                 {/* Show icon for network status. */}
                 {getNetworkIcon(output.network)}
-                {output.network.defaultGateway?.ssid}
+                {trimString(output.network.defaultGateway?.ssid, 11)}
               </div>
             )}
 
@@ -255,14 +311,6 @@
               </div>
             )}
 
-            {output.battery && (
-              <div className="battery">
-                {/* Show icon for whether battery is charging. */}
-                {getBatteryStateIcon(output.battery)}
-                {Math.round(output.battery.chargePercent)}%
-              </div>
-            )}
-
             {output.audio && (
               <div className="audio">
                 {/* Show icon for current volume level. */}
@@ -271,11 +319,12 @@
               </div>
             )}
 
-            {output.weather && (
-                <div className="weather">
-                  {getWeatherIcon(output.weather)}
-                  {Math.round(output.weather.celsiusTemp)}°C
-                </div>
+            {output.battery && (
+              <div className="battery">
+                {/* Show icon for whether battery is charging. */}
+                {getBatteryStateIcon(output.battery)}
+                {Math.round(output.battery.chargePercent)}%
+              </div>
             )}
           </div>
         </div>

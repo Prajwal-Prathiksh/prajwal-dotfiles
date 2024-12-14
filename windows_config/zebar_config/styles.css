@@ -12,7 +12,7 @@ i {
 body {
   color: rgb(255 255 255 / 90%);
   font-family: 'CaskaydiaCove Nerd Font';
-  font-size: 18px; /* Increase the base font size */
+  font-size: 16px; /* Increase the base font size */
   overflow: hidden;
 }
 
@@ -33,7 +33,7 @@ body,
   align-items: center;
   height: 100%;
   padding: 4px 1vw;
-  font-size: 18px; /* Increase the font size for the app container */
+  font-size: 16px; /* Increase the font size for the app container */
 }
 
 .left,
@@ -41,7 +41,7 @@ body,
 .right {
   display: flex;
   align-items: center;
-  font-size: 18px; /* Increase the font size for the sections */
+  font-size: 16px; /* Increase the font size for the sections */
 }
 
 .center {
@@ -53,17 +53,17 @@ body,
 }
 
 button {
-  font-size: 18px; /* Increase the font size for buttons */
+  font-size: 16px; /* Increase the font size for buttons */
 }
 
 .binding-mode,
 .tiling-direction,
+.weather,
 .network,
 .memory,
 .cpu,
-.battery,
 .audio,
-.weather {
+.battery {
   margin-right: 25px;
 }
 
