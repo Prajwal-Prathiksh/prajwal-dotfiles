@@ -81,33 +81,6 @@
             "overflow": "hide",
             "segments": [
                 {
-                    "background": "#d6deeb",
-                    "foreground": "#011627",
-                    "leading_diamond": "\ue0b6",
-                    "style": "diamond",
-                    "template": "\uf489  {{ .Name }} ",
-                    "trailing_diamond": "<transparent,#d6deeb>\ue0b2</>",
-                    "type": "shell"
-                },
-                {
-                    "background": "#ffffff",
-                    "foreground": "#ce092f",
-                    "leading_diamond": "\ue0b2",
-                    "style": "diamond",
-                    "template": "\ue753 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
-                    "trailing_diamond": "<transparent,#ffffff>\ue0b2</>",
-                    "type": "angular"
-                },
-                {
-                    "background": "#ffffff",
-                    "foreground": "#337bb6",
-                    "leading_diamond": "\ue0b2",
-                    "style": "diamond",
-                    "template": "\uebd8 {{ .EnvironmentName }} ",
-                    "trailing_diamond": "<transparent,#ffffff>\ue0b2</>",
-                    "type": "az"
-                },
-                {
                     "background": "#306998",
                     "foreground": "#FFE873",
                     "leading_diamond": "\ue0b2",
@@ -124,15 +97,6 @@
                     "template": "\ue7a8 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
                     "trailing_diamond": "<transparent,#ffffff>\ue0b2</>",
                     "type": "rust"
-                },
-                {
-                    "background": "#fe562e",
-                    "foreground": "#ffffff",
-                    "leading_diamond": "\ue0b2",
-                    "style": "diamond",
-                    "template": "\ue755 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
-                    "trailing_diamond": "<transparent,#fe562e>\ue0b2</>",
-                    "type": "swift"
                 }
             ],
             "type": "prompt"
