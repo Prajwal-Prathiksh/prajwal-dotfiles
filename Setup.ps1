@@ -4,6 +4,20 @@
 ######################################################
 ######################################################
 
+param (
+    [switch]$YesAll
+)
+
+if ($YesAll) {
+    $userYesAll = Read-Host "Are you sure you want to run this script with -YesAll flag ([Y]es/n)?"
+    # if user types 'n', exit the script
+    if ($userYesAll -eq "n") {
+        Write-Host "Exiting script..." -ForegroundColor Red
+        exit
+    }
+    Write-Host "Running script with -YesAll flag..." -ForegroundColor Green
+}
+
 ## Custom Functions
 function Test-CommandExists {
     param($command)
@@ -121,7 +135,13 @@ foreach ($font in $allFonts) {
 }
 Write-Host "$border3$border3"
 
-$installFonts = Read-Host "Do you want to install these fonts? ([Y]es/[n]o)"
+if ($YesAll) {
+    $installFonts = "y"
+}
+else {
+    $installFonts = Read-Host "Do you want to install these fonts? ([Y]es/[n]o)"
+}
+
 if ($installFonts -eq "n") {
     Write-Host "Skipping font installation..." -ForegroundColor White
 }
@@ -234,7 +254,12 @@ switch ($choice) {
     }
 }
 
-$installNode = Read-Host "Do you want to install Node.js? ([Y]es/[n]o)"
+if ($YesAll) {
+    $installNode = "y"
+}
+else {
+    $installNode = Read-Host "Do you want to install Node.js? ([Y]es/[n]o)"
+}
 if ($installNode -eq "n") {
     Write-Host "Skipping Node.js installation..." -ForegroundColor White
 }
@@ -376,7 +401,12 @@ foreach ($key in $keys) {
     Write-Host "> $($fromPaths[$key]) --> $($toPaths[$key])"
 }
 
-$runCopy = Read-Host "Do you want to copy these files? ([Y]es/[n]o)"
+if ($YesAll) {
+    $runCopy = "y"
+}
+else {
+    $runCopy = Read-Host "Do you want to copy these files? ([Y]es/[n]o)"
+}
 if ($runCopy -eq "n") {
     Write-Host "Skipping copying files..." -ForegroundColor White
 }
@@ -413,7 +443,12 @@ foreach ($exe in $listOfExes) {
     Write-Host "> $($exe.Name)"
 }
 
-$runCopy = Read-Host "Do you want to copy these executables? ([Y]es/[n]o)"
+if ($YesAll) {
+    $runCopy = "y"
+}
+else {
+    $runCopy = Read-Host "Do you want to copy these executables? ([Y]es/[n]o)"
+}
 if ($runCopy -eq "n") {
     Write-Host "Skipping copying executables..." -ForegroundColor White
 }
@@ -482,9 +517,12 @@ foreach ($key in $newEnvironmentVariables.Keys) {
     Write-Host "$key = $($newEnvironmentVariables[$key])"
 }
 
-
-# Ask user if they want to update the environment variables
-$envVarUpdate = Read-Host "Do you want to update the environment variables? ([Y]es/[n]o)"
+if ($YesAll) {
+    $envVarUpdate = "y"
+}
+else {
+    $envVarUpdate = Read-Host "Do you want to update the environment variables? ([Y]es/[n]o)"
+}
 if ($envVarUpdate -eq "n") {
     Write-Host "Skipping updating environment variables..." -ForegroundColor White
 }
@@ -528,7 +566,12 @@ Write-Host "$border1$border1" -ForegroundColor Yellow
 Write-Host "CUSTOM PROFILES SECTION" -ForegroundColor Yellow
 Write-Host "$border1$border1" -ForegroundColor Yellow
 
-$setupYazi = Read-Host "Setup custom yazi profile? ([Y]es/[n]o)"
+if ($YesAll) {
+    $setupYazi = "y"
+}
+else {
+    $setupYazi = Read-Host "Setup custom yazi profile? ([Y]es/[n]o)"
+}
 if ($setupYazi -eq "n") {
     Write-Host "Skipping setting up custom yazi profile..." -ForegroundColor White
 }
@@ -552,7 +595,11 @@ else {
     Write-Host "yazi config has been setup successfully." -ForegroundColor Green
 }
 
-$setupZebar = Read-Host "Setup custom zebar profile? ([Y]es/[n]o)"
+if ($YesAll) {
+    $setupZebar = "y"
+} else {
+    $setupZebar = Read-Host "Setup custom zebar profile? ([Y]es/[n]o)"
+}
 if ($setupZebar -eq "n") {
     Write-Host "Skipping setting up custom zebar profile..." -ForegroundColor White
 }
@@ -585,7 +632,12 @@ else {
     Write-Host "zebar config has been setup successfully." -ForegroundColor Green
 }
 
-$setupNeovim = Read-Host "Setup custom neovim profile? ([Y]es/[n]o)"
+if ($YesAll) {
+    $setupNeovim = "y"
+}
+else {
+    $setupNeovim = Read-Host "Setup custom neovim profile? ([Y]es/[n]o)"
+}
 if ($setupNeovim -eq "n") {
     Write-Host "Skipping setting up custom neovim profile..." -ForegroundColor White
 }
@@ -602,7 +654,11 @@ else {
     }
 }
 
-$setupBat = Read-Host "Setup custom bat profile? ([Y]es/[n]o)"
+if ($YesAll) {
+    $setupBat = "y"
+} else {
+    $setupBat = Read-Host "Setup custom bat profile? ([Y]es/[n]o)"
+}
 if ($setupBat -eq "n") {
     Write-Host "Skipping setting up custom bat profile..." -ForegroundColor White
 }
@@ -637,8 +693,13 @@ Write-Host "Following modules will be installed:"
 foreach ($module in $modulesToInstall) {
     Write-Host "- $module"
 }
-$installModules = Read-Host "Do you want to install these modules? ([Y]es/[n]o)"
 
+if ($YesAll) {
+    $installModules = "y"
+}
+else {
+    $installModules = Read-Host "Do you want to install these modules? ([Y]es/[n]o)"
+}
 if ($installModules -eq "n") {
     Write-Host "Skipping module installation..." -ForegroundColor White
 }
@@ -676,5 +737,3 @@ Write-Host "$border1$border1" -ForegroundColor White
 Write-Host "SETUP COMPLETED" -ForegroundColor Green
 Write-Host "Bye Bye!!" -ForegroundColor Green
 Write-Host "$border1$border1" -ForegroundColor White
-
-
