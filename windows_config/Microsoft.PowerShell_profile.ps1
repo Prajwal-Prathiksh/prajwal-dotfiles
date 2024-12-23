@@ -819,7 +819,7 @@ Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 # SET CUSTOM KEYBOARD SHORTCUTS
-Set-PSReadLineKeyHandler -Key "Ctrl+q" -ScriptBlock {
+Set-PSReadLineKeyHandler -Key "Ctrl+z" -ScriptBlock {
     [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
     [Microsoft.PowerShell.PSConsoleReadLine]::Insert("zi")
     [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
@@ -1031,8 +1031,8 @@ If the full switch is provided, the full help content is displayed without pagin
         "<Ctrl+f> - fdg : Find files interactively using fd and fzf.",
         "<Ctrl+g> - rgg : Find patterns in files interactively using rg and fzf.",
         "<Ctrl+n> - nvim . : Open Neovim in the current directory.",
-        "<Ctrl+q> - zi : Jump to a directory using interactive search.",
         "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
+        "<Ctrl+z> - zi : Jump to a directory using interactive search.",
         "",
         $border1,
         "Keybindings for fzf",
