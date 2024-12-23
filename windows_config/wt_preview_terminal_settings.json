@@ -65,7 +65,7 @@
         },
         {
             "id": "Terminal.MoveFocusUp",
-            "keys": "ctrl+up"
+            "keys": "alt+up"
         },
         {
             "id": null,
@@ -97,7 +97,7 @@
         },
         {
             "id": "Terminal.MoveFocusRight",
-            "keys": "ctrl+right"
+            "keys": "alt+right"
         },
         {
             "id": "Terminal.ResizePaneUp",
@@ -121,11 +121,11 @@
         },
         {
             "id": "Terminal.MoveFocusLeft",
-            "keys": "ctrl+left"
+            "keys": "alt+left"
         },
         {
             "id": "Terminal.MoveFocusDown",
-            "keys": "ctrl+down"
+            "keys": "alt+down"
         }
     ],
     "newTabMenu": [
