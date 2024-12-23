@@ -7,10 +7,92 @@
 # fastfetch --config custom
 
 # Run Oh My Posh with custom configuration
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
+# oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
+
+# Build a simple and custom prompt
+function ConvertTo-HumanReadableTime ($milliseconds) {
+<#
+.SYNOPSIS
+Converts milliseconds to a human-readable time format.
+
+.DESCRIPTION
+The ConvertTo-HumanReadableTime function converts milliseconds to a human-readable time format (ms, s, m, h, d).
+
+.PARAMETER milliseconds
+The milliseconds parameter specifies the duration in milliseconds to convert to a human-readable time format.
+
+.EXAMPLE
+ConvertTo-HumanReadableTime 123456789
+Converts 123456789 milliseconds to a human-readable time format.
+#>
+    # Convert milliseconds to ms, s, m, h, d as needed
+    $time = [TimeSpan]::FromMilliseconds($milliseconds)
+    $days = $time.Days
+    $hours = $time.Hours
+    $minutes = $time.Minutes
+    $seconds = $time.Seconds
+    $milliseconds = $time.Milliseconds
+    
+    $human_readable_duration = ""
+    if ($days -gt 0) {
+        $human_readable_duration += "$days" + "d "
+    }
+    if ($hours -gt 0) {
+        $human_readable_duration += "$hours" + "h "
+    }
+    if ($minutes -gt 0) {
+        $human_readable_duration += "$minutes" + "m "
+    }
+    if ($seconds -gt 0) {
+        $human_readable_duration += "$seconds" + "s "
+    }
+    if ($milliseconds -gt 0) {
+        $human_readable_duration += "$milliseconds" + "ms"
+    }
+    
+    return $human_readable_duration
+}
+
+# Create a custom prompt function
+function prompt {
+<#
+.SYNOPSIS
+Customizes the PowerShell prompt.
+
+.DESCRIPTION
+The prompt function customizes the PowerShell prompt to display the current directory, duration of the last command, and a custom prompt symbol.
+
+.PARAMETER None
+#>
+    $cwd = Get-Location
+    $parent_dir = Split-Path -Path $cwd -Leaf
+
+    # Get duration of last run command (if available)
+    $history = Get-History
+    # check if history is not empty
+    if ($history) {
+        $last_command_duration = $history[-1].Duration.TotalMilliseconds
+        $human_readable_duration = ConvertTo-HumanReadableTime $last_command_duration
+        $duration_prompt = "(⏱  $human_readable_duration)"
+    } else {
+        $duration_prompt = ""
+    }
+
+    $prompt = "`e[92m➜  `e[0m"
+    $prompt += "`e[38;2;0;255;255m$($cwd)`e[0m "
+    $prompt += "`e[38;2;255;255;0m$duration_prompt`e[0m "
+    $prompt += "$('❯' * ($nestedPromptLevel + 1)) "
+    return $prompt
+}
 
 # Predictive IntelliSense Options
-Set-PSReadLineOption -PredictionViewStyle ListView
+$PSReadLineOptions = @{
+    HistoryNoDuplicates = $true
+    PredictionViewStyle = "ListView"
+    HistorySavePath = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
+    PredictionSource = "HistoryAndPlugin"
+}
+Set-PSReadLineOption @PSReadLineOptions
 
 # Set Tab Completion to MenuComplete
 # Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
@@ -54,7 +136,7 @@ The envName parameter specifies the name of the conda environment to activate.
     Write-Host "Conda environment activated." -ForegroundColor Green
 
     # Re-run Oh My Posh with custom configuration to update the prompt
-    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
+    # oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
     
     # Activate the conda environment if the environment name is provided
     if ($envName) {
@@ -72,8 +154,6 @@ Imports the Node.js environment and activates it.
 The Activate-Node function activates the Node.js environment by adding the Node.js environment variables to the PATH environment variable.
 
 .PARAMETER None
-This function does not accept any parameters.
-
 #>
     fnm env --use-on-cd | Out-String | Invoke-Expression
     Write-Host "Node.js environment activated." -ForegroundColor Green
@@ -88,7 +168,6 @@ Imports the Visual Studio environment and activates it.
 The Activate-VisualStudioEnvironment function imports the Visual Studio environment by adding the Visual Studio environment variables to the PATH, INCLUDE, and LIB environment variables.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
 
     $envPaths = @(
@@ -173,7 +252,6 @@ Displays custom executables in the "$env:USERPROFILE\.custom_bin" directory.
 The Show-CustomExecutables function displays custom executables in the "$env:USERPROFILE\.custom_bin" directory.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     $customBinPath = "$env:USERPROFILE\.custom_bin"
     if (-not (Test-Path $customBinPath)) {
@@ -190,19 +268,77 @@ This function does not accept any parameters.
     }
 }
 
-function Edit-Profile {
+function Edit-Profile ($editor) {
 <#
 .SYNOPSIS
-Opens the Microsoft.PowerShell_profile.ps1 file for editing.
+Opens the Microsoft.PowerShell_profile.ps1 file for editing (default: code).
 
 .DESCRIPTION
-The Edit-Profile function opens the Microsoft.PowerShell_profile.ps1 file in the default code editor for editing.
+The Edit-Profile function opens the Microsoft.PowerShell_profile.ps1 file for editing using the specified editor (default: code).
 
-.PARAMETER None
-This function does not accept any parameters.
-
+.PARAMETER editor
+The editor parameter specifies the editor to use for editing the profile. Default is code.
 #>
-    code $PROFILE
+    if (-not $editor) {
+        $editor = "code"
+    }
+
+    & $editor $PROFILE
+}
+
+
+function Edit-PSHistory ($editor) {
+<#
+.SYNOPSIS
+Opens the PowerShell history file for editing (default: code).
+
+.DESCRIPTION
+The Edit-PSHistory function opens the PowerShell history file for editing using the specified editor (default: code).
+
+.PARAMETER editor
+The editor parameter specifies the editor to use for editing the history file. Default is code.
+#>
+    if (-not $editor) {
+        $editor = "code"
+    }
+
+    $historyFile = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
+    if (-not (Test-Path $historyFile)) {
+        Write-Host "PowerShell history file not found." -ForegroundColor Red
+        return
+    }
+
+    & $editor $historyFile
+}
+
+function Remove-DuplicateHistory {
+<#
+.SYNOPSIS
+Removes duplicate entries from the PowerShell history file.
+
+.DESCRIPTION
+The Remove-DuplicateHistory function removes duplicate entries from the PowerShell history file.
+
+.PARAMETER [switch] sort
+The sort parameter specifies whether to sort the history file before removing duplicates.
+#>
+    param (
+        [switch]$sort
+    )
+
+    $historyFile = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
+    if (-not (Test-Path $historyFile)) {
+        Write-Host "PowerShell history file not found." -ForegroundColor Red
+        return
+    }
+
+    $history = Get-Content -Path $historyFile
+    $uniqueHistory = $history | Select-Object -Unique
+    if ($sort) {
+        $uniqueHistory = $uniqueHistory | Sort-Object
+    }
+    $uniqueHistory | Set-Content -Path $historyFile
+    Write-Host "Duplicate entries removed from the PowerShell history file." -ForegroundColor Green
 }
 
 function Reload-Profile {
@@ -214,8 +350,6 @@ Reloads the Microsoft.PowerShell_profile.ps1 file.
 The Reload-Profile function reloads the Microsoft.PowerShell_profile.ps1 file to apply any changes made to the profile.
 
 .PARAMETER None
-This function does not accept any parameters.
-
 #>
     & $profile
 }
@@ -229,7 +363,6 @@ Retrieves the public IP address of the current machine.
 The Get-PubIP function retrieves the public IP address of the current machine using the ifconfig.me service.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     (Invoke-WebRequest http://ifconfig.me/ip).Content
 }
@@ -350,7 +483,6 @@ The lazyg function adds all files, commits with a message, and pushes to the cur
 
 .PARAMETER commitMessage
 The commitMessage parameter specifies the message to use for the commit.
-
 #>
     git add .
     git commit -m $commitMessage
@@ -366,7 +498,6 @@ Switches to a different Git branch using fzf.
 The Switch-GitBranch function switches to a different Git branch using fzf.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     if (-not (Test-Path .git)) {
         Write-Host "Not a Git repository." -ForegroundColor Red
@@ -391,7 +522,6 @@ Switches to a different conda environment using fzf.
 The Select-CondaEnv function checks if conda is available. If not, it runs Activate-Conda, and then lists all available conda environments using fzf. The function then activates the selected conda environment.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
         Activate-Conda
@@ -457,7 +587,6 @@ Open the current directory in yazi, and changes the directory upon exit, to the 
 The function opens the current directory in yazi, a file manager, and changes the directory upon exit to the directory where yazi was last closed.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     $tmp = [System.IO.Path]::GetTempFileName()
     yazi $args --cwd-file="$tmp"
@@ -518,7 +647,6 @@ Displays disk space usage. Alias for Get-Volume.
 The df function displays disk space usage using the Get-Volume cmdlet.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     get-volume
 }
@@ -692,7 +820,7 @@ Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 # SET CUSTOM KEYBOARD SHORTCUTS
-Set-PSReadLineKeyHandler -Key "Ctrl+z" -ScriptBlock {
+Set-PSReadLineKeyHandler -Key "Ctrl+i" -ScriptBlock {
     [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
     [Microsoft.PowerShell.PSConsoleReadLine]::Insert("zi")
     [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
@@ -805,7 +933,6 @@ Find files interactively using fd and fzf.
 The fdg function uses the fd command to find files and fzf to interactively select a file.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     $input_path = _fzf_get_path_using_fd
     if (-not [string]::IsNullOrEmpty($input_path)) {
@@ -822,7 +949,6 @@ Find patterns in files interactively using rg and fzf.
 The rgg function uses the rg command to find patterns in files and fzf to interactively select a file.
 
 .PARAMETER None
-This function does not accept any parameters.
 #>
     $input_path = _fzf_get_path_using_rg
     if (-not [string]::IsNullOrEmpty($input_path))
@@ -905,9 +1031,9 @@ If the full switch is provided, the full help content is displayed without pagin
         "<Ctrl+e> - explorer.exe . : Open the current directory in File Explorer.",
         "<Ctrl+f> - fdg : Find files interactively using fd and fzf.",
         "<Ctrl+g> - rgg : Find patterns in files interactively using rg and fzf.",
+        "<Ctrl+i> - zi : Jump to a directory using interactive search.",
         "<Ctrl+n> - nvim . : Open Neovim in the current directory.",
         "<Ctrl+t> - cht.exe -TA : Insert the cheatsheet for the current command.",
-        "<Ctrl+z> - zi : Jump to a directory using interactive search.",
         "",
         $border1,
         "Keybindings for fzf",
@@ -926,13 +1052,16 @@ If the full switch is provided, the full help content is displayed without pagin
         $border1,
         "bman : Displays the manual page for a command using bat.",
         "Connect-WifiUsingFzf : Connects to a Wi-Fi network using fzf.",
+        "ConvertTo-HumanReadableTime : Converts milliseconds to a human-readable time format.",
         "df : Displays disk space usage. Alias for Get-Volume.",
         "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
+        "Edit-PSHistory : Opens the PowerShell history file for editing.",
         "fdg : Find files interactively using fd and fzf.",
         "Get-PubIP : Retrieves the public IP address of the current machine.",
         "lazyg : Adds all files, commits with a message, and pushes to the current branch.",
         "ll : Lists all files in long format with color highlighting.",
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
+        "Remove-DuplicateHistory : Removes duplicate entries from the PowerShell history file.",
         "rgg : Find patterns in files interactively using rg and fzf.",
         "sed : Searches and replaces text in a file.",
         "Select-CondaEnv : Switches to a different conda environment using fzf.",
