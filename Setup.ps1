@@ -71,7 +71,6 @@ $scoopPackages = @(
     "bat",
     "fastfetch",
     "vim",
-    "oh-my-posh",
     "speedtest-cli",
     "lua",
     "fnm",
@@ -379,7 +378,6 @@ $fastfetchParsedPath = Get-ParsedPath -ShortcutName "FastFetch"
 $fastfetchPath = (($fastfetchParsedPath.Replace("'", "")).Replace("\fastfetch.exe", "")).Replace("\\", "\")
 
 $fromPaths = @{
-    "oh_my_posh" = "$scriptDir\custom.omp.json"
     "fastfetch" = "$scriptDir\fastfetch_custom.jsonc"
     "powershell" = "$scriptDir\Microsoft.PowerShell_profile.ps1"
     "vim" = "$scriptDir\.vimrc"
@@ -387,7 +385,6 @@ $fromPaths = @{
     "glazev3" = "$setupTempDir\glazewm_v3_config.yaml"
 }
 $toPaths = @{
-    "oh_my_posh" = "$env:POSH_THEMES_PATH\custom.omp.json"
     "fastfetch" = "$fastfetchPath" + "presets\custom.jsonc"
     "powershell" = "$profile"
     "vim" = "$env:USERPROFILE\_vimrc"
