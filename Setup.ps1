@@ -434,7 +434,7 @@ Write-Host "$border1$border1" -ForegroundColor Yellow
 Write-Host "CUSTOM EXECUTABLES SECTION" -ForegroundColor Yellow
 Write-Host "$border1$border1" -ForegroundColor Yellow
 
-$customExesFrom = "$scriptDir\custom_executables"
+$customExesFrom = "$scriptDir\custom_executables\"
 $customExesTo = "$env:USERPROFILE\.custom_bin"
 
 $listOfExes = Get-ChildItem -Path $customExesFrom -File
@@ -457,8 +457,12 @@ else {
     if (-not (Test-Path -Path $customExesTo)) {
         New-Item -ItemType Directory -Path $customExesTo | Out-Null
     }
+    # Get all files in the from directory
+    $listOfExes = Get-ChildItem -Path $customExesFrom -File
     # Copy executables
-    Copy-Item -Path $customExesFrom -Destination $customExesTo -Recurse -Force
+    foreach ($exe in $listOfExes) {
+        Copy-Item -Path $exe.FullName -Destination $customExesTo
+    }
     Write-Host "Executables copied successfully." -ForegroundColor Green
 }
 
