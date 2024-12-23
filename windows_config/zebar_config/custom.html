@@ -34,7 +34,7 @@
     const providers = zebar.createProviderGroup({
       glazewm: { type: 'glazewm' },
       date: { type: 'date', formatting: 'EEE d MMM | HH:mm', refreshInterval: 1 * 1000 },
-      weather: { type: 'weather', refreshInterval: 7200 * 1000 },
+      weather: { type: 'weather', refreshInterval: 7200 * 1000, latitude: 12.94, longitude: 77.62 },
       network: { type: 'network', refreshInterval: 30 * 1000 },
       memory: { type: 'memory', refreshInterval: 5 * 1000 },
       cpu: { type: 'cpu', refreshInterval: 5 * 1000 },
