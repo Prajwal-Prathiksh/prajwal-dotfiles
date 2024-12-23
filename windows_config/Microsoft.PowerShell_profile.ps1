@@ -72,7 +72,7 @@ The prompt function customizes the PowerShell prompt to display the current dire
     if ($history) {
         $last_command_duration = $history[-1].Duration.TotalMilliseconds
         $human_readable_duration = ConvertTo-HumanReadableTime $last_command_duration
-        $duration_prompt = "(⏱  $human_readable_duration)"
+        $duration_prompt = "($human_readable_duration)"
     } else {
         $duration_prompt = ""
     }
