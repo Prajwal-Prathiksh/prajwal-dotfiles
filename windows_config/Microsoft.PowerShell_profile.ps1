@@ -69,7 +69,6 @@ The prompt function customizes the PowerShell prompt to display the current dire
 
     # Get duration of last run command (if available)
     $history = Get-History
-    # check if history is not empty
     if ($history) {
         $last_command_duration = $history[-1].Duration.TotalMilliseconds
         $human_readable_duration = ConvertTo-HumanReadableTime $last_command_duration
@@ -79,7 +78,7 @@ The prompt function customizes the PowerShell prompt to display the current dire
     }
 
     $prompt = "`e[92m➜  `e[0m"
-    $prompt += "`e[38;2;0;255;255m$($cwd)`e[0m "
+    $prompt += "`e[38;2;0;255;255m$($parent_dir)`e[0m "
     $prompt += "`e[38;2;255;255;0m$duration_prompt`e[0m "
     $prompt += "$('❯' * ($nestedPromptLevel + 1)) "
     return $prompt
