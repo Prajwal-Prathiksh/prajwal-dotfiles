@@ -33,24 +33,96 @@ Converts 123456789 milliseconds to a human-readable time format.
     $seconds = $time.Seconds
     $milliseconds = $time.Milliseconds
     
-    $human_readable_duration = ""
+    $humanReadableDuration = ""
     if ($days -gt 0) {
-        $human_readable_duration += "$days" + "d "
+        $humanReadableDuration += "$days" + "d "
     }
     if ($hours -gt 0) {
-        $human_readable_duration += "$hours" + "h "
+        $humanReadableDuration += "$hours" + "h "
     }
     if ($minutes -gt 0) {
-        $human_readable_duration += "$minutes" + "m "
+        $humanReadableDuration += "$minutes" + "m "
     }
     if ($seconds -gt 0) {
-        $human_readable_duration += "$seconds" + "s "
+        $humanReadableDuration += "$seconds" + "s "
     }
     if ($milliseconds -gt 0) {
-        $human_readable_duration += "$milliseconds" + "ms"
+        $humanReadableDuration += "$milliseconds" + "ms"
     }
     
-    return $human_readable_duration
+    return $humanReadableDuration
+}
+
+function Trim-Path ($path) {
+<#
+.SYNOPSIS
+Trims the path to display only the first character of each directory name.
+
+.DESCRIPTION
+The Trim-Path function trims the path to display only the first character of each directory name, except the last one which is the full name, and for the drive it includes the colon.
+
+.PARAMETER path
+The path parameter specifies the path to trim.
+
+.EXAMPLE
+Trim-Path "C:\Users\username\Documents\GitHub\project"
+"C:\U\u\D\G\project"
+#>
+    $pathParts = $path -split '\\'
+    $trimmedPath = $pathParts | ForEach-Object {
+        if ($_ -eq $pathParts[-1] -or $_ -eq $pathParts[0]) {
+            $_
+        } else {
+            $_[0]
+        }
+    }
+    return $trimmedPath -join '\'
+}
+
+function SmartTrim-Path ($path) {
+<#
+.SYNOPSIS
+Smartly trims the path to display only the first character of each directory name.
+
+.DESCRIPTION
+The SmartTrim-Path function replaces common environment variables with their corresponding names and smartly trims the path to display only the first character of each directory name, except the last one which is the full name, and for the drive it includes the colon.
+
+.PARAMETER path
+The path parameter specifies the path to smartly trim.
+
+.EXAMPLE
+SmartTrim-Path "C:\Users\username\Documents\GitHub\project"
+"~\D\G\project"
+#>
+    $pathPrefixes = @{
+        $env:USERPROFILE = "~"
+        $env:LOCALAPPDATA = "LOCALAPPDATA"
+        $env:APPDATA = "APPDATA"
+        $env:ProgramFiles = "ProgramFiles"
+        ${env:ProgramFiles(x86)} = "ProgramFiles(x86)"
+        $env:WinDir = "WinDir"
+    }
+
+    $pathPrefix = $pathPrefixes.Keys | Where-Object { $path.ToString().StartsWith($_) }
+    if ($pathPrefix) {
+        # In case multiple prefixes are found, use the longest one
+        $longestPrefix = $pathPrefix | Sort-Object -Property Length -Descending | Select-Object -First 1
+        $pathPrefix = $longestPrefix
+
+        $escaped_path_prefix = [regex]::Escape($pathPrefix)
+        $renamedPath = $path -replace "^$escaped_path_prefix", $pathPrefixes[$pathPrefix]
+        $pathParts = $renamedPath -split '\\'
+        $trimmedPath = $pathParts | ForEach-Object {
+            if ($_ -eq $pathParts[-1] -or $_ -eq $pathParts[0]) {
+                $_
+            } else {
+                $_[0]
+            }
+        }
+        return $trimmedPath -join '\'
+    } else {
+        return Trim-Path $path
+    }
 }
 
 # Create a custom prompt function
@@ -65,21 +137,21 @@ The prompt function customizes the PowerShell prompt to display the current dire
 .PARAMETER None
 #>
     $cwd = Get-Location
-    $parent_dir = Split-Path -Path $cwd -Leaf
+    $trimmedDirName = SmartTrim-Path $cwd
 
     # Get duration of last run command (if available)
     $history = Get-History
     if ($history) {
-        $last_command_duration = $history[-1].Duration.TotalMilliseconds
-        $human_readable_duration = ConvertTo-HumanReadableTime $last_command_duration
-        $duration_prompt = "($human_readable_duration)"
+        $lastCommandDuration = $history[-1].Duration.TotalMilliseconds
+        $humanReadableDuration = ConvertTo-HumanReadableTime $lastCommandDuration
+        $durationPrompt = "($humanReadableDuration)"
     } else {
-        $duration_prompt = ""
+        $durationPrompt = ""
     }
 
     $prompt = "`e[92m➜  `e[0m"
-    $prompt += "`e[38;2;0;255;255m$($parent_dir)`e[0m "
-    $prompt += "`e[38;2;255;255;0m$duration_prompt`e[0m "
+    $prompt += "`e[38;2;0;255;255m$($trimmedDirName)`e[0m "
+    $prompt += "`e[38;2;255;255;0m$durationPrompt`e[0m "
     $prompt += "$('❯' * ($nestedPromptLevel + 1)) "
     return $prompt
 }
