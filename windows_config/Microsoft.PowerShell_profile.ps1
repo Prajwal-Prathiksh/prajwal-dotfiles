@@ -25,14 +25,13 @@ The milliseconds parameter specifies the duration in milliseconds to convert to 
 ConvertTo-HumanReadableTime 123456789
 Converts 123456789 milliseconds to a human-readable time format.
 #>
-    # Convert milliseconds to ms, s, m, h, d as needed
     $time = [TimeSpan]::FromMilliseconds($milliseconds)
     $days = $time.Days
     $hours = $time.Hours
     $minutes = $time.Minutes
     $seconds = $time.Seconds
     $milliseconds = $time.Milliseconds
-    
+
     $humanReadableDuration = ""
     if ($days -gt 0) {
         $humanReadableDuration += "$days" + "d "
@@ -49,7 +48,7 @@ Converts 123456789 milliseconds to a human-readable time format.
     if ($milliseconds -gt 0) {
         $humanReadableDuration += "$milliseconds" + "ms"
     }
-    
+
     return $humanReadableDuration
 }
 
@@ -69,11 +68,12 @@ Trim-Path "C:\Users\username\Documents\GitHub\project"
 "C:\U\u\D\G\project"
 #>
     $pathParts = $path -split '\\'
-    $trimmedPath = $pathParts | ForEach-Object {
-        if ($_ -eq $pathParts[-1] -or $_ -eq $pathParts[0]) {
-            $_
-        } else {
-            $_[0]
+    $trimmedPath = for ($i = 0; $i -lt $pathParts.Count; $i++) {
+        if ($i -eq 0 -or $i -eq $pathParts.Count - 1) {
+            $pathParts[$i]
+        }
+        else {
+            $pathParts[$i][0]
         }
     }
     return $trimmedPath -join '\'
@@ -95,35 +95,23 @@ SmartTrim-Path "C:\Users\username\Documents\GitHub\project"
 "~\D\G\project"
 #>
     $pathPrefixes = @{
-        $env:USERPROFILE = "~"
-        $env:LOCALAPPDATA = "LOCALAPPDATA"
-        $env:APPDATA = "APPDATA"
-        $env:ProgramFiles = "ProgramFiles"
+        $env:LOCALAPPDATA        = "LOCALAPPDATA"
+        $env:APPDATA             = "APPDATA"
+        $env:USERPROFILE         = "~"
+        $env:ProgramFiles        = "ProgramFiles"
         ${env:ProgramFiles(x86)} = "ProgramFiles(x86)"
-        $env:WinDir = "WinDir"
+        $env:WinDir              = "WinDir"
     }
-
-    $pathPrefix = $pathPrefixes.Keys | Where-Object { $path.ToString().StartsWith($_) }
-    if ($pathPrefix) {
-        # In case multiple prefixes are found, use the longest one
-        $longestPrefix = $pathPrefix | Sort-Object -Property Length -Descending | Select-Object -First 1
-        $pathPrefix = $longestPrefix
-
-        $escaped_path_prefix = [regex]::Escape($pathPrefix)
-        $renamedPath = $path -replace "^$escaped_path_prefix", $pathPrefixes[$pathPrefix]
-        $pathParts = $renamedPath -split '\\'
-        $trimmedPath = $pathParts | ForEach-Object {
-            if ($_ -eq $pathParts[-1] -or $_ -eq $pathParts[0]) {
-                $_
-            } else {
-                $_[0]
-            }
-        }
-        return $trimmedPath -join '\'
-    } else {
-        return Trim-Path $path
+    $strPath = $path.ToString()
+    $matchedPrefixes = $pathPrefixes.Keys | Where-Object { $strPath.StartsWith($_) }
+    if ($matchedPrefixes) {
+        $longestPrefix = $matchedPrefixes | Sort-Object -Property Length -Descending | Select-Object -First 1
+        $renamedPath = $strPath.Replace($longestPrefix, $pathPrefixes[$longestPrefix])
+        return Trim-Path $renamedPath
     }
+    return Trim-Path $path
 }
+
 
 # Create a custom prompt function
 function prompt {
@@ -145,7 +133,8 @@ The prompt function customizes the PowerShell prompt to display the current dire
         $lastCommandDuration = $history[-1].Duration.TotalMilliseconds
         $humanReadableDuration = ConvertTo-HumanReadableTime $lastCommandDuration
         $durationPrompt = "($humanReadableDuration)"
-    } else {
+    }
+    else {
         $durationPrompt = ""
     }
 
@@ -160,8 +149,8 @@ The prompt function customizes the PowerShell prompt to display the current dire
 $PSReadLineOptions = @{
     HistoryNoDuplicates = $true
     PredictionViewStyle = "ListView"
-    HistorySavePath = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
-    PredictionSource = "HistoryAndPlugin"
+    HistorySavePath     = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
+    PredictionSource    = "HistoryAndPlugin"
 }
 Set-PSReadLineOption @PSReadLineOptions
 
@@ -334,7 +323,8 @@ The Show-CustomExecutables function displays custom executables in the "$env:USE
     if ($customExecutables) {
         Write-Host "Custom Executables in '$customBinPath':" -ForegroundColor Green
         $customExecutables | ForEach-Object { Write-Host $_.Name -ForegroundColor Cyan }
-    } else {
+    }
+    else {
         Write-Host "No custom executables found in '$customBinPath'." -ForegroundColor Yellow
     }
 }
@@ -479,20 +469,24 @@ The AllAvailable parameter specifies whether to show all available Wi-Fi network
         $fzfInput = $savedNetworks | ForEach-Object {
             if ($_ -eq $connectedNetwork) {
                 "$_ *" # Mark connected network
-            } else {
+            }
+            else {
                 $_
             }
         }
-    } elseif ($AllAvailable) {
+    }
+    elseif ($AllAvailable) {
         $fzfInput = $networks | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
-    } else {
+    }
+    else {
         # Filter saved profiles for networks that are currently available
         $fzfInput = $networks | ForEach-Object {
             $networkName = $_.Matches.Groups[1].Value.Trim()
             if ($networkName -in $savedNetworks) {
                 if ($networkName -eq $connectedNetwork) {
                     "$networkName *" # Mark connected network
-                } else {
+                }
+                else {
                     $networkName
                 }
             }
@@ -504,9 +498,9 @@ The AllAvailable parameter specifies whether to show all available Wi-Fi network
 
     # Use fzf to select a network with profile details in the preview pane
     $selectedNetwork = $fzfInput | fzf --prompt="Select Wi-Fi network: " `
-                                        --height=35 `
-                                        --ansi `
-                                        --preview "netsh wlan show profile {} key=clear" `
+        --height=35 `
+        --ansi `
+        --preview "netsh wlan show profile {} key=clear" `
 
     if ($selectedNetwork) {
         # Replace all '*' characters with blank space
@@ -518,10 +512,12 @@ The AllAvailable parameter specifies whether to show all available Wi-Fi network
         # Provide feedback to the user
         if ($connectionResult -like "*successfully*") {
             Write-Host "Connected to '$selectedNetwork' successfully." -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "Failed to connect to '$selectedNetwork'. Error: $connectionResult" -ForegroundColor Red
         }
-    } else {
+    }
+    else {
         Write-Host "No Wi-Fi network selected." -ForegroundColor Yellow
     }
 }
@@ -606,7 +602,8 @@ The Select-CondaEnv function checks if conda is available. If not, it runs Activ
     if ($selectedEnv) {
         conda activate $selectedEnv
         Write-Host "Conda environment '$selectedEnv' activated." -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "No Conda environment selected." -ForegroundColor Yellow
     }
 }
@@ -644,7 +641,8 @@ Displays the weather for the current location using the v2 version of the wttr.i
     $baseURL = "https://$version.wttr.in"
     if ($cityName) {
         Invoke-RestMethod "$baseURL/$cityName"
-    } else {
+    }
+    else {
         Invoke-RestMethod "$baseURL"
     }
 }
@@ -689,24 +687,24 @@ The touch function creates a new file with the specified name.
 .PARAMETER file
 The file parameter specifies the name of the file to create.
 #>
-"" | Out-File $file -Encoding ASCII
+    "" | Out-File $file -Encoding ASCII
 }
 
 function unzip ($file) {
-    <#
-    .SYNOPSIS
-    Extracts files from a compressed archive.
-    
-    .DESCRIPTION
-    The unzip function extracts files from a compressed archive.
-    
-    .PARAMETER file
-    The file parameter specifies the name of the compressed archive to extract files from.
-    #>
-        Write-Output("Extracting", $file, "to", $pwd)
-        $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
-        Expand-Archive -Path $fullFile -DestinationPath $pwd
-    }
+<#
+.SYNOPSIS
+Extracts files from a compressed archive.
+
+.DESCRIPTION
+The unzip function extracts files from a compressed archive.
+
+.PARAMETER file
+The file parameter specifies the name of the compressed archive to extract files from.
+#>
+    Write-Output("Extracting", $file, "to", $pwd)
+    $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
+    Expand-Archive -Path $fullFile -DestinationPath $pwd
+}
     
 
 function df {
@@ -783,7 +781,8 @@ function global:__zoxide_bin {
         [Console]::OutputEncoding = [System.Text.Utf8Encoding]::new()
         $result = zoxide @args
         return $result
-    } finally {
+    }
+    finally {
         [Console]::OutputEncoding = $encoding
     }
 }
@@ -800,7 +799,8 @@ function global:__zoxide_pwd {
 function global:__zoxide_cd($dir, $literal) {
     $dir = if ($literal) {
         Set-Location -LiteralPath $dir -Passthru -ErrorAction Stop
-    } else {
+    }
+    else {
         if ($dir -eq '-' -and ($PSVersionTable.PSVersion -lt 6.1)) {
             Write-Error "cd - is not supported below PowerShell 6.1. Please upgrade your version of PowerShell."
         }
@@ -912,7 +912,7 @@ Set-PSReadLineKeyHandler -Key "Ctrl+e" -ScriptBlock {
 # https://dev.to/kevinnitro/fzf-advanced-integration-in-powershell-53p0
 #
 
-$env:FZF_DEFAULT_OPTS=@"
+$env:FZF_DEFAULT_OPTS = @"
 --layout=reverse
 --cycle
 --scroll-off=5
@@ -930,35 +930,31 @@ $env:FZF_DEFAULT_OPTS=@"
 
 function _fzf_open_path {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$input_path
     )
-    if ($input_path -match "^.*:\d+:.*$")
-    {
+    if ($input_path -match "^.*:\d+:.*$") {
         $input_path = ($input_path -split ":")[0]
     }
-    if (-not (Test-Path $input_path))
-    {
+    if (-not (Test-Path $input_path)) {
         return
     }
     $cmds = @{
-    'bat' = { bat $input_path }
-    'vim' = { vim $input_path }
-    'code' = { code $input_path }
-    'cd' = {
-        if (Test-Path $input_path -PathType Leaf)
-        {
-        $input_path = Split-Path $input_path -Parent
+        'bat'    = { bat $input_path }
+        'vim'    = { vim $input_path }
+        'code'   = { code $input_path }
+        'cd'     = {
+            if (Test-Path $input_path -PathType Leaf) {
+                $input_path = Split-Path $input_path -Parent
+            }
+            Set-Location $input_path
         }
-        Set-Location $input_path
-    }
-    'remove' = { Remove-Item -Recurse -Force $input_path }
+        'remove' = { Remove-Item -Recurse -Force $input_path }
     }
     $cmd = $cmds.Keys | Sort-Object | fzf --prompt 'Select command> '
 
     # If no command is selected, return
-    if (-not $cmd)
-    {
+    if (-not $cmd) {
         return
     }
     & $cmds[$cmd]
@@ -966,13 +962,12 @@ function _fzf_open_path {
 
 function _fzf_get_path_using_fd {
     $input_path = fd --type file --follow --hidden --exclude .git |
-        fzf --prompt 'Files> ' `
+    fzf --prompt 'Files> ' `
         --header 'Files' `
         --preview 'if ((Get-Item {}).Extension -in ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".pdf") { chafa --symbols vhalf -w 1 --color-extractor median {} } else { bat --color=always {} --style=numbers }'
 
     # Prepend the current directory if the path is relative
-    if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "")
-    {
+    if ($input_path -notmatch "^([a-zA-Z]:|\\\\)" -and $input_path -ne "") {
         $input_path = Join-Path $PWD $input_path
     }
     return $input_path
@@ -982,16 +977,16 @@ function _fzf_get_path_using_rg {
     $INITIAL_QUERY = "${*:-}"
     $RG_PREFIX = "rg --column --line-number --no-heading --color=always --smart-case"
     $input_path = $null |
-        fzf --ansi --disabled --query "$INITIAL_QUERY" `
-            --bind "start:reload:($RG_PREFIX {q} || Write-Host NoResultsFound)" `
-            --bind "change:reload:($RG_PREFIX {q} || Write-Host NoResultsFound)" `
-            --color "hl:-1:underline,hl+:-1:underline:reverse" `
-            --delimiter ':' `
-            --prompt "1. ripgrep> " `
-            --preview-label "Preview" `
-            --header-first `
-            --preview "bat --color=always {1} --highlight-line {2} --style=numbers" `
-            --preview-window "up,60%,border-bottom,+{2}+3/3"
+    fzf --ansi --disabled --query "$INITIAL_QUERY" `
+        --bind "start:reload:($RG_PREFIX {q} || Write-Host NoResultsFound)" `
+        --bind "change:reload:($RG_PREFIX {q} || Write-Host NoResultsFound)" `
+        --color "hl:-1:underline,hl+:-1:underline:reverse" `
+        --delimiter ':' `
+        --prompt "1. ripgrep> " `
+        --preview-label "Preview" `
+        --header-first `
+        --preview "bat --color=always {1} --highlight-line {2} --style=numbers" `
+        --preview-window "up,60%,border-bottom,+{2}+3/3"
     return $input_path
 }
 
@@ -1022,23 +1017,22 @@ The rgg function uses the rg command to find patterns in files and fzf to intera
 .PARAMETER None
 #>
     $input_path = _fzf_get_path_using_rg
-    if (-not [string]::IsNullOrEmpty($input_path))
-    {
+    if (-not [string]::IsNullOrEmpty($input_path)) {
         _fzf_open_path $input_path
     }
 }
 
 # SET KEYBOARD SHORTCUTS TO CALL FUNCTION
 Set-PSReadLineKeyHandler -Key "Ctrl+f" -ScriptBlock {
-  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("fdg")
-  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("fdg")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
 
 Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
-  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("rgg")
-  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("rgg")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
 
 
@@ -1049,15 +1043,15 @@ Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
 
 # SET KEYBOARD SHORTCUT TO CALL CHEAT
 Set-PSReadLineKeyHandler -Key "Ctrl+t" -ScriptBlock {
-  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA ")
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("cht.exe -TA ")
 }
 
 # SET KEYBOARD SHORTCUT TO OPEN NEOVIM IN THE CURRENT DIRECTORY
 Set-PSReadLineKeyHandler -Key "Ctrl+n" -ScriptBlock {
-  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("nvim .")
-  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("nvim .")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
 
 
