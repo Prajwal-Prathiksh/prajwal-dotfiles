@@ -138,7 +138,12 @@ The prompt function customizes the PowerShell prompt to display the current dire
     if ($history) {
         $lastCommandDuration = $history[-1].Duration.TotalMilliseconds
         $humanReadableDuration = ConvertTo-HumanReadableTime $lastCommandDuration
-        $durationPrompt = "($humanReadableDuration)"
+        if ($humanReadableDuration.Length -gt 0) {
+            $durationPrompt = "($humanReadableDuration)"
+        }
+        else {
+            $durationPrompt = ""
+        }
     }
     else {
         $durationPrompt = ""
