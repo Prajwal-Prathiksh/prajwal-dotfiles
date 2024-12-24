@@ -82,7 +82,7 @@ Trim-Path "C:\Users\username\Documents\GitHub\project"
 function SmartTrim-Path ($path) {
 <#
 .SYNOPSIS
-Smartly trims the path to display only the first character of each directory name.
+Replaces common environment variables with their corresponding names and smartly trims the path.
 
 .DESCRIPTION
 The SmartTrim-Path function replaces common environment variables with their corresponding names and smartly trims the path to display only the first character of each directory name, except the last one which is the full name, and for the drive it includes the colon.
@@ -94,20 +94,26 @@ The path parameter specifies the path to smartly trim.
 SmartTrim-Path "C:\Users\username\Documents\GitHub\project"
 "~\D\G\project"
 #>
-    $pathPrefixes = @{
-        $env:LOCALAPPDATA        = "LOCALAPPDATA"
-        $env:APPDATA             = "APPDATA"
+    # NOTE: The order of this hashtable is important
+    # This is because some paths are prefixes of others, so we need to check the longer paths first
+    # For example, $env:USERPROFILE is a prefix of $env:LOCALAPPDATA, etc
+    # Hence the order has been set to check the longer paths first
+    $pathPrefixes = [ordered]@{
+        $env:LOCALAPPDATA        = "LocalAppData"
+        $env:APPDATA             = "AppData"
         $env:USERPROFILE         = "~"
         $env:ProgramFiles        = "ProgramFiles"
         ${env:ProgramFiles(x86)} = "ProgramFiles(x86)"
         $env:WinDir              = "WinDir"
+        $env:ALLUSERSPROFILE     = "AllUsersProfile"
+        $env:PUBLIC              = "Public"
     }
     $strPath = $path.ToString()
-    $matchedPrefixes = $pathPrefixes.Keys | Where-Object { $strPath.StartsWith($_) }
-    if ($matchedPrefixes) {
-        $longestPrefix = $matchedPrefixes | Sort-Object -Property Length -Descending | Select-Object -First 1
-        $renamedPath = $strPath.Replace($longestPrefix, $pathPrefixes[$longestPrefix])
-        return Trim-Path $renamedPath
+    foreach ($prefix in $pathPrefixes.Keys) {
+        if ($strPath.StartsWith($prefix)) {
+            $renamedPath = $strPath.Replace($prefix, $pathPrefixes[$prefix])
+            return Trim-Path $renamedPath
+        }
     }
     return Trim-Path $path
 }
