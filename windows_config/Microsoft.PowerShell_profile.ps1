@@ -118,6 +118,26 @@ SmartTrim-Path "C:\Users\username\Documents\GitHub\project"
     return Trim-Path $path
 }
 
+function Get-CurrentGitBranch {
+<#
+.SYNOPSIS
+Gets the current Git branch, if available which is used in the prompt.
+
+.DESCRIPTION
+The Get-CurrentGitBranch function gets the current Git branch, if available, by checking if .git/HEAD exists and reading the branch name from it, to be used in the prompt.
+
+.PARAMETER None
+#>
+    $gitHeadFile = ".git/HEAD"
+    if (Test-Path $gitHeadFile) {
+        $gitHeadContent = Get-Content $gitHeadFile
+        if ($gitHeadContent -match "ref: refs/heads/(.+)") {
+            return $Matches[1]
+        }
+    }
+    return $null
+}
+
 
 # Create a custom prompt function
 function prompt {
@@ -132,6 +152,7 @@ The prompt function customizes the PowerShell prompt to display the current dire
 #>
     $cwd = Get-Location
     $trimmedDirName = SmartTrim-Path $cwd
+    $gitBranch = Get-CurrentGitBranch
 
     # Get duration of last run command (if available)
     $history = Get-History
@@ -149,8 +170,13 @@ The prompt function customizes the PowerShell prompt to display the current dire
         $durationPrompt = ""
     }
 
+
     $prompt = "`e[92m➜  `e[0m"
-    $prompt += "`e[38;2;0;255;255m$($trimmedDirName)`e[0m "
+    $prompt += "`e[38;2;0;255;255m$($trimmedDirName)"
+    if ($gitBranch) {
+        $prompt += " `e[38;2;255;105;180m($gitBranch)`e[0m"
+    }
+    $prompt += "`e[0m "
     $prompt += "`e[38;2;255;255;0m$durationPrompt`e[0m "
     $prompt += "$('❯' * ($nestedPromptLevel + 1)) "
     return $prompt
