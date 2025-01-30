@@ -366,6 +366,51 @@ Write-Host "glaze (v3) config file has been prepared successfully." -ForegroundC
 
 ######################################################
 ######################################################
+# POWERSHELL PROFILE SECTION
+######################################################
+######################################################
+Write-Host ""
+Write-Host "$border1$border1" -ForegroundColor Yellow
+Write-Host "POWERSHELL PROFILE SECTION" -ForegroundColor Yellow
+Write-Host "$border1$border1" -ForegroundColor Yellow
+
+$fromPaths = @{
+    "basic" = "$scriptDir\Basic.Microsoft.PowerShell_profile.ps1"
+    "advanced" = "$scriptDir\Advanced.Microsoft.PowerShell_profile.ps1"
+}
+$toPath = $profile
+
+if ($YesAll) {
+    $fromPath = $fromPaths["advanced"]
+}
+else {
+    Write-Host "Select the profile to use:"
+    Write-Host "1. Basic"
+    Write-Host "2. Advanced"
+    Write-Host "(Default: Basic)"
+
+    $choice = Read-Host "Enter your choice (1-2):"
+
+    switch ($choice) {
+        1 {
+            $fromPath = $fromPaths["basic"]
+        }
+        2 {
+            $fromPath = $fromPaths["advanced"]
+        }
+        default {
+            $fromPath = $fromPaths["basic"]
+        }
+    }
+}
+
+# Copy profile
+Copy-Item -Path $fromPath -Destination $toPath -Force
+Write-Host "Powershell profile has been setup successfully." -ForegroundColor Green
+
+
+######################################################
+######################################################
 # CONFIG FILES SECTION
 ######################################################
 ######################################################
@@ -379,14 +424,12 @@ $fastfetchPath = (($fastfetchParsedPath.Replace("'", "")).Replace("\fastfetch.ex
 
 $fromPaths = @{
     "fastfetch" = "$scriptDir\fastfetch_custom.jsonc"
-    "powershell" = "$scriptDir\Microsoft.PowerShell_profile.ps1"
     "vim" = "$scriptDir\.vimrc"
     "glazev2" = "$setupTempDir\glazewm_v2_config.yaml"
     "glazev3" = "$setupTempDir\glazewm_v3_config.yaml"
 }
 $toPaths = @{
     "fastfetch" = "$fastfetchPath" + "presets\custom.jsonc"
-    "powershell" = "$profile"
     "vim" = "$env:USERPROFILE\_vimrc"
     "glazev2" = "$env:USERPROFILE\.glaze-wm\config.yaml"
     "glazev3" = "$env:USERPROFILE\.glzr\glazewm\config.yaml"
