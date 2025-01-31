@@ -128,11 +128,14 @@ The Get-CurrentGitBranch function gets the current Git branch, if available, by 
 
 .PARAMETER None
 #>
-    $gitHeadFile = ".git/HEAD"
-    if (Test-Path $gitHeadFile) {
-        $gitHeadContent = Get-Content $gitHeadFile
-        if ($gitHeadContent -match "ref: refs/heads/(.+)") {
-            return $Matches[1]
+    $gitDir = (git rev-parse --show-toplevel 2>$null)
+    if ($gitDir) {
+        $gitHeadFile = Join-Path $gitDir ".git/HEAD"
+        if (Test-Path $gitHeadFile) {
+            $gitHeadContent = Get-Content $gitHeadFile
+            if ($gitHeadContent -match "ref: refs/heads/(.+)") {
+                return $Matches[1]
+            }
         }
     }
     return $null
@@ -623,18 +626,25 @@ The Switch-GitBranch function switches to a different Git branch using fzf.
 
 .PARAMETER None
 #>
-    if (-not (Test-Path .git)) {
+    # Find the top-level directory of the Git repository
+    $gitDir = (git rev-parse --show-toplevel 2>$null)
+    if (-not $gitDir) {
         Write-Host "Not a Git repository." -ForegroundColor Red
         return
     }
 
-    $branch = git branch --list --all | fzf | ForEach-Object { $_.Trim() -replace '^\* ', '' }
+    # Change to the top-level directory
+    Push-Location $gitDir
 
+    # Get the list of branches and switch to the selected branch
+    $branch = git branch --list --all | fzf | ForEach-Object { $_.Trim() -replace '^\* ', '' }
     if ($branch -like "remotes/*") {
         $branch = $branch -replace '^remotes\/[^\/]+\/', ''
     }
-
     git switch $branch
+
+    # Return to the original directory
+    Pop-Location
 }
 
 function Select-CondaEnv {
