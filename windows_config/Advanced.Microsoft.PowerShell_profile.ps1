@@ -174,7 +174,13 @@ The prompt function customizes the PowerShell prompt to display the current dire
     $prompt = "`e[92m➜  `e[0m"
     $prompt += "`e[38;2;0;255;255m$($trimmedDirName)"
     if ($gitBranch) {
-        $prompt += " `e[38;2;255;105;180m($gitBranch)`e[0m"
+        $prompt += " `e[38;2;255;105;180mgit:($gitBranch)`e[0m"
+
+        # Check if the current branch is clean or dirty
+        $gitStatus = git status --porcelain
+        if ($gitStatus) {
+            $prompt += " `e[38;2;255;255;0m✗"
+        }
     }
     $prompt += "`e[0m "
     $prompt += "`e[38;2;255;255;0m$durationPrompt`e[0m "
