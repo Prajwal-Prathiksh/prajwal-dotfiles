@@ -35,7 +35,7 @@
       glazewm: { type: 'glazewm' },
       date: { type: 'date', formatting: 'EEE d MMM | HH:mm', refreshInterval: 1 * 1000 },
       weather: { type: 'weather', refreshInterval: 7200 * 1000, latitude: 12.94, longitude: 77.62 },
-      network: { type: 'network', refreshInterval: 30 * 1000 },
+      network: { type: 'network', refreshInterval: 5 * 1000 },
       memory: { type: 'memory', refreshInterval: 5 * 1000 },
       cpu: { type: 'cpu', refreshInterval: 5 * 1000 },
       battery: { type: 'battery', refreshInterval: 10 * 1000 },
@@ -51,7 +51,19 @@
         providers.onOutput(() => setOutput(providers.outputMap));
       }, []);
 
-      // Get trimmed string
+      // Trim the WiFi SSID to a certain length
+      function trimWifiSSID(networkOutput, length) {
+        if (networkOutput.defaultGateway?.ssid === undefined || networkOutput.defaultInterface?.type === 'ethernet') {
+          return 'NA';
+        } else {
+          if (networkOutput.defaultGateway?.ssid.length > length) {
+            return networkOutput.defaultGateway?.ssid.substring(0, length) + '...';
+          } else {
+            return networkOutput.defaultGateway?.ssid;
+          }
+        }
+      }
+
       function trimString(string, length) {
         if (string.length > length) {
           return string.substring(0, length) + '...';
@@ -291,7 +303,7 @@
               <div className="network">
                 {/* Show icon for network status. */}
                 {getNetworkIcon(output.network)}
-                {trimString(output.network.defaultGateway?.ssid, 11)}
+                {trimWifiSSID(output.network, 11)}
               </div>
             )}
 
