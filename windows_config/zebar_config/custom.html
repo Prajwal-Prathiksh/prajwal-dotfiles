@@ -188,6 +188,11 @@
 
       // Get volume icon
       function getVolumeIcon(audioOutput) {
+        // Check if audio output is available
+        if (audioOutput.defaultPlaybackDevice === null) {
+          return <i className="nf nf-md-volume_mute" style={{ color: 'red' }}></i>;
+        }
+
         const volume = audioOutput.defaultPlaybackDevice.volume;
         if (volume > 90) {
           return <i className="nf nf-md-volume_high" style={{ color: '#00dd00' }}></i>;
@@ -327,7 +332,7 @@
               <div className="audio">
                 {/* Show icon for current volume level. */}
                 {getVolumeIcon(output.audio)}
-                {output.audio.defaultPlaybackDevice.volume}%
+                {output.audio.defaultPlaybackDevice !== null ? `${output.audio.defaultPlaybackDevice.volume}%` : '-'}
               </div>
             )}
 
