@@ -5,7 +5,7 @@
 @import 'https://www.nerdfonts.com/assets/css/webfont.css';
 
 i {
-  color: rgb(115 130 175 / 95%);
+  color: rgba(126, 139, 191, 0.95);
   margin-right: 7px;
 }
 
@@ -24,7 +24,7 @@ body,
 
 #root {
   border-bottom: 1px solid rgb(255 255 255 / 5%);
-  background: linear-gradient(rgb(0 0 0 / 90%), rgb(5 2 20 / 85%));
+  background: rgb(0 0 0 / 100%);
 }
 
 .app {
@@ -73,7 +73,7 @@ button {
 }
 
 .workspace {
-  background: rgb(255 255 255 / 5%);
+  background: rgba(255, 255, 255, 0.05);
   margin-right: 4px;
   padding: 4px 8px;
   color: rgb(255 255 255 / 90%);
