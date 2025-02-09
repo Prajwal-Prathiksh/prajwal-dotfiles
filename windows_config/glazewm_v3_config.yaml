@@ -219,7 +219,7 @@ keybindings:
 
   # Kill GlazeWM process safely.
   - commands: ['wm-exit']
-    bindings: ['alt+shift+e']
+    bindings: ['LWin+shift+e']
 
   # Re-evaluate configuration file.
   - commands: ['wm-reload-config']
@@ -227,7 +227,7 @@ keybindings:
 
   # Redraw all windows.
   - commands: ['wm-redraw']
-    bindings: ['alt+shift+w']
+    bindings: ['LWin+shift+w']
 
   # Launch CMD terminal. Alternatively, use `shell-exec wt` or
   # `shell-exec %ProgramFiles%/Git/git-bash.exe` to start Windows
