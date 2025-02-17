@@ -219,6 +219,20 @@ else
     fi
 fi
 
+read -p "Do you want to setup custom kitty config? ([Y]es/[n]o): " setupKitty
+if [[ $setupKitty == "n" ]]; then
+    echo -e "\e[33mSkipping Kitty config setup...\e[0m"
+else
+    kittyConfigDir="$HOME/.config/kitty"
+    if [ ! -d "$kittyConfigDir" ]; then
+        mkdir -p "$kittyConfigDir"
+    fi
+    customKittyConfig="$scriptRootDir/kitty_config"
+    # copy everything from kitty_config to ~/.config/kitty recursively while maintaining the directory structure
+    cp -r "$customKittyConfig/." "$kittyConfigDir"
+    echo -e "\e[32mKitty config setup successfully!!\e[0m"
+fi
+
 
 read -p "Do you want to setup custom Yazi config? ([Y]es/[n]o): " setupYazi
 if [[ $setupYazi == "n" ]]; then
