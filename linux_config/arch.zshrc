@@ -86,15 +86,3 @@ _zoxide_hook() {
 }
 
 chpwd_functions=(${chpwd_functions[@]} "_zoxide_hook")
-
-# Bind zi widget to Ctrl+Shift+Z
-zle -N zi_widget zi
-bindkey '^[Z' zi_widget
-
-
-# Bind nvim widget to Ctrl+Shift+N
-nvim_widget() {
-    nvim .
-}
-zle -N nvim_widget
-bindkey '^[N' nvim_widget
