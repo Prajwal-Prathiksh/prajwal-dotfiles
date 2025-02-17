@@ -192,14 +192,8 @@ read -p "Do you want to copy the .zshrc & .vimrc files? ([Y]es/[n]o): " copyConf
 if [[ $copyConfigFiles == "n" ]]; then
     echo -e "\e[33mSkipping copying .zshrc and .vimrc files...\e[0m"
 else
-    cp "$linuxConfigDir/.zshrc" "$HOME/.zshrc"
+    cp "$linuxConfigDir/arch.zshrc" "$HOME/.zshrc"
     dos2unix "$HOME/.zshrc"
-
-    # check if ~/miniconda3/bin/conda exists
-    if [ -f "$HOME/miniconda3/bin/conda" ]; then
-        ~/miniconda3/bin/conda init zsh
-    fi
-
 
     cp "$windowsConfigDir/.vimrc" "$HOME/.vimrc"
     dos2unix "$HOME/.vimrc"
