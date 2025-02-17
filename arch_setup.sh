@@ -226,6 +226,10 @@ else
     kittyConfigDir="$HOME/.config/kitty"
     if [ ! -d "$kittyConfigDir" ]; then
         mkdir -p "$kittyConfigDir"
+    else
+        # Remove existing kitty config
+        rm -rf "$kittyConfigDir"
+        mkdir -p "$kittyConfigDir"
     fi
     customKittyConfig="$scriptRootDir/kitty_config"
     # copy everything from kitty_config to ~/.config/kitty recursively while maintaining the directory structure
