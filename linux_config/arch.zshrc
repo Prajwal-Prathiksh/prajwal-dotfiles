@@ -15,7 +15,6 @@ plugins=(
     zsh-syntax-highlighting
     zsh-autocomplete
     zsh-autosuggestions
-    shrink-path
 
 )
 source $ZSH/oh-my-zsh.sh
@@ -26,9 +25,6 @@ if [[ -n $SSH_CONNECTION ]]; then
 else
     export EDITOR='vim'
 fi
-
-# Alias definitions
-alias bat='batcat'
 
 # Add zoxide
 eval "$(zoxide init zsh)"
@@ -43,15 +39,7 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-# fastfetch -c custom
-
-# NPM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# NeoVim
-export PATH="$PATH:/opt/nvim-linux64/bin"
+fastfetch -c custom
 
 
 # Zoxide
@@ -99,14 +87,14 @@ _zoxide_hook() {
 
 chpwd_functions=(${chpwd_functions[@]} "_zoxide_hook")
 
-# Bind zi widget to Ctrl+Z
+# Bind zi widget to Ctrl+Shift+Z
 zle -N zi_widget zi
-bindkey '^Z' zi_widget
+bindkey '^[Z' zi_widget
 
 
-# Bind nvim widget to Ctrl+N
+# Bind nvim widget to Ctrl+Shift+N
 nvim_widget() {
     nvim .
 }
 zle -N nvim_widget
-bindkey '^N' nvim_widget
+bindkey '^[N' nvim_widget
