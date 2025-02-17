@@ -206,6 +206,20 @@ fi
 # CUSTOM CONFIG SECTION
 ######################################################
 ######################################################
+read -p "Do you want to setup custom neovim config? ([Y]es/[n]o): " setupNeovim
+if [[ $setupNeovim == "n" ]]; then
+    echo -e "\e[33mSkipping Neovim config setup...\e[0m"
+else
+    neovimConfigDir="$HOME/.config/nvim"
+    if [ ! -d "$neovimConfigDir" ]; then
+        git clone https://github.com/Prajwal-Prathiksh/prajwal-neovim.git "$neovimConfigDir"
+        echo -e "\e[32mNeovim config setup successfully!!\e[0m"
+    else
+        echo -e "\e[33mNeovim config is already setup. Skipping setup...\e[0m"
+    fi
+fi
+
+
 read -p "Do you want to setup custom Yazi config? ([Y]es/[n]o): " setupYazi
 if [[ $setupYazi == "n" ]]; then
     echo -e "\e[33mSkipping Yazi config setup...\e[0m"
