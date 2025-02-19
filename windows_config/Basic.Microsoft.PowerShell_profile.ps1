@@ -335,6 +335,20 @@ The sort parameter specifies whether to sort the history file before removing du
     Write-Host "Duplicate entries removed from the PowerShell history file." -ForegroundColor Green
 }
 
+function Print-EnvPaths {
+<#
+.SYNOPSIS
+Prints the PATH environment variable.
+
+.DESCRIPTION
+Sorts all the paths in the PATH environment variable and prints them.
+
+.PARAMETER None
+#>
+    $envPaths = $ENV:PATH -split ';'
+    $envPaths | ForEach-Object { $_.Trim() } | Sort-Object
+}
+
 function Print-EnvVars {
 <#
 .SYNOPSIS
@@ -1069,6 +1083,7 @@ If the full switch is provided, the full help content is displayed without pagin
         "Get-PubIP : Retrieves the public IP address of the current machine.",
         "lazyg : Adds all files, commits with a message, and pushes to the current branch.",
         "ll : Lists all files in long format with color highlighting.",
+        "Print-EnvPaths : Prints the PATH environment variable.",
         "Print-EnvVars : Prints the environment variables, sorted alphabetically.",
         "Reload-Profile : Reloads the Microsoft.PowerShell_profile.ps1 file.",
         "Remove-DuplicateHistory : Removes duplicate entries from the PowerShell history file.",
