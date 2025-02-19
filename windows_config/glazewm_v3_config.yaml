@@ -203,11 +203,11 @@ keybindings:
 
   # Change the focused window to be floating.
   - commands: ['toggle-floating --centered']
-    bindings: ['LWin+f']
+    bindings: ['LWin+shift+f']
 
   # Change the focused window to be fullscreen.
   - commands: ['toggle-fullscreen']
-    bindings: ['LWin+enter']
+    bindings: ['LWin+f']
 
   # Minimize focused window.
   - commands: ['toggle-minimized']
@@ -233,7 +233,7 @@ keybindings:
   # `shell-exec %ProgramFiles%/Git/git-bash.exe` to start Windows
   # Terminal and Git Bash respectively.
   - commands: ['shell-exec wt']
-    bindings: ['LWin+x']
+    bindings: ['LWin+enter']
   - commands: ['shell-exec explorer']
     bindings: ['LWin+e']
   - commands: ['shell-exec {BROWSER_PATH}']
