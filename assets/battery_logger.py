@@ -2,7 +2,8 @@
 # requires-python = "≥3.13"
 # dependencies = [
 #     "matplotlib",
-#     "psutil"
+#     "psutil",
+#     "tqdm"
 # ]
 # ///
 
@@ -10,6 +11,7 @@ import argparse
 import datetime
 import time
 from pathlib import Path
+from tqdm import tqdm
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -27,11 +29,12 @@ def log_battery(file_path: Path):
 
 
 def logger(max_loops: int, file_path: Path, sleep_time: int = 1):
-    loops = 0
-    while loops < max_loops:
+    estimated_time = max_loops * sleep_time
+    print(f"Monitoring battery level: {max_loops} loops, {estimated_time} seconds")
+    print(f"Logging to: {file_path}")
+    for _ in tqdm(range(max_loops)):
         log_battery(file_path)
         time.sleep(sleep_time)
-        loops += 1
 
 
 def plotter(file_path: Path):
