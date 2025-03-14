@@ -44,7 +44,7 @@ def plotter(file_path: Path):
     data = [d.strip().split(", ") for d in data]
 
     x = mdates.date2num([datetime.datetime.fromisoformat(d[0]) for d in data])
-    y = [int(d[1]) for d in data]
+    y = [float(d[1]) for d in data]
 
     plt.figure(figsize=(10, 5))
     plt.plot(x, y, marker="o")
