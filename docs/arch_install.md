@@ -42,10 +42,14 @@
 ```bash
 > archinstall
 ```
-`Disk Configuration`:
-- Select `Partitioning` -> `Pre-mounted configuration` -> Type `/mnt` -> Enter
-`Bootloader`:
-- Select `Bootloader` -> `Grub` -> Enter
+- `Disk Configuration`:
+  - Select `Partitioning` -> `Pre-mounted configuration` -> Type `/mnt` -> Enter
+- `Bootloader`:
+  - Select `Bootloader` -> `Grub` -> Enter
+- `Audio`:
+  - Select `Audio` -> `PipeWire` -> Enter
+- `Network Configuration`:
+  - Select `Use NetworkManager` -> Enter
 
 ## Post-Install (Grub)
 ```bash
