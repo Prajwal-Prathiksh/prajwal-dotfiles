@@ -48,7 +48,7 @@ def plotter(file_path: Path):
 
     start = (x[0], y[0])
     end = (x[-1], y[-1])
-    avg_usage = (end[1] - start[1]) / (end[0] - start[0])
+    avg_usage = round((start[1] - end[1]) / (end[0] - start[0]), 1)
 
     plt.figure(figsize=(10, 5))
     plt.plot(x, y, marker="o")
