@@ -43,12 +43,15 @@ def plotter(file_path: Path):
 
     data = [d.strip().split(", ") for d in data]
 
-    x = mdates.date2num([datetime.datetime.fromisoformat(d[0]) for d in data])
+    dates = [datetime.datetime.fromisoformat(d[0]) for d in data]
+    x = mdates.date2num(dates)
     y = [float(d[1]) for d in data]
 
-    start = (x[0], y[0])
-    end = (x[-1], y[-1])
-    avg_usage = round((start[1] - end[1]) / (end[0] - start[0]), 1)
+    start = (dates[0], y[0])
+    end = (dates[-1], y[-1])
+    duration = end[0] - start[0]
+    duration = duration.total_seconds()
+    avg_usage = round((start[1] - end[1]) / duration, 2)
 
     plt.figure(figsize=(10, 5))
     plt.plot(x, y, marker="o")
