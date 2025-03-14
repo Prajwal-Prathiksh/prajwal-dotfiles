@@ -46,12 +46,16 @@ def plotter(file_path: Path):
     x = mdates.date2num([datetime.datetime.fromisoformat(d[0]) for d in data])
     y = [float(d[1]) for d in data]
 
+    start = (x[0], y[0])
+    end = (x[-1], y[-1])
+    avg_usage = (end[1] - start[1]) / (end[0] - start[0])
+
     plt.figure(figsize=(10, 5))
     plt.plot(x, y, marker="o")
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
     plt.xlabel("Time")
     plt.ylabel("Battery Percentage")
-    plt.title("Battery Percentage vs Time")
+    plt.title(f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/s")
     plt.grid()
     plt.savefig("battery.png", dpi=300)
 
