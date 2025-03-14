@@ -11,11 +11,11 @@ import argparse
 import datetime
 import time
 from pathlib import Path
-from tqdm import tqdm
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import psutil
+from tqdm import tqdm
 
 
 def log_battery(file_path: Path):
@@ -51,9 +51,9 @@ def plotter(file_path: Path):
     end = (dates[-1], y[-1])
     duration = end[0] - start[0]
     duration = duration.total_seconds()
-    avg_usage = round((start[1] - end[1]) / duration, 2)
+    avg_usage = (start[1] - end[1]) / duration
     # convert to percentage per minute
-    avg_usage *= 60
+    avg_usage *= 60.0
 
     # estimate time for full depletion
     time_to_empty = 100 / avg_usage
@@ -61,14 +61,14 @@ def plotter(file_path: Path):
     time_to_empty = divmod(time_to_empty, 60)
     time_to_empty = f"{int(time_to_empty[0])}h {int(time_to_empty[1])}m"
 
-
-
     plt.figure(figsize=(10, 5))
     plt.plot(x, y, marker="o")
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
     plt.xlabel("Time")
     plt.ylabel("Battery Percentage")
-    plt.title(f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/m | Battery Backup (100%): {time_to_empty}")
+    plt.title(
+        f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/m | Battery Backup (100%): {time_to_empty}"
+    )
     plt.grid()
     plt.savefig("battery.png", dpi=300)
 
