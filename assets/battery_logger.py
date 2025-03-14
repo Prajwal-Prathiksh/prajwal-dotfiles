@@ -68,7 +68,7 @@ def plotter(file_path: Path):
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
     plt.xlabel("Time")
     plt.ylabel("Battery Percentage")
-    plt.title(f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/min | Time to empty from 100%: {time_to_empty}")
+    plt.title(f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/m | Battery Backup (100%): {time_to_empty}")
     plt.grid()
     plt.savefig("battery.png", dpi=300)
 
