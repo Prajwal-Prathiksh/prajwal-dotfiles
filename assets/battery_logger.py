@@ -1,3 +1,11 @@
+# /// script
+# requires-python = "≥3.13"
+# dependencies = [
+#     "matplotlib",
+#     "psutil"
+# ]
+# ///
+
 import argparse
 import datetime
 import time
