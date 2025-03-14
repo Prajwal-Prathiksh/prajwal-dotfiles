@@ -52,13 +52,23 @@ def plotter(file_path: Path):
     duration = end[0] - start[0]
     duration = duration.total_seconds()
     avg_usage = round((start[1] - end[1]) / duration, 2)
+    # convert to percentage per minute
+    avg_usage *= 60
+
+    # estimate time for full depletion
+    time_to_empty = 100 / avg_usage
+    # convert to hours and minutes
+    time_to_empty = divmod(time_to_empty, 60)
+    time_to_empty = f"{int(time_to_empty[0])}h {int(time_to_empty[1])}m"
+
+
 
     plt.figure(figsize=(10, 5))
     plt.plot(x, y, marker="o")
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
     plt.xlabel("Time")
     plt.ylabel("Battery Percentage")
-    plt.title(f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/s")
+    plt.title(f"Battery Percentage vs Time | Avg Usage: {avg_usage:.2f}%/min | Time to empty from 100%: {time_to_empty}")
     plt.grid()
     plt.savefig("battery.png", dpi=300)
 
