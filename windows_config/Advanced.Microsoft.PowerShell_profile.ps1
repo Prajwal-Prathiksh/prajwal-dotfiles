@@ -819,8 +819,8 @@ The find parameter specifies the text to search for in the file.
 The replace parameter specifies the text to replace the found text with.
 #>
     (Get-Content $file).replace("$find", $replace) | Set-Content $file
-}
-
+    }
+    
 function which($name) {
 <#
 .SYNOPSIS
@@ -832,8 +832,25 @@ The which function locates the executable of a command in the system's PATH.
 .PARAMETER name
 The name parameter specifies the name of the command to locate.
 #>
+    Get-Command $name | Select-Object -ExpandProperty Definition
+}
+
+
+function bwhich($name) {
+<#
+.SYNOPSIS
+Locates the executable of a command and displays the definition using bat.
+
+.DESCRIPTION
+The which function locates the executable of a command in the system's PATH and displays the definition using bat.
+
+.PARAMETER name
+The name parameter specifies the name of the command to locate.
+#>
     Get-Command $name | Select-Object -ExpandProperty Definition | bat --language=ps1
 }
+
+
 
 function bman($name) {
 <#
@@ -1007,6 +1024,11 @@ $env:FZF_DEFAULT_OPTS = @"
 --bind ctrl-h:preview-bottom
 --bind alt-z:toggle-preview-wrap
 --bind ctrl-e:toggle-preview
+--color=fg:#908caa,bg:#191724,hl:#ebbcba
+--color=fg+:#e0def4,bg+:#26233a,hl+:#ebbcba
+--color=border:#403d52,header:#31748f,gutter:#191724
+--color=spinner:#f6c177,info:#9ccfd8
+--color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa
 "@
 
 function _fzf_open_path {
@@ -1197,6 +1219,7 @@ If the full switch is provided, the full help content is displayed without pagin
         "Custom Functions/Aliases",
         $border1,
         "bman : Displays the manual page for a command using bat.",
+        "bwhich : Locates the executable of a command, and displays the path using bat.",
         "Connect-WifiUsingFzf : Connects to a Wi-Fi network using fzf.",
         "ConvertTo-HumanReadableTime : Converts milliseconds to a human-readable time format.",
         "df : Displays disk space usage. Alias for Get-Volume.",
@@ -1220,7 +1243,7 @@ If the full switch is provided, the full help content is displayed without pagin
         "touch : Creates a new file.",
         "unzip : Extracts files from a compressed archive.",
         "weather : Displays the weather for a specific city. Uses the wttr.in service.",
-        "which : Locates the executable of a command, and displays the path using bat.",
+        "which : Locates the executable of a command.",
         "y : Open the current directory in yazi, and changes the directory upon exit, to the directory where yazi was last closed.",
         "z : Jump to a directory using only keywords (zoxide).",
         "zi : Jump to a directory using interactive search (zoxide)."
