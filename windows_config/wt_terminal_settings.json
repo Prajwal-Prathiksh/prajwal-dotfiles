@@ -3,10 +3,6 @@
     "$schema": "https://aka.ms/terminal-profiles-schema",
     "actions": [
         {
-            "command": "closeWindow",
-            "id": "User.closeWindow"
-        },
-        {
             "command": {
                 "action": "copy",
                 "singleLine": false
@@ -21,8 +17,8 @@
             "id": "User.resizePane.6CD791B"
         },
         {
-            "command": "toggleSplitOrientation",
-            "id": "User.toggleSplitOrientation"
+            "command": "closeWindow",
+            "id": "User.closeWindow"
         },
         {
             "command": {
@@ -32,8 +28,16 @@
             "id": "User.resizePane.87C324ED"
         },
         {
+            "command": "toggleSplitOrientation",
+            "id": "User.toggleSplitOrientation"
+        },
+        {
             "command": "closePane",
             "id": "User.closePane"
+        },
+        {
+            "command": "find",
+            "id": "User.find"
         },
         {
             "command": {
@@ -50,10 +54,6 @@
             "id": "User.resizePane.2A0DA8E0"
         },
         {
-            "command": "find",
-            "id": "User.find"
-        },
-        {
             "command": {
                 "action": "splitPane",
                 "split": "auto",
@@ -67,17 +67,17 @@
         },
         {
             "command": {
-                "action": "moveFocus",
-                "direction": "left"
-            },
-            "id": "User.moveFocus.2A0DA8E0"
-        },
-        {
-            "command": {
                 "action": "resizePane",
                 "direction": "down"
             },
             "id": "User.resizePane.F747588A"
+        },
+        {
+            "command": {
+                "action": "moveFocus",
+                "direction": "left"
+            },
+            "id": "User.moveFocus.2A0DA8E0"
         },
         {
             "command": {
@@ -120,24 +120,24 @@
             "keys": "alt+shift+v"
         },
         {
-            "id": "User.resizePane.2A0DA8E0",
-            "keys": "ctrl+alt+left"
-        },
-        {
             "id": "User.closePane",
             "keys": "ctrl+w"
+        },
+        {
+            "id": "User.resizePane.2A0DA8E0",
+            "keys": "ctrl+alt+left"
         },
         {
             "id": "User.closeWindow",
             "keys": "alt+f4"
         },
         {
-            "id": "User.splitPane.A6751878",
-            "keys": "alt+shift+d"
-        },
-        {
             "id": "User.moveFocus.75247157",
             "keys": "alt+shift+y"
+        },
+        {
+            "id": "User.splitPane.A6751878",
+            "keys": "alt+shift+d"
         },
         {
             "id": "User.find",
@@ -308,13 +308,13 @@
             "cursorShape": "vintage",
             "experimental.retroTerminalEffect": false,
             "font": {
-                "builtinGlyphs": false,
-                "colorGlyphs": false,
+                "builtinGlyphs": true,
+                "colorGlyphs": true,
                 "face": "CaskaydiaCove Nerd Font",
                 "size": 12
             },
             "intenseTextStyle": "none",
-            "opacity": 40,
+            "opacity": 60,
             "padding": "6",
             "scrollbarState": "hidden",
             "useAcrylic": true
@@ -482,7 +482,7 @@
             "brightRed": "#EB6F92",
             "brightWhite": "#E0DEF4",
             "brightYellow": "#F6C177",
-            "cursorColor": "#555169",
+            "cursorColor": "#FFFFFF",
             "cyan": "#EBBCBA",
             "foreground": "#E0DEF4",
             "green": "#31748F",
