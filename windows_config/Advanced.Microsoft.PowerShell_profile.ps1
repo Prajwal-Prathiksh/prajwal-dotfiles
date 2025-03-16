@@ -393,7 +393,6 @@ The editor parameter specifies the editor to use for editing the profile. Defaul
     & $editor $PROFILE
 }
 
-
 function Edit-PSHistory ($editor) {
 <#
 .SYNOPSIS
@@ -786,7 +785,6 @@ The file parameter specifies the name of the compressed archive to extract files
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-    
 
 function df {
 <#
@@ -835,7 +833,6 @@ The name parameter specifies the name of the command to locate.
     Get-Command $name | Select-Object -ExpandProperty Definition
 }
 
-
 function bwhich($name) {
 <#
 .SYNOPSIS
@@ -849,8 +846,6 @@ The name parameter specifies the name of the command to locate.
 #>
     Get-Command $name | Select-Object -ExpandProperty Definition | bat --language=ps1
 }
-
-
 
 function bman($name) {
 <#
