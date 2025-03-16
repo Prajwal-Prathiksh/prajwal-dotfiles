@@ -33,7 +33,8 @@
 
     const providers = zebar.createProviderGroup({
       glazewm: { type: 'glazewm' },
-      date: { type: 'date', formatting: 'EEE d MMM | HH:mm', refreshInterval: 1 * 1000 },
+      time: { type: 'date', formatting: 'HH:mm', refreshInterval: 1 * 1000 },
+      date: { type: 'date', formatting: 'EEE, MMM d', refreshInterval: 1 * 1000 },
       weather: { type: 'weather', refreshInterval: 60 * 1000, latitude: 12.94, longitude: 77.62 },
       network: { type: 'network', refreshInterval: 3 * 1000 },
       memory: { type: 'memory', refreshInterval: 3 * 1000 },
@@ -264,7 +265,7 @@
 
           <div className="center">
             <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
-              {output.date?.formatted}
+              {output.time?.formatted}
             </span>
           </div>
 
@@ -297,10 +298,8 @@
             {output.weather && (
               <div className="weather">
                 {getWeatherIcon(output.weather)}
-                <span style={{ color: getWeatherColor(output.weather) }}>
                   {Math.round(output.weather.celsiusTemp)}°C
                   <span style={{ fontSize: '11px' }}>({Math.round(output.weather.fahrenheitTemp)}°F)</span>
-                </span>
               </div>
             )}
 
@@ -341,6 +340,15 @@
                 {/* Show icon for whether battery is charging. */}
                 {getBatteryStateIcon(output.battery)}
                 {Math.round(output.battery.chargePercent)}%
+              </div>
+            )}
+
+            {output.date && (
+              <div className="date">
+                <i className="nf nf-md-calendar"></i>
+                <span style={{ fontWeight: 'regular', fontSize: '15px' }}>
+                  {output.date.formatted}
+                </span>
               </div>
             )}
           </div>
