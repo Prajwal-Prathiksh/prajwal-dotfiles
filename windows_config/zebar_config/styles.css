@@ -29,7 +29,7 @@ body,
 
 .app {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(auto, 1fr) auto minmax(auto, 1fr);
   align-items: center;
   height: 100%;
   padding: 4px 1vw;
@@ -46,10 +46,19 @@ body,
 
 .center {
   justify-self: center;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
 }
 
 .right {
   justify-self: end;
+  margin-left: auto;
+}
+
+.left {
+  justify-self: start;
+  margin-right: auto;
 }
 
 button {
@@ -108,4 +117,8 @@ button {
 
 .battery {
   position: relative;
+}
+
+.date {
+  min-width: 120px;
 }
