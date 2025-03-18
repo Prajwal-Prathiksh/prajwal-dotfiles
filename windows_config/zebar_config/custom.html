@@ -41,6 +41,7 @@
       cpu: { type: 'cpu', refreshInterval: 3 * 1000 },
       battery: { type: 'battery', refreshInterval: 5 * 1000 },
       audio: { type: 'audio', refreshInterval: 0.5 * 1000 },
+      media: { type: 'media' },
     });
 
     createRoot(document.getElementById('root')).render(<App />);
@@ -346,9 +347,22 @@
             {output.date && (
               <div className="date">
                 <i className="nf nf-md-calendar"></i>
-                <span style={{ fontWeight: 'regular', fontSize: '15px' }}>
+                <span style={{ fontWeight: 'regular', fontSize: '13px', fontStyle: 'italic' }}>
                   {output.date.formatted}
                 </span>
+              </div>
+            )}
+            
+            {output.media && output.media.currentSession && (
+              <div 
+              className="media" 
+              onClick={() => output.media?.togglePlayPause()}
+              style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '5px', borderRadius: '5px' }}
+              >
+              <i className="nf nf-md-music"></i>
+              <span style={{ fontWeight: 'regular', fontSize: '9px', fontStyle: 'italic' }}>
+              {trimString(output.media.currentSession?.title ?? 'No media playing',20)}
+              </span>
               </div>
             )}
           </div>
