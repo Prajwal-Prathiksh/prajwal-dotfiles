@@ -115,10 +115,6 @@ button {
   margin-right: 4px;
 }
 
-.battery {
-  position: relative;
-}
-
 .date {
   min-width: 110px;
 }
