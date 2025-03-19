@@ -328,14 +328,6 @@
               </div>
             )}
 
-            {output.audio && (
-              <div className="audio">
-                {/* Show icon for current volume level. */}
-                {getVolumeIcon(output.audio)}
-                {output.audio.defaultPlaybackDevice !== null ? `${output.audio.defaultPlaybackDevice.volume}%` : '-'}
-              </div>
-            )}
-
             {output.battery && (
               <div className="battery">
                 {/* Show icon for whether battery is charging. */}
@@ -350,6 +342,36 @@
                 <span style={{ fontWeight: 'regular', fontSize: '13px', fontStyle: 'italic' }}>
                   {output.date.formatted}
                 </span>
+              </div>
+            )}
+
+            {output.audio && (
+              <div 
+                className="audio"
+                onWheel={(e) => {
+                  if (output.audio.defaultPlaybackDevice !== null) {
+                    const currentVolume = output.audio.defaultPlaybackDevice.volume;
+                    // Negative deltaY means scrolling up (increase volume)
+                    // Positive deltaY means scrolling down (decrease volume)
+                    const newVolume = e.deltaY < 0 
+                      ? Math.min(100, currentVolume + 2) 
+                      : Math.max(0, currentVolume - 2);
+                    output.audio.setVolume(newVolume);
+                  }
+                }}
+                onClick={() => {
+                  if (output.audio.defaultPlaybackDevice !== null) {
+                    const currentVolume = output.audio.defaultPlaybackDevice.volume;
+                    // Toggle between 0 and 50 based on current volume
+                    const newVolume = currentVolume > 0 ? 0 : 50;
+                    output.audio.setVolume(newVolume);
+                  }
+                }}
+                style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '5px', borderRadius: '5px' }}
+              >
+                {/* Show icon for current volume level. */}
+                {getVolumeIcon(output.audio)}
+                {output.audio.defaultPlaybackDevice !== null ? `${output.audio.defaultPlaybackDevice.volume}%` : '-'}
               </div>
             )}
             
