@@ -242,6 +242,27 @@
         }
       }
 
+
+      // Get Media Icon
+      function getMediaIcon(media) {
+        if (media.currentSession) {
+          if (media.currentSession?.isPlaying)  {
+            return <i className="nf nf-md-pause_circle"></i>;
+          }
+          return <i className="nf nf-md-play_circle" style={{ color: '#ff4300' }}></i>;
+        }
+        // return music with cancel icon
+        return <i className="nf nf-md-music" style={{ color: 'gray' }}></i>;
+      }
+
+      // Get Media Text
+      function getMediaText(media) {
+        if (media.currentSession) {
+          return media.currentSession?.title + ' - ' + media.currentSession?.artist;
+        }
+        return 'No media playing';
+      }
+
       return (
         <div className="app">
           <div className="left">
@@ -367,24 +388,24 @@
                     output.audio.setVolume(newVolume);
                   }
                 }}
-                style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '5px', borderRadius: '5px' }}
+                style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '4px', borderRadius: '5px' }}
               >
                 {/* Show icon for current volume level. */}
                 {getVolumeIcon(output.audio)}
                 {output.audio.defaultPlaybackDevice !== null ? `${output.audio.defaultPlaybackDevice.volume}%` : '-'}
               </div>
             )}
-            
-            {output.media && output.media.currentSession && (
+
+            {output.media && (
               <div 
-              className="media" 
-              onClick={() => output.media?.togglePlayPause()}
-              style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '5px', borderRadius: '5px' }}
+                className="media" 
+                onClick={() => output.media?.togglePlayPause()}
+                style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '4px', borderRadius: '5px' }}
               >
-              <i className="nf nf-md-music"></i>
-              <span style={{ fontWeight: 'regular', fontSize: '9px', fontStyle: 'italic' }}>
-              {trimString(output.media.currentSession?.title ?? 'No media playing',20)}
-              </span>
+                {getMediaIcon(output.media)}
+                <span style={{ fontWeight: 'regular', fontSize: '9px', fontStyle: 'italic' }}>
+                  {getMediaText(output.media)}
+                </span>
               </div>
             )}
           </div>
