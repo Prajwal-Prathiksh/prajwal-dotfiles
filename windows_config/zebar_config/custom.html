@@ -246,7 +246,7 @@
       // Get Media Icon
       function getMediaIcon(media) {
         if (media.currentSession) {
-          if (media.currentSession?.isPlaying)  {
+          if (media.currentSession?.isPlaying) {
             return <i className="nf nf-md-pause_circle"></i>;
           }
           return <i className="nf nf-md-play_circle" style={{ color: '#ff4300' }}></i>;
@@ -258,7 +258,7 @@
       // Get Media Text
       function getMediaText(media) {
         if (media.currentSession) {
-          return media.currentSession?.title + ' - ' + media.currentSession?.artist;
+          return trimString(media.currentSession?.title + ' - ' + media.currentSession?.artist, 30);
         }
         return 'No media playing';
       }
@@ -286,9 +286,8 @@
           </div>
 
           <div className="center">
-            <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
-              {output.time?.formatted}
-            </span>
+            <span style={{ fontSize: '20px' }}>{output.time?.formatted}</span>
+            <span style={{ fontSize: '18px', marginLeft: '8px', fontStyle: 'italic' }}>({output.date?.formatted})</span>
           </div>
 
           <div className="right">
@@ -320,8 +319,8 @@
             {output.weather && (
               <div className="weather">
                 {getWeatherIcon(output.weather)}
-                  {Math.round(output.weather.celsiusTemp)}°C
-                  <span style={{ fontSize: '11px' }}>({Math.round(output.weather.fahrenheitTemp)}°F)</span>
+                {Math.round(output.weather.celsiusTemp)}°C
+                <span style={{ fontSize: '11px' }}>({Math.round(output.weather.fahrenheitTemp)}°F)</span>
               </div>
             )}
 
@@ -357,25 +356,16 @@
               </div>
             )}
 
-            {output.date && (
-              <div className="date">
-                <i className="nf nf-md-calendar"></i>
-                <span style={{ fontWeight: 'regular', fontSize: '13px', fontStyle: 'italic' }}>
-                  {output.date.formatted}
-                </span>
-              </div>
-            )}
-
             {output.audio && (
-              <div 
+              <div
                 className="audio"
                 onWheel={(e) => {
                   if (output.audio.defaultPlaybackDevice !== null) {
                     const currentVolume = output.audio.defaultPlaybackDevice.volume;
                     // Negative deltaY means scrolling up (increase volume)
                     // Positive deltaY means scrolling down (decrease volume)
-                    const newVolume = e.deltaY < 0 
-                      ? Math.min(100, currentVolume + 2) 
+                    const newVolume = e.deltaY < 0
+                      ? Math.min(100, currentVolume + 2)
                       : Math.max(0, currentVolume - 2);
                     output.audio.setVolume(newVolume);
                   }
@@ -397,8 +387,8 @@
             )}
 
             {output.media && (
-              <div 
-                className="media" 
+              <div
+                className="media"
                 onClick={() => output.media?.togglePlayPause()}
                 style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '4px', borderRadius: '5px' }}
               >
