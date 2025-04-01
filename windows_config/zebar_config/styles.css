@@ -118,3 +118,33 @@ button {
 .date {
   min-width: 110px;
 }
+
+/* Media text carousel effect */
+.media-text {
+  position: relative;
+}
+
+.media-text .hover-visible {
+  position: absolute;
+  left: 0;
+  display: none;
+  white-space: nowrap;
+}
+
+.media-text:hover .hover-hidden {
+  visibility: hidden;
+}
+
+.media-text:hover .hover-visible {
+  display: inline-block;
+  animation: scroll-text 10s linear infinite;
+}
+
+@keyframes scroll-text {
+  0%, 5% {
+    transform: translateX(0);
+  }
+  95%, 100% {
+    transform: translateX(-100%);
+  }
+}

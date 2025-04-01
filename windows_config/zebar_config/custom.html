@@ -256,9 +256,14 @@
       }
 
       // Get Media Text
-      function getMediaText(media) {
+      function getMediaText(media, toTrim = false) {
         if (media.currentSession) {
-          return trimString(media.currentSession?.title + ' - ' + media.currentSession?.artist, 30);
+          if (toTrim) {
+            return trimString(media.currentSession?.title + ' - ' + media.currentSession?.artist, 30);
+          }
+          else {
+            return media.currentSession?.title + ' - ' + media.currentSession?.artist;
+          }
         }
         return 'No media playing';
       }
@@ -393,8 +398,23 @@
                 style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '4px', borderRadius: '5px' }}
               >
                 {getMediaIcon(output.media)}
-                <span style={{ fontWeight: 'regular', fontSize: '9px', fontStyle: 'italic' }}>
-                  {getMediaText(output.media)}
+                <span
+                  style={{
+                    fontWeight: 'regular',
+                    fontSize: '9px',
+                    fontStyle: 'italic',
+                    display: 'inline-block',
+                    maxWidth: '200px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    transition: 'all 0.01s ease'
+                  }}
+                  className="media-text"
+                  data-full-text={getMediaText(output.media, false)}
+                >
+                <span className="hover-hidden">{getMediaText(output.media, true)}</span>
+                  <span className="hover-visible">{getMediaText(output.media, false)}</span>
                 </span>
               </div>
             )}
