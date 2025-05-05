@@ -44,14 +44,14 @@ gaps:
   scale_with_dpi: true
 
   # Gap between adjacent windows.
-  inner_gap: '0px'
+  inner_gap: '4px'
 
   # Gap between windows and the screen edge.
   outer_gap:
     top: '40px'
-    right: '1px'
-    bottom: '1px'
-    left: '1px'
+    right: '4px'
+    bottom: '4px'
+    left: '4px'
 
 window_effects:
   # Visual effects to apply to the focused window.
@@ -60,7 +60,7 @@ window_effects:
     # ** Exclusive to Windows 11 due to API limitations.
     border:
       enabled: true
-      color: "#94ebeb"
+      color: "#ffa500"
 
     # Remove the title bar from the window's frame. Note that this can
     # cause rendering issues for some applications.
