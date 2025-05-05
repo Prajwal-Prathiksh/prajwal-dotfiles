@@ -4,15 +4,27 @@
 */
 @import 'https://www.nerdfonts.com/assets/css/webfont.css';
 
+:root {
+  --primary-blue: #4ea6ff;
+  --accent-blue: #79c2ff;
+  --dark-blue: #1a2236;
+  --background-dark: rgba(17, 25, 40, 0.75);
+  --text-color: rgba(255, 255, 255, 0.92);
+  --highlight-color: rgba(78, 166, 255, 0.9);
+  --surface-color: rgba(0, 0, 0, 0.5);
+  --surface-hover: rgba(255, 255, 255, 0.15);
+}
+
 i {
-  color: rgba(138, 127, 210, 0.95);
+  color: var(--highlight-color);
   margin-right: 7px;
 }
 
 body {
-  color: rgba(255, 255, 255, 0.9);
-  font-family: 'Segoe UI Semibold';
-  font-size: 16px; /* Increase the base font size */
+  color: var(--text-color);
+  font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
   overflow: hidden;
 }
 
@@ -23,8 +35,11 @@ body,
 }
 
 #root {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgb(0, 0, 0);
+  /* Acrylic effect with backdrop-filter */
+  background: var(--background-dark);
+  backdrop-filter: blur(25px) saturate(125%);
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(78, 166, 255, 0.15);
 }
 
 .app {
@@ -33,7 +48,7 @@ body,
   align-items: center;
   height: 100%;
   padding: 4px 1vw;
-  font-size: 16px; /* Increase the font size for the app container */
+  font-size: 16px;
 }
 
 .left,
@@ -41,14 +56,29 @@ body,
 .right {
   display: flex;
   align-items: center;
-  font-size: 16px; /* Increase the font size for the sections */
+  font-size: 16px;
 }
 
 .center {
-  justify-self: center;
   display: flex;
+  gap: 15px;
   justify-content: center;
-  padding: 0 20px;
+  align-items: center;
+}
+
+.date, .time {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.date i, .time i {
+  font-size: 14px;
+}
+
+.time {
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .right {
@@ -62,7 +92,8 @@ body,
 }
 
 button {
-  font-size: 16px; /* Increase the font size for buttons */
+  font-size: 16px;
+  transition: all 0.2s ease;
 }
 
 .binding-mode,
@@ -82,33 +113,44 @@ button {
 }
 
 .workspace {
-  background: rgba(48, 50, 67, 1);
+  /* Acrylic-inspired button style */
+  background: var(--surface-color);
   margin-right: 4px;
   padding: 4px 8px;
-  color: rgb(255 255 255 / 90%);
+  color: var(--text-color);
   border: none;
-  border-radius: 2px;
+  border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s ease;
 
   &.displayed {
-    background: rgb(255 255 255 / 15%);
+    background: rgba(78, 166, 255, 0.2);
   }
 
   &.focused,
   &:hover {
-    background: rgba(138, 127, 210, 0.95);
+    background: var(--highlight-color);
+    box-shadow: 0 2px 8px rgba(78, 166, 255, 0.3);
   }
 }
 
 .binding-mode,
 .tiling-direction {
-  background: rgba(48, 50, 67, 1);
-  color: rgb(255 255 255 / 90%);
-  border-radius: 2px;
+  /* Acrylic-inspired button style */
+  background: var(--surface-color);
+  color: var(--text-color);
+  border-radius: 4px;
   line-height: 1;
   padding: 4px 8px;
   border: 0;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.binding-mode:hover,
+.tiling-direction:hover {
+  background: var(--surface-hover);
+  box-shadow: 0 2px 8px rgba(78, 166, 255, 0.2);
 }
 
 .binding-mode {

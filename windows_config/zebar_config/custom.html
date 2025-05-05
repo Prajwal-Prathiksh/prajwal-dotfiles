@@ -291,8 +291,14 @@
           </div>
 
           <div className="center">
-            <span style={{ fontSize: '20px' }}>{output.time?.formatted}</span>
-            <span style={{ fontSize: '18px', marginLeft: '8px', fontStyle: 'italic' }}>({output.date?.formatted})</span>
+            <div className="date">
+              <i className="nf nf-fa-calendar"></i>
+              {output.date?.formatted}
+            </div>
+            <div className="time">
+              <i className="nf nf-weather-time_10"></i>
+              {output.time?.formatted}
+            </div>
           </div>
 
           <div className="right">
