@@ -18,14 +18,14 @@
       "name": "default",
       "anchor": "top_center",
       "offsetX": "0px",
-      "offsetY": "2px",
+      "offsetY": "0px",
       "width": "100%",
       "height": "37px",
       "monitorSelection": {
         "type": "all"
       },
       "dockToEdge": {
-        "enabled": false,
+        "enabled": true,
         "edge": null,
         "windowMargin": "0px"
       }

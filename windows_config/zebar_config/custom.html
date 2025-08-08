@@ -299,7 +299,10 @@
             <div className="time">
               <i className="nf nf-weather-time_10"></i>
               {output.time?.formatted}
-                <span style={{ fontSize: '0.85em' }}>({output.secondTime?.formatted})</span>
+            </div>
+            <div className="second-time">
+              <i className="nf nf-fa-globe"></i>
+              {output.secondTime?.formatted}
             </div>
           </div>
 

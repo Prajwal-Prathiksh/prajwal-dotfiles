@@ -8,7 +8,7 @@
   --primary-blue: #4ea6ff;
   --accent-blue: #79c2ff;
   --dark-blue: #1a2236;
-  --background-dark: rgba(17, 25, 40, 0.75);
+  --background-dark: rgba(0, 0, 0, 0.60);
   --text-color: rgba(255, 255, 255, 0.92);
   --highlight-color: rgba(78, 166, 255, 0.9);
   --surface-color: rgba(0, 0, 0, 0.5);
@@ -66,19 +66,19 @@ body,
   align-items: center;
 }
 
-.date, .time {
+.date, .time, .second-time {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.date i, .time i {
-  font-size: 14px;
-}
-
-.time {
+.time, .second-time {
   font-size: 16px;
   font-weight: bold;
+}
+
+.date i, .time i, .second-time i {
+  font-size: 14px;
 }
 
 .right {
