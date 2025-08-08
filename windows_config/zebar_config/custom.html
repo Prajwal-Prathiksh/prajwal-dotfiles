@@ -34,6 +34,7 @@
     const providers = zebar.createProviderGroup({
       glazewm: { type: 'glazewm' },
       time: { type: 'date', formatting: 'HH:mm', refreshInterval: 1 * 1000 },
+      secondTime: { type: 'date', formatting: 'HH:mm', refreshInterval: 1 * 1000, timezone: 'America/Chicago' },
       date: { type: 'date', formatting: 'EEE, MMM d', refreshInterval: 1 * 1000 },
       weather: { type: 'weather', refreshInterval: 60 * 1000, latitude: 12.94, longitude: 77.62 },
       network: { type: 'network', refreshInterval: 3 * 1000 },
@@ -298,6 +299,7 @@
             <div className="time">
               <i className="nf nf-weather-time_10"></i>
               {output.time?.formatted}
+                <span style={{ fontSize: '0.85em' }}>({output.secondTime?.formatted})</span>
             </div>
           </div>
 
