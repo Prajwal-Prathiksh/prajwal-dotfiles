@@ -333,7 +333,7 @@ function Get-ParsedPath {
 }
 
 $spotifyParsedPath = Get-ParsedPath -ShortcutName "Spotify"
-$browserParsedPath = Get-ParsedPath -ShortcutName "Thorium"
+$browserParsedPath = Get-ParsedPath -ShortcutName "Chrome"
 
 $replaceKeys = @{
     "{SPOTIFY_PATH}" = $spotifyParsedPath
