@@ -194,7 +194,7 @@ keybindings:
 
   # Close focused window.
   - command: "close"
-    binding: "Alt+W"
+    binding: "Alt+Q"
 
   # Kill GlazeWM process safely.
   - command: "exit wm"
@@ -213,6 +213,8 @@ keybindings:
     bindings: ["Alt+B"]
   - command: "exec {SPOTIFY_PATH}"
     bindings: ["Alt+S"]
+  - command: "exec {WHATSAPP_PATH}"
+    bindings: ["Alt+W"]
 
   # Focus the workspace that last had focus.
   - command: "focus workspace recent"

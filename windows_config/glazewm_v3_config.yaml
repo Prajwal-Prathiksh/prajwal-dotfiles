@@ -240,6 +240,8 @@ keybindings:
     bindings: ['LWin+b']
   - commands: ['shell-exec {SPOTIFY_PATH}']
     bindings: ['LWin+s']
+  - commands: ['shell-exec {WHATSAPP_PATH}']
+    bindings: ['LWin+w']
 
   # Focus the next/previous active workspace defined in `workspaces` config.
   - commands: ['focus --next-active-workspace']
