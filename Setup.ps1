@@ -293,29 +293,46 @@ function Get-ShortcutTargetPath {
         [string]$ShortcutName
     )
 
-    $possibleAppPaths = @(
+    $shortcutFolders = @(
         "$env:APPDATA\Microsoft\Windows\Start Menu\Programs",
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
-        "$env:USERPROFILE\Desktop",
+        "$env:USERPROFILE\Desktop"
+    )
+    $exeFolders = @(
         "$env:LOCALAPPDATA\Microsoft\WinGet\Packages",
         "$env:USERPROFILE\scoop\apps"
     )
 
-    $shortcutPath = Get-ChildItem -Path $possibleAppPaths -Recurse -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-
-    $executablePath = Get-ChildItem -Path $possibleAppPaths -Recurse -Filter "*$ShortcutName*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-
-    if ($executablePath) {
-        return $executablePath
+    # Search for .lnk (shortcut) first, non-recursive for Desktop, recursive for Start Menu
+    foreach ($folder in $shortcutFolders) {
+        $recurse = if ($folder -like "*Desktop") { $false } else { $true }
+        $shortcutPath = Get-ChildItem -Path $folder -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue -Recurse:$recurse | Select-Object -First 1 -ExpandProperty FullName
+        if ($shortcutPath) {
+            $shortcut = New-Object -ComObject WScript.Shell
+            return $shortcut.CreateShortcut($shortcutPath).TargetPath
+        }
     }
-    if ($shortcutPath) {
-        $shortcut = New-Object -ComObject WScript.Shell
-        $shortcutTarget = $shortcut.CreateShortcut($shortcutPath).TargetPath
-        return $shortcutTarget
-    } else {
-        Write-Host "Warning: No $ShortcutName shortcut found." -ForegroundColor Red
-        return $null
+
+    # Search for .exe in WinGet/Scoop folders
+    foreach ($folder in $exeFolders) {
+        $exePath = Get-ChildItem -Path $folder -Filter "*$ShortcutName*.exe" -ErrorAction SilentlyContinue -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        if ($exePath) {
+            return $exePath
+        }
     }
+
+    # If still not found, try with Get-AppxPackage
+    $appxPackage = Get-AppxPackage -Name "*$ShortcutName*" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($appxPackage) {
+        $appxPath = $appxPackage.InstallLocation
+        # Check if the appxPath contains an executable
+        $exePath = Get-ChildItem -Path $appxPath -Filter "*$ShortcutName*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+        if ($exePath) {
+            return $exePath
+        }
+    }
+    Write-Host "Warning: No $ShortcutName shortcut found." -ForegroundColor Red
+    return $null
 }
 
 function Get-ParsedPath {
@@ -333,11 +350,16 @@ function Get-ParsedPath {
 }
 
 $spotifyParsedPath = Get-ParsedPath -ShortcutName "Spotify"
+Write-Host "Spotify path: $spotifyParsedPath" -ForegroundColor White
 $browserParsedPath = Get-ParsedPath -ShortcutName "Chrome"
+Write-Host "Browser path: $browserParsedPath" -ForegroundColor White
+$whatsAppParsedPath = Get-ParsedPath -ShortcutName "WhatsApp"
+Write-Host "WhatsApp path: $whatsAppParsedPath" -ForegroundColor White
 
 $replaceKeys = @{
     "{SPOTIFY_PATH}" = $spotifyParsedPath
     "{BROWSER_PATH}" = $browserParsedPath
+    "{WHATSAPP_PATH}" = $whatsAppParsedPath
 }
 
 $glazeConfigPath = "$scriptDir\glazewm_v2_config.yaml"
