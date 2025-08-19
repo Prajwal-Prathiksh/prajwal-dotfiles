@@ -351,7 +351,15 @@
               <div className="memory">
                 {/* Show icon for memory usage. */}
                 {getMemoryIcon(output.memory)}
-                {Math.round(output.memory.usage)}%
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '2.5em', // enough for "100%"
+                    textAlign: 'right',
+                  }}
+                >
+                  {Math.round(output.memory.usage)}%
+                </span>
               </div>
             )}
 
@@ -359,7 +367,15 @@
               <div className="cpu">
                 {/* Show icon for CPU usage. */}
                 {getCPUIcon(output.cpu)}
-                {Math.round(output.cpu.usage)}%
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '2.5em',
+                    textAlign: 'right',
+                  }}
+                >
+                  {Math.round(output.cpu.usage)}%
+                </span>
               </div>
             )}
 
@@ -367,7 +383,15 @@
               <div className="battery">
                 {/* Show icon for whether battery is charging. */}
                 {getBatteryStateIcon(output.battery)}
-                {Math.round(output.battery.chargePercent)}%
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '2.5em',
+                    textAlign: 'right',
+                  }}
+                >
+                  {Math.round(output.battery.chargePercent)}%
+                </span>
               </div>
             )}
 
