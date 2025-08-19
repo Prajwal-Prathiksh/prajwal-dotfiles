@@ -9,6 +9,9 @@
 # Run Oh My Posh with custom configuration
 # oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/custom.omp.json" | Invoke-Expression
 
+# Console History File
+$consoleHistoryFile = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
+
 # Build a simple and custom prompt
 function ConvertTo-HumanReadableTime ($milliseconds) {
 <#
@@ -195,7 +198,7 @@ The prompt function customizes the PowerShell prompt to display the current dire
 $PSReadLineOptions = @{
     HistoryNoDuplicates = $true
     PredictionViewStyle = "ListView"
-    HistorySavePath     = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
+    HistorySavePath     = $consoleHistoryFile
     PredictionSource    = "HistoryAndPlugin"
 }
 Set-PSReadLineOption @PSReadLineOptions
@@ -408,13 +411,12 @@ The editor parameter specifies the editor to use for editing the history file. D
         $editor = "code"
     }
 
-    $historyFile = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
-    if (-not (Test-Path $historyFile)) {
+    if (-not (Test-Path $consoleHistoryFile)) {
         Write-Host "PowerShell history file not found." -ForegroundColor Red
         return
     }
 
-    & $editor $historyFile
+    & $editor $consoleHistoryFile
 }
 
 function Remove-DuplicateHistory {
@@ -432,18 +434,18 @@ The sort parameter specifies whether to sort the history file before removing du
         [switch]$sort
     )
 
-    $historyFile = "$(Split-Path $PROFILE)\$($Host.Name)_history.txt"
-    if (-not (Test-Path $historyFile)) {
+    if (-not (Test-Path $consoleHistoryFile)) {
         Write-Host "PowerShell history file not found." -ForegroundColor Red
         return
     }
 
-    $history = Get-Content -Path $historyFile
+    $history = Get-Content -Path $consoleHistoryFile
     $uniqueHistory = $history | Select-Object -Unique
     if ($sort) {
         $uniqueHistory = $uniqueHistory | Sort-Object
+        Write-Host "History file sorted." -ForegroundColor Green
     }
-    $uniqueHistory | Set-Content -Path $historyFile
+    $uniqueHistory | Set-Content -Path $consoleHistoryFile
     Write-Host "Duplicate entries removed from the PowerShell history file." -ForegroundColor Green
 }
 
@@ -1212,6 +1214,7 @@ If the full switch is provided, the full help content is displayed without pagin
         "bwhich : Locates the executable of a command, and displays the path using bat.",
         "Connect-WifiUsingFzf : Connects to a Wi-Fi network using fzf.",
         "ConvertTo-HumanReadableTime : Converts milliseconds to a human-readable time format.",
+        "consoleHistoryFile : Displays the path to the PowerShell console history file.",
         "df : Displays disk space usage. Alias for Get-Volume.",
         "Edit-Profile : Opens the Microsoft.PowerShell_profile.ps1 file for editing.",
         "Edit-PSHistory : Opens the PowerShell history file for editing.",
