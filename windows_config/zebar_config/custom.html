@@ -273,23 +273,6 @@
         <div className="app">
           <div className="left">
             {output.glazewm && (
-              <div className="workspaces">
-                {output.glazewm.currentWorkspaces.map(workspace => (
-                  <button
-                    className={`workspace ${workspace.hasFocus && 'focused'} ${workspace.isDisplayed && 'displayed'}`}
-                    onClick={() =>
-                      output.glazewm.runCommand(
-                        `focus --workspace ${workspace.name}`,
-                      )
-                    }
-                    key={workspace.name}
-                  >
-                    {workspace.displayName ?? workspace.name}
-                  </button>
-                ))}
-              </div>
-            )}
-            {output.glazewm && (
               <>
                 {output.glazewm.bindingModes.map(bindingMode => (
                   <button
@@ -312,6 +295,23 @@
                   }
                 ></button>
               </>
+            )}
+            {output.glazewm && (
+              <div className="workspaces">
+                {output.glazewm.currentWorkspaces.map(workspace => (
+                  <button
+                    className={`workspace ${workspace.hasFocus && 'focused'} ${workspace.isDisplayed && 'displayed'}`}
+                    onClick={() =>
+                      output.glazewm.runCommand(
+                        `focus --workspace ${workspace.name}`,
+                      )
+                    }
+                    key={workspace.name}
+                  >
+                    {workspace.displayName ?? workspace.name}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 

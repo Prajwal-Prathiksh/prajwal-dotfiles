@@ -97,8 +97,8 @@ button {
   transition: all 0.2s ease;
 }
 
-.binding-mode,
 .tiling-direction,
+.binding-mode,
 .weather,
 .network,
 .memory,
@@ -135,7 +135,6 @@ button {
   }
 }
 
-.binding-mode,
 .tiling-direction {
   /* Acrylic-inspired button style */
   background: var(--surface-color);
@@ -147,12 +146,13 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+.binding-mode,
 
-.binding-mode:hover,
 .tiling-direction:hover {
   background: var(--surface-hover);
   box-shadow: 0 2px 8px rgba(78, 166, 255, 0.2);
 }
+.binding-mode:hover,
 
 .binding-mode {
   margin-right: 4px;
