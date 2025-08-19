@@ -22,7 +22,7 @@ i {
 
 body {
   color: var(--text-color);
-  font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  font-family: 'Microsoft Sans Serif', 'Segoe UI', 'Cascadia Code';
   font-weight: 500;
   font-size: 16px;
   overflow: hidden;
@@ -44,26 +44,38 @@ body,
 
 .app {
   display: grid;
-  grid-template-columns: minmax(auto, 1fr) auto minmax(auto, 1fr);
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: 100%;
   padding: 4px 1vw;
   font-size: 16px;
 }
 
-.left,
-.center,
-.right {
+.left {
+  grid-column: 1;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   font-size: 16px;
+  margin-right: auto;
 }
 
 .center {
+  grid-column: 2;
   display: flex;
   gap: 15px;
   justify-content: center;
   align-items: center;
+  font-size: 16px;
+}
+
+.right {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 16px;
+  margin-left: auto;
 }
 
 .date, .time, .second-time {
@@ -74,21 +86,10 @@ body,
 
 .time, .second-time {
   font-size: 16px;
-  font-weight: bold;
 }
 
 .date i, .time i, .second-time i {
   font-size: 14px;
-}
-
-.right {
-  justify-self: end;
-  margin-left: auto;
-}
-
-.left {
-  justify-self: start;
-  margin-right: auto;
 }
 
 button {
@@ -161,26 +162,6 @@ button {
   min-width: 110px;
 }
 
-/* Media text carousel effect */
-.media-text {
-  position: relative;
-}
-
-.media-text .hover-visible {
-  position: absolute;
-  left: 0;
-  display: none;
-  white-space: nowrap;
-}
-
-.media-text:hover .hover-hidden {
-  visibility: hidden;
-}
-
-.media-text:hover .hover-visible {
-  display: inline-block;
-  animation: scroll-text 10s linear infinite;
-}
 
 @keyframes scroll-text {
   0%, 5% {
