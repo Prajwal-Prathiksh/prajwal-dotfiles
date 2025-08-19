@@ -289,24 +289,6 @@
                 ))}
               </div>
             )}
-          </div>
-
-          <div className="center">
-            <div className="date">
-              <i className="nf nf-fa-calendar_day"></i>
-              {output.date?.formatted}
-            </div>
-            <div className="time">
-              <i className="nf nf-md-clock"></i>
-              {output.time?.formatted}
-            </div>
-            <div className="second-time">
-              <i className="nf nf-fa-earth_asia"></i>
-              {output.secondTime?.formatted}
-            </div>
-          </div>
-
-          <div className="right">
             {output.glazewm && (
               <>
                 {output.glazewm.bindingModes.map(bindingMode => (
@@ -331,7 +313,24 @@
                 ></button>
               </>
             )}
+          </div>
 
+          <div className="center">
+            <div className="date">
+              <i className="nf nf-fa-calendar_day"></i>
+              {output.date?.formatted}
+            </div>
+            <div className="time">
+              <i className="nf nf-md-clock"></i>
+              {output.time?.formatted}
+            </div>
+            <div className="second-time">
+              <i className="nf nf-fa-earth_asia"></i>
+              {output.secondTime?.formatted}
+            </div>
+          </div>
+
+          <div className="right">
             {output.weather && (
               <div className="weather">
                 {getWeatherIcon(output.weather)}
