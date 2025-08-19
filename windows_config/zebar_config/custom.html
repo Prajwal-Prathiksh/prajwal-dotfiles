@@ -388,8 +388,15 @@
                 onClick={() => {
                   if (output.audio.defaultPlaybackDevice !== null) {
                     const currentVolume = output.audio.defaultPlaybackDevice.volume;
-                    // Toggle between 0 and 50 based on current volume
-                    const newVolume = currentVolume > 0 ? 0 : 50;
+                    // Toggle between 0, 50, and 100 based on current volume
+                    let newVolume;
+                    if (currentVolume === 0) {
+                      newVolume = 50;
+                    } else if (currentVolume === 50) {
+                      newVolume = 100;
+                    } else {
+                      newVolume = 0;
+                    }
                     output.audio.setVolume(newVolume);
                   }
                 }}
@@ -397,34 +404,14 @@
               >
                 {/* Show icon for current volume level. */}
                 {getVolumeIcon(output.audio)}
-                {output.audio.defaultPlaybackDevice !== null ? `${output.audio.defaultPlaybackDevice.volume}%` : '-'}
-              </div>
-            )}
-
-            {output.media && (
-              <div
-                className="media"
-                onClick={() => output.media?.togglePlayPause()}
-                style={{ cursor: 'pointer', backgroundColor: '#303243', padding: '4px', borderRadius: '5px' }}
-              >
-                {getMediaIcon(output.media)}
                 <span
                   style={{
-                    fontWeight: 'regular',
-                    fontSize: '9px',
-                    fontStyle: 'italic',
                     display: 'inline-block',
-                    maxWidth: '200px',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    transition: 'all 0.01s ease'
+                    width: '2.5em', // enough for "100%"
+                    textAlign: 'right',
                   }}
-                  className="media-text"
-                  data-full-text={getMediaText(output.media, false)}
                 >
-                <span className="hover-hidden">{getMediaText(output.media, true)}</span>
-                  <span className="hover-visible">{getMediaText(output.media, false)}</span>
+                  {output.audio.defaultPlaybackDevice !== null ? `${output.audio.defaultPlaybackDevice.volume}%` : '-'}
                 </span>
               </div>
             )}
