@@ -34,9 +34,9 @@
     const providers = zebar.createProviderGroup({
       glazewm: { type: 'glazewm' },
       time: { type: 'date', formatting: 'HH:mm', refreshInterval: 1 * 1000 },
-      secondTime: { type: 'date', formatting: 'HH:mm', refreshInterval: 1 * 1000, timezone: 'America/Chicago' },
+      secondTime: { type: 'date', formatting: 'HH:mm', refreshInterval: 1 * 1000, timezone: 'Asia/Kolkata' },
       date: { type: 'date', formatting: 'EEE, MMM d', refreshInterval: 1 * 1000 },
-      weather: { type: 'weather', refreshInterval: 60 * 1000, latitude: 12.94, longitude: 77.62 },
+      weather: { type: 'weather', refreshInterval: 60 * 1000, latitude: 30.38, longitude: -97.71 },
       network: { type: 'network', refreshInterval: 3 * 1000 },
       memory: { type: 'memory', refreshInterval: 3 * 1000 },
       cpu: { type: 'cpu', refreshInterval: 3 * 1000 },
@@ -301,7 +301,7 @@
               {output.time?.formatted}
             </div>
             <div className="second-time">
-              <i className="nf nf-fa-earth_americas"></i>
+              <i className="nf nf-fa-earth_asia"></i>
               {output.secondTime?.formatted}
             </div>
           </div>
