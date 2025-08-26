@@ -293,6 +293,10 @@ function Get-ShortcutTargetPath {
         [string]$ShortcutName
     )
 
+    $webAppFolders = @(
+        "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Chrome Apps"
+    )
+
     $shortcutFolders = @(
         "$env:APPDATA\Microsoft\Windows\Start Menu\Programs",
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
@@ -302,6 +306,14 @@ function Get-ShortcutTargetPath {
         "$env:LOCALAPPDATA\Microsoft\WinGet\Packages",
         "$env:USERPROFILE\scoop\apps"
     )
+
+    # Search for .lnk (shortcut) of the webapp (if any) and return that
+    foreach ($folder in $webAppFolders) {
+        $webAppPath = Get-ChildItem -Path $folder -Filter "*$ShortcutName*.lnk" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+        if ($webAppPath) {
+            return $webAppPath
+        }
+    }
 
     # Search for .lnk (shortcut) first, non-recursive for Desktop, recursive for Start Menu
     foreach ($folder in $shortcutFolders) {
@@ -355,11 +367,14 @@ $browserParsedPath = Get-ParsedPath -ShortcutName "Chrome"
 Write-Host "Browser path: $browserParsedPath" -ForegroundColor White
 $whatsAppParsedPath = Get-ParsedPath -ShortcutName "WhatsApp"
 Write-Host "WhatsApp path: $whatsAppParsedPath" -ForegroundColor White
+$googleCalendarParsedPath = Get-ParsedPath -ShortcutName "Google Calendar"
+Write-Host "Google Calendar path: $googleCalendarParsedPath" -ForegroundColor White
 
 $replaceKeys = @{
     "{SPOTIFY_PATH}" = $spotifyParsedPath
     "{BROWSER_PATH}" = $browserParsedPath
     "{WHATSAPP_PATH}" = $whatsAppParsedPath
+    "{GOOGLE_CALENDAR_PATH}" = $googleCalendarParsedPath
 }
 
 $glazeConfigPath = "$scriptDir\glazewm_v2_config.yaml"

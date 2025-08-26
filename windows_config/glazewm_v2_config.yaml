@@ -215,6 +215,8 @@ keybindings:
     bindings: ["Alt+S"]
   - command: "exec {WHATSAPP_PATH}"
     bindings: ["Alt+W"]
+  - command: "exec {GOOGLE_CALENDAR_PATH}"
+    bindings: ["Alt+C"]
 
   # Focus the workspace that last had focus.
   - command: "focus workspace recent"

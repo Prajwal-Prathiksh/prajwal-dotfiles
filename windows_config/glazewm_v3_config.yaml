@@ -242,6 +242,8 @@ keybindings:
     bindings: ['LWin+s']
   - commands: ['shell-exec {WHATSAPP_PATH}']
     bindings: ['LWin+w']
+  - commands: ['shell-exec {GOOGLE_CALENDAR_PATH}']
+    bindings: ['LWin+c']
 
   # Focus the next/previous active workspace defined in `workspaces` config.
   - commands: ['focus --next-active-workspace']
