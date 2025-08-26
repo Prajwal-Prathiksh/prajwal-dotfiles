@@ -377,18 +377,6 @@ $replaceKeys = @{
     "{GOOGLE_CALENDAR_PATH}" = $googleCalendarParsedPath
 }
 
-$glazeConfigPath = "$scriptDir\glazewm_v2_config.yaml"
-# Read config file and replace keys with the parsed paths
-(Get-Content $glazeConfigPath) | ForEach-Object {
-    $line = $_
-    foreach ($key in $replaceKeys.Keys) {
-        $line = $line -replace $key, $replaceKeys[$key]
-    }
-    $line
-} | Set-Content "$setupTempDir\glazewm_v2_config.yaml"
-Write-Host "glaze (v2) config file has been prepared successfully." -ForegroundColor Green
-
-
 $glazeConfigPath = "$scriptDir\glazewm_v3_config.yaml"
 # Read config file and replace keys with the parsed paths
 (Get-Content $glazeConfigPath) | ForEach-Object {
