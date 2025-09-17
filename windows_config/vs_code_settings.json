@@ -2,17 +2,14 @@
     // Vim Settings
     "editor.lineNumbers": "relative",
     // Personal Settings
-    "editor.fontFamily": "Cascadia Code",
-    "editor.inlineSuggest.fontFamily": "Cascadia Code",
-    "editor.codeLensFontFamily": "Cascadia Code",
-    "editor.experimentalInlineEdit.fontFamily": "Cascadia Code",
-    "debug.console.fontFamily": "Cascadia Code",
-    "gitlens.blame.fontFamily": "Cascadia Code",
-    "scm.inputFontFamily": "Cascadia Code",
-    "terminal.integrated.fontFamily": "Cascadia Code",
-    "notebook.output.fontFamily": "Cascadia Code",
-    "chat.editor.fontFamily": "Cascadia Code",
-    "gitlens.currentLine.fontFamily": "Cascadia Code",
+    "editor.fontFamily": "iA Writer Mono S",
+    "editor.inlineSuggest.fontFamily": "iA Writer Mono S",
+    "editor.codeLensFontFamily": "iA Writer Mono S",
+    "debug.console.fontFamily": "iA Writer Mono S",
+    "scm.inputFontFamily": "iA Writer Mono S",
+    "terminal.integrated.fontFamily": "iA Writer Mono S",
+    "notebook.output.fontFamily": "iA Writer Mono S",
+    "chat.editor.fontFamily": "iA Writer Mono S",
     "[mojo]": {
         "editor.formatOnSave": true
     },
@@ -40,7 +37,6 @@
     "jupyter.disableJupyterAutoStart": false,
     "notebook.lineNumbers": "on",
     "notebook.cellFocusIndicator": "gutter",
-    "notebook.experimental.cellChat": true,
     "notebook.formatOnCellExecution": true,
     "notebook.formatOnSave.enabled": false,
     "notebook.showCellStatusBar": "visible",
@@ -90,11 +86,9 @@
     "python.terminal.activateEnvironment": false,
     "workbench.editorAssociations": {
         "*.ipynb": "jupyter-notebook",
-        "*.png": "gryc.viewer",
         "*.bmp": "default"
     },
     "jupyter.askForKernelRestart": false,
-    "python.defaultInterpreterPath": "C:\\Users\\40108353\\AppData\\Local\\miniconda3\\envs\\py311\\python.exe",
     "editor.wordWrap": "wordWrapColumn",
     "editor.inlineSuggest.enabled": true,
     "github.copilot.enable": {
@@ -110,7 +104,6 @@
         "jupyter-notebook": "left"
     },
     "terminal.integrated.defaultProfile.windows": "PowerShell",
-    "python.condaPath": "C:\\Users\\prajw\\anaconda3\\Scripts\\conda.exe",
     "editor.multiCursorModifier": "ctrlCmd",
     "workbench.colorCustomizations": {
         "terminal.foreground": "#00FD61",
@@ -126,9 +119,6 @@
     "editor.minimap.size": "fill",
     "zenMode.centerLayout": false,
     "zenMode.hideLineNumbers": false,
-    "files.associations": {
-        "*.pyx": "cython"
-    },
     "git.ignoreLegacyWarning": true,
     "workbench.startupEditor": "welcomePageInEmptyWorkbench",
     "notebook.output.textLineLimit": 70,
@@ -140,20 +130,15 @@
     "git.openRepositoryInParentFolders": "never",
     "editor.wordWrapColumn": 90,
     "workbench.colorTheme": "Atom One Dark",
-    "git.path": "C:\\Program Files\\Git\\bin\\git.exe",
     "diffEditor.experimental.showMoves": true,
     "workbench.activityBar.location": "top",
-    "C_Cpp.default.compilerPath": "",
     "workbench.tree.enableStickyScroll": false,
     "notebook.stickyScroll.enabled": true,
-    "cmake.configureOnOpen": true,
     "jupyter.debugJustMyCode": false,
     "debugpy.debugJustMyCode": false,
     "diffEditor.maxComputationTime": 0,
     "diffEditor.ignoreTrimWhitespace": false,
-    "github.copilot.editor.enableAutoCompletions": true,
     "accessibility.underlineLinks": true,
-    "scm.experimental.showHistoryGraph": true,
     "editor.minimap.enabled": false,
     "diffEditor.hideUnchangedRegions.enabled": true
 }
