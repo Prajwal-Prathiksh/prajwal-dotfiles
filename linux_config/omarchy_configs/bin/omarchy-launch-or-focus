@@ -1,0 +1,80 @@
+#!/bin/bash
+set -euo pipefail
+
+# Usage:
+#   omarchy-launch-or-focus <window-pattern> [launch-command]
+#   omarchy-launch-or-focus <url> [profile] [extra browser flags...]
+#
+# URL mode:
+#   - Focuses an existing Chromium webapp window whose class encodes the host/profile
+#   - If not found, calls `omarchy-launch-webapp <url> [profile] [extra flags...]`
+#
+# Pattern mode (unchanged):
+#   - Focuses the first window matching <window-pattern> in (class + title)
+#   - Otherwise runs [launch-command] (default: uwsm app -- <window-pattern>)
+
+find_window_address() {
+  local pattern="$1"
+  hyprctl clients -j \
+  | jq -r --arg p "$pattern" '.[] | select((.class+" "+.title) | test($p;"i")) | .address' \
+  | head -n1
+}
+
+regex_escape() {
+  sed -e 's/[.[\*^$()+?{}|\\]/\\&/g' <<<"$1"
+}
+
+if (($# == 0)); then
+  echo "Usage:"
+  echo "  omarchy-launch-or-focus <window-pattern> [launch-command]"
+  echo "  omarchy-launch-or-focus <url> [profile] [extra browser flags...]"
+  exit 1
+fi
+
+arg1="$1"
+if [[ "$arg1" =~ ^https?:// ]]; then
+  # ------------------ URL MODE ------------------
+  APP_URL="$1"
+  PROFILE="${2-}"          # optional profile
+  shift || true
+  [[ $# -gt 0 ]] && shift || true  # shift potential profile
+  EXTRA_FLAGS=("$@")       # pass-through to the webapp launcher
+
+  # Build a class/title pattern that matches Chromium app windows like:
+  #  chrome-chatgpt.com__-Default
+  #  chrome-web.whatsapp.com__-Profile_1
+  host="${APP_URL#*://}"; host="${host%%/*}"
+  host_esc="$(regex_escape "$host")"
+
+  if [[ -n "${PROFILE:-}" ]]; then
+    prof_as_is="$(regex_escape "$PROFILE")"
+    prof_uscore="$(regex_escape "${PROFILE// /_}")"
+    WINDOW_PATTERN="(^| )(chrome|chromium|brave|vivaldi|microsoft-edge|google-chrome)-${host_esc}__-(${prof_as_is}|${prof_uscore})"
+  else
+    WINDOW_PATTERN="(^| )(chrome|chromium|brave|vivaldi|microsoft-edge|google-chrome)-${host_esc}__-"
+  fi
+
+  if WINDOW_ADDRESS="$(find_window_address "$WINDOW_PATTERN")" && [[ -n "$WINDOW_ADDRESS" ]]; then
+    hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
+    exit 0
+  fi
+
+  # No match → delegate launching to your existing webapp script (no duplication here)
+  if [[ -n "${PROFILE:-}" ]]; then
+    exec omarchy-launch-webapp "$APP_URL" "$PROFILE" "${EXTRA_FLAGS[@]}"
+  else
+    exec omarchy-launch-webapp "$APP_URL" "${EXTRA_FLAGS[@]}"
+  fi
+
+else
+  # ---------------- PATTERN MODE (original) ----------------
+  WINDOW_PATTERN="$arg1"
+  LAUNCH_COMMAND="${2:-"uwsm app -- $WINDOW_PATTERN"}"
+
+  if WINDOW_ADDRESS="$(find_window_address "$WINDOW_PATTERN")" && [[ -n "$WINDOW_ADDRESS" ]]; then
+    hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
+  else
+    # Use eval to support complex shell syntax in the launch command
+    eval exec $LAUNCH_COMMAND
+  fi
+fi

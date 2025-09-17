@@ -1,0 +1,24 @@
+#!/bin/bash
+
+browser=$(xdg-settings get default-web-browser)
+
+case $browser in
+  google-chrome* | brave-browser* | microsoft-edge* | opera* | vivaldi*) ;;
+  *) browser="chromium.desktop" ;;
+esac
+
+# Extract the browser binary from the .desktop file
+BROWSER_BIN="$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$browser 2>/dev/null | head -1)"
+
+APP_URL="$1"
+shift || true
+
+# If a profile arg is provided (as $2 in the original), use it; otherwise launch without profile.
+PROFILE_ARG=()
+if [ -n "${1-}" ]; then
+  PROFILE_ARG=(--profile-directory="$1")
+  shift
+fi
+
+# Any remaining args after the profile name are forwarded as-is.
+exec setsid uwsm app -- "$BROWSER_BIN" "${PROFILE_ARG[@]}" --app="$APP_URL" "$@"
