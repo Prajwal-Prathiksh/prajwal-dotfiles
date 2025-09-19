@@ -4,6 +4,7 @@ include "%H/.local/share/omarchy/default/xcompose"
 <Multi_key> <n> <n> : "Prajwal Prathiksh"
 <Multi_key> <n> <l> : "Kadalagere Thirumalesha Thejaswi"
 <Multi_key> <n> <e> : "prajwal.prathiksh@gmail.com"
+<Multi_key> <n> <u> <e> : "prajwal.prathiksh@my.utexas.edu"
 
 # Symbols
 <Multi_key> <space> <4> : "₹"
@@ -14,6 +15,7 @@ include "%H/.local/share/omarchy/default/xcompose"
 <Multi_key> <space> <c> <g> : "≅" # congruent to
 <Multi_key> <space> <c> <p> : "⊗" # cross product
 <Multi_key> <space> <d> <v> : "÷" # division
+<Multi_key> <space> <d> <g> : "°" # degree
 <Multi_key> <space> <e> <q> : "≡" # equivalent
 <Multi_key> <space> <f> <a> : "∀" # for all
 <Multi_key> <space> <g> <e> : "≥" # greater than or equal to
@@ -21,6 +23,7 @@ include "%H/.local/share/omarchy/default/xcompose"
 <Multi_key> <space> <i> <m> : "⇒" # implies
 <Multi_key> <space> <i> <n> : "∩" # intersection
 <Multi_key> <space> <i> <t> : "∫" # integral
+<Multi_key> <space> <l> <a> : "←" # left arrow
 <Multi_key> <space> <l> <e> : "≤" # less than or equal to
 <Multi_key> <space> <n> <b> : "∉" # not belong to
 <Multi_key> <space> <n> <e> : "≠" # not equal
@@ -28,6 +31,7 @@ include "%H/.local/share/omarchy/default/xcompose"
 <Multi_key> <space> <p> <i> : "π" # pi
 <Multi_key> <space> <p> <m> : "±" # plus-minus
 <Multi_key> <space> <p> <p> : "⊥" # perpendicular
+<Multi_key> <space> <r> <a> : "→" # right arrow
 <Multi_key> <space> <s> <m> : "∑" # summation
 <Multi_key> <space> <t> <e> : "∃" # there exists
 <Multi_key> <space> <t> <f> : "∴" # therefore
