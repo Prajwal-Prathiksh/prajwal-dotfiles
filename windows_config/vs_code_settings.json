@@ -1,15 +1,15 @@
 {
     // Vim Settings
-    "editor.lineNumbers": "relative",
+    // "editor.lineNumbers": "relative",
     // Personal Settings
-    "editor.fontFamily": "iA Writer Mono S",
-    "editor.inlineSuggest.fontFamily": "iA Writer Mono S",
-    "editor.codeLensFontFamily": "iA Writer Mono S",
-    "debug.console.fontFamily": "iA Writer Mono S",
-    "scm.inputFontFamily": "iA Writer Mono S",
-    "terminal.integrated.fontFamily": "iA Writer Mono S",
-    "notebook.output.fontFamily": "iA Writer Mono S",
-    "chat.editor.fontFamily": "iA Writer Mono S",
+    "editor.fontFamily": "CaskaydiaMono Nerd Font Mono",
+    "editor.inlineSuggest.fontFamily": "CaskaydiaMono Nerd Font Mono",
+    "editor.codeLensFontFamily": "CaskaydiaMono Nerd Font Mono",
+    "debug.console.fontFamily": "CaskaydiaMono Nerd Font Mono",
+    "scm.inputFontFamily": "CaskaydiaMono Nerd Font Mono",
+    "terminal.integrated.fontFamily": "CaskaydiaMono Nerd Font Mono",
+    "notebook.output.fontFamily": "CaskaydiaMono Nerd Font Mono",
+    "chat.editor.fontFamily": "CaskaydiaMono Nerd Font Mono",
     "[mojo]": {
         "editor.formatOnSave": true
     },
@@ -129,7 +129,6 @@
     ],
     "git.openRepositoryInParentFolders": "never",
     "editor.wordWrapColumn": 90,
-    "workbench.colorTheme": "Atom One Dark",
     "diffEditor.experimental.showMoves": true,
     "workbench.activityBar.location": "top",
     "workbench.tree.enableStickyScroll": false,
@@ -140,5 +139,13 @@
     "diffEditor.ignoreTrimWhitespace": false,
     "accessibility.underlineLinks": true,
     "editor.minimap.enabled": false,
-    "diffEditor.hideUnchangedRegions.enabled": true
+    "diffEditor.hideUnchangedRegions.enabled": true,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "update.mode": "none",
+    "explorer.confirmDelete": false,
+    "jupyter.themeMatplotlibPlots": true,
+    "window.autoDetectColorScheme": true,
+    "markdown-preview-github-styles.darkTheme": "dark_dimmed",
+    "workbench.colorTheme": "Atom One Dark",
+    "workbench.preferredDarkColorTheme": "Atom One Dark"
 }
