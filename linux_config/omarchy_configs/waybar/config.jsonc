@@ -15,12 +15,12 @@
     "custom/screenrecording-indicator"
   ],
   "modules-right": [
-    "group/tray-expander",
     "bluetooth",
     "network",
     "pulseaudio",
     "cpu",
     "battery"
+    // "group/tray-expander"
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -87,8 +87,8 @@
     "format-wifi": "{icon}",
     "format-ethernet": "󰀂",
     "format-disconnected": "󰖪",
-    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\nIP: {ipaddr}",
-    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\nIP: {ipaddr}",
+    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\n󰩠: {ipaddr}",
+    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\n󰩠: {ipaddr}",
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
@@ -139,11 +139,11 @@
   "bluetooth": {
     "format": "",
     "format-disabled": "󰂲",
-    "format-connected": "",
+    "format-connected": "󰂱",
     "tooltip-format": "Controller name: {controller_alias}\nDevices connected: {num_connections}",
     "tooltip-format-connected": "Controller name: {controller_alias}\nDevices connected: {num_connections}\n{device_enumerate}",
     "tooltip-format-enumerate-connected": " > {device_alias}\t{device_address}",
-    "tooltip-format-enumerate-connected-battery": " > {device_alias} ({device_battery_percentage}%)",
+    "tooltip-format-enumerate-connected-battery": " > {device_alias} (󰥉 {device_battery_percentage}%)",
     "on-click": "blueberry"
   },
   "pulseaudio": {
@@ -156,14 +156,14 @@
     "format-muted": "󰝟",
     "format-icons": {
       "default": [
-        "",
-        "",
-        ""
+        "󰕿",
+        "󰖀",
+        "󰕾"
       ],
       "bluetooth": [
-        "",
-        "",
-        ""
+        "󰕿",
+        "󰖀",
+        "󰕾"
       ]
     }
   },
