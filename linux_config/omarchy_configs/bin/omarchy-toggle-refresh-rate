@@ -1,0 +1,23 @@
+#!/bin/bash
+# Toggle refresh rate for primary Hyprland monitor (ID=0)
+
+# Get primary monitor name
+PRIMARY_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.id == 0) | .name')
+
+# Get available modes and current refresh rate
+AVAILABLE_MODES=$(hyprctl monitors -j | jq -r '.[] | select(.id == 0) | .availableModes[]')
+CURRENT_REFRESH_RATE=$(hyprctl monitors -j | jq -r '.[] | select(.id == 0) | .refreshRate')
+CURRENT_REFRESH_RATE=$(printf "%.2f" "$CURRENT_REFRESH_RATE")
+
+# Find the alternative mode (not currently active)
+NEW_REFRESH_RATE_LINE=$(echo "$AVAILABLE_MODES" | grep -v "@$CURRENT_REFRESH_RATE" | head -n 1 | sed 's/HZ//I;s/Hz//I')
+
+# echo "Primary Monitor: $PRIMARY_MONITOR"
+# echo "Current: $CURRENT_REFRESH_RATE"
+# echo "Switching to: $NEW_REFRESH_RATE_LINE"
+
+# Update Hyprland config for the monitor
+sed -i "s|monitor=$PRIMARY_MONITOR.*|monitor=$PRIMARY_MONITOR,$NEW_REFRESH_RATE_LINE,auto,2|g" ~/.config/hypr/monitors.conf
+
+# Notify user
+notify-send "Switched $PRIMARY_MONITOR to $NEW_REFRESH_RATE_LINE"
