@@ -15,6 +15,7 @@
     "custom/screenrecording-indicator"
   ],
   "modules-right": [
+    "privacy",
     "bluetooth",
     "network",
     "pulseaudio",
@@ -187,6 +188,10 @@
     "exec": "$OMARCHY_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"
+  },
+  "privacy": {
+    "icon-spacing": 17,
+    "icon-size": 12
   },
   "tray": {
     "icon-size": 12,
