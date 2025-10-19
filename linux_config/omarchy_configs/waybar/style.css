@@ -44,6 +44,22 @@
   margin: 0 7.5px;
 }
 
+#tray {
+  margin-right: 16px;
+}
+
+#bluetooth {
+  margin-right: 17px;
+}
+
+#network {
+  margin-right: 13px;
+}
+
+#custom-expand-icon {
+  margin-right: 20px;
+}
+
 tooltip {
   padding: 2px;
 }
