@@ -11,6 +11,7 @@
   "modules-center": [
     "clock",
     "custom/india-clock",
+    "custom/day-percentage",
     "custom/update",
     "custom/screenrecording-indicator"
   ],
@@ -57,7 +58,7 @@
     "on-click": "omarchy-launch-floating-terminal-with-presentation omarchy-update",
     "tooltip-format": "Omarchy update available",
     "signal": 7,
-    "interval": 3600
+    "interval": 21600
   },
   "cpu": {
     "interval": 5,
@@ -75,6 +76,12 @@
     "exec": "TZ=Asia/Kolkata date +'  %H:%M'",
     "interval": 60,
     "tooltip": "India Standard Time",
+    "format": "{}"
+  },
+  "custom/day-percentage": {
+    "exec": "$HOME/.config/waybar/scripts/day-percentage.sh",
+    "interval": 120,
+    "tooltip": "Percentage of day completed",
     "format": "{}"
   },
   "network": {

@@ -69,12 +69,17 @@ tooltip {
 }
 
 #clock {
-  margin-left: 8.75px;
+  margin-left: 10px;
   margin-right: 4px;
 }
 
 #custom-india-clock {
-  margin-right: 4px;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+#custom-day-percentage {
+  margin-left: 2px;
 }
 
 .hidden {
