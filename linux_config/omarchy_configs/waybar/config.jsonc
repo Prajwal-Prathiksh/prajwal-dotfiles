@@ -69,19 +69,20 @@
   "clock": {
     "format": " {:%a, %b %d  󰥔 %H:%M}",
     "format-alt": "{:L%d %B W%V %Y}",
-    "tooltip": false,
-    "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
+    "tooltip": true,
+    "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select",
+    "tooltip-format": "Right click to change timezone"
   },
   "custom/india-clock": {
     "exec": "TZ=Asia/Kolkata date +'  %H:%M'",
     "interval": 60,
-    "tooltip": "India Standard Time",
+    "tooltip-format": "India Standard Time",
     "format": "{}"
   },
   "custom/day-percentage": {
     "exec": "$HOME/.config/waybar/scripts/day-percentage.sh",
     "interval": 120,
-    "tooltip": "Percentage of day completed",
+    "tooltip-format": "Percentage of day completed",
     "format": "{}"
   },
   "network": {

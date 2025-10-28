@@ -31,12 +31,10 @@
 }
 
 #tray,
-#cpu,
-#battery,
-#network,
-#bluetooth,
-#pulseaudio,
-#privacy,
+#privacy{
+  margin-left: 5px;
+  margin-right: 5px;
+}
 #custom-omarchy,
 #custom-screenrecording-indicator,
 #custom-update {
@@ -45,15 +43,23 @@
 }
 
 #tray {
-  margin-right: 16px;
+  margin-right: 13px;
 }
 
 #bluetooth {
-  margin-right: 17px;
+  margin-right: 23px;
 }
-
 #network {
-  margin-right: 13px;
+  margin-right: 26px;
+}
+#pulseaudio{
+  margin-right: 21px;
+}
+#cpu {
+  margin-right: 21px;
+}
+#battery{
+  margin-right: 9px;
 }
 
 #custom-expand-icon {
@@ -79,6 +85,7 @@ tooltip {
 }
 
 #custom-day-percentage {
+  margin-left: 2px;
   margin-left: 2px;
 }
 
