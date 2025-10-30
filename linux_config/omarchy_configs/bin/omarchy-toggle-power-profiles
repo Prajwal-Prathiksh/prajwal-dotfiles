@@ -1,0 +1,47 @@
+#!/bin/bash
+# Toggle between power profiles
+
+# Get all power profiles
+profiles=$(omarchy-powerprofiles-list)
+
+# Get the current active profile from powerprofilesctl
+current_profile=$(powerprofilesctl get)
+
+# Cycle to the next profile
+next_profile=""
+found_current=false
+for profile in $profiles; do
+    if $found_current; then
+        next_profile=$profile
+        break
+    fi
+    if [ "$profile" == "$current_profile" ]; then
+        found_current=true
+    fi
+done
+
+# If we reached the end of the list, wrap around to the first profile
+if [ -z "$next_profile" ]; then
+    next_profile=$(echo $profiles | awk '{print $1}')
+fi
+
+# Set the new power profile
+powerprofilesctl set "$next_profile"
+
+# Choose appropriate icon based on power profile
+case "$next_profile" in
+    "power-saver")
+        icon="power-profile-power-saver-symbolic"
+        ;;
+    "balanced")
+        icon="power-profile-balanced-symbolic"
+        ;;
+    "performance")
+        icon="cpu-x"
+        ;;
+    *)
+        icon="battery-symbolic"
+        ;;
+esac
+
+swayosd-client --custom-message "Power Profile: $next_profile" --custom-icon "$icon"
