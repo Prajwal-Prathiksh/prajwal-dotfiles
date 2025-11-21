@@ -38,6 +38,7 @@
       "7": "7",
       "8": "8",
       "9": "9",
+      "10": "0",
       "active": "󱓻"
     },
     "persistent-workspaces": {
@@ -63,7 +64,7 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "xdg-terminal-exec btop",
+    "on-click": "omarchy-launch-or-focus-tui btop",
     "tooltip": true
   },
   "clock": {
@@ -106,7 +107,7 @@
   },
   "battery": {
     "format": "{icon} {capacity}%",
-    "format-discharging": "{icon} {power:>1.0f}W↓ {capacity}%",
+    "format-discharging": "{icon} {power:02.0f}W↓ {capacity}%",
     "format-charging": "{icon} {capacity}%",
     "format-plugged": " {capacity}% ",
     "format-icons": {
@@ -136,8 +137,8 @@
       ]
     },
     "format-full": "{capacity}% 󰂅",
-    "tooltip-format-discharging": "Power: {power:>1.0f}W↓\nCapacity: {capacity}%\nTime left: {time}\nCycles: {cycles}\nHealth: {health}%",
-    "tooltip-format-charging": "Power: {power:>1.0f}W↑\nCapacity: {capacity}%\nTime to full: {time}\nCycles: {cycles}\nHealth: {health}%",
+    "tooltip-format-discharging": "Power: {power:02.0f}W↓\nCapacity: {capacity}%\nTime left: {time}\nCycles: {cycles}\nHealth: {health}%",
+    "tooltip-format-charging": "Power: {power:02.0f}W↑\nCapacity: {capacity}%\nTime to full: {time}\nCycles: {cycles}\nHealth: {health}%",
     "tooltip-format-plugged": "Capacity: {capacity}%\nCycles: {cycles}\nHealth: {health}%",
     "interval": 5,
     "on-click": "omarchy-menu power",
@@ -154,12 +155,12 @@
     "tooltip-format-connected": "Controller name: {controller_alias}\nDevices connected: {num_connections}\n{device_enumerate}",
     "tooltip-format-enumerate-connected": " > {device_alias}\t{device_address}",
     "tooltip-format-enumerate-connected-battery": " > {device_alias} (󰥉 {device_battery_percentage}%)",
-    "on-click": "blueberry"
+    "on-click": "omarchy-launch-bluetooth"
   },
   "pulseaudio": {
     "format": "{icon}",
     "format-bluetooth": "{icon}",
-    "on-click": "xdg-terminal-exec --app-id=com.omarchy.Wiremix -e wiremix",
+    "on-click": "omarchy-launch-or-focus-tui wiremix",
     "on-click-right": "pamixer -t",
     "tooltip-format": "Volume: {volume}%\nDevice: {desc}",
     "scroll-step": 2,
