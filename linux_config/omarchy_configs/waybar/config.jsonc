@@ -108,7 +108,7 @@
   "battery": {
     "format": "{icon} {capacity}%",
     "format-discharging": "{icon} {power:02.0f}W↓ {capacity}%",
-    "format-charging": "{icon} {capacity}%",
+    "format-charging": "{icon} {power:02.0f}W↑ {capacity}%",
     "format-plugged": " {capacity}% ",
     "format-icons": {
       "charging": [
@@ -150,6 +150,7 @@
   "bluetooth": {
     "format": "",
     "format-disabled": "󰂲",
+    "format-off": "󰂲",
     "format-connected": "󰂱",
     "tooltip-format": "Controller name: {controller_alias}\nDevices connected: {num_connections}",
     "tooltip-format-connected": "Controller name: {controller_alias}\nDevices connected: {num_connections}\n{device_enumerate}",
