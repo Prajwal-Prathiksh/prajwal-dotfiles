@@ -13,3 +13,8 @@ mkdir -p "$DEST_DIR"
 cp -r "$SOURCE_DIR"/* "$DEST_DIR"/
 
 echo "Copied files from $SOURCE_DIR to $DEST_DIR"
+
+
+echo "Set power profile based on source switching (AC or Battery)"
+
+source $OMARCHY_PATH/install/config/powerprofilesctl-rules.sh
