@@ -5,9 +5,9 @@
 gaps=$(hyprctl getoption general:gaps_out -j | jq -r '.custom' | awk '{print $1}')
 
 if [[ $gaps == "0" ]]; then
-  hyprctl keyword general:gaps_out 10
-  hyprctl keyword general:gaps_in 2
-  hyprctl keyword general:border_size 3
+  hyprctl keyword general:gaps_out 3
+  hyprctl keyword general:gaps_in 1
+  hyprctl keyword general:border_size 2
 else
   hyprctl keyword general:gaps_out 0
   hyprctl keyword general:gaps_in 0
