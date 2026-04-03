@@ -24,6 +24,7 @@
     "network",
     "pulseaudio",
     "cpu",
+    "custom/memory-gb",
     "battery"
     // "group/tray-expander",
   ],
@@ -67,9 +68,20 @@
 
   "cpu": {
     "interval": 5,
-    "format": "󰍛",
+    "format": "󰍛 {usage}%",
+    "states": {
+      "warning": 65,
+      "critical": 85
+    },
     "on-click": "omarchy-launch-or-focus-tui btop",
     "on-click-right": "alacritty"
+  },
+  "custom/memory-gb": {
+    "exec": "$HOME/.config/waybar/scripts/memory-gb.sh",
+    "interval": 5,
+    "return-type": "json",
+    "format": "{}",
+    "on-click": "omarchy-launch-or-focus-tui btop"
   },
   "clock": {
     "format": " {:%a, %b %d  󰥔 %H:%M}",
