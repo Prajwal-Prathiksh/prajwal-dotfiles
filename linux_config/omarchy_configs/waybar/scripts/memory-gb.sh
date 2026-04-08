@@ -25,8 +25,8 @@ elif [ "$mem_pct" -ge 65 ]; then
   state_class="warning"
 fi
 
-text="󰘚 ${mem_used_gb}GB"
-alt="󰘚 ${mem_pct}%"
+text="󰘚   ${mem_used_gb}GB"
+alt="󰘚   ${mem_pct}%"
 tooltip="RAM: ${mem_used_gb}GB / ${mem_total_gb}GB (${mem_pct}%)\\nSwap: ${swap_used_gb}GB / ${swap_total_gb}GB (${swap_pct}%)"
 
 printf '{"text":"%s","alt":"%s","tooltip":"%s","class":"%s"}\n' "$text" "$alt" "$tooltip" "$state_class"

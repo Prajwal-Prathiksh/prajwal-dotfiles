@@ -10,8 +10,8 @@
   ],
   "modules-center": [
     "clock",
-    "custom/india-clock",
-    "custom/day-percentage",
+    "clock#india",
+    // "custom/day-percentage",
     "custom/update",
     "custom/voxtype",
     "custom/screenrecording-indicator",
@@ -68,7 +68,7 @@
 
   "cpu": {
     "interval": 5,
-    "format": "󰍛 {usage}%",
+    "format": "󰍛   {usage}%",
     "states": {
       "warning": 65,
       "critical": 85
@@ -84,17 +84,17 @@
     "on-click": "omarchy-launch-or-focus-tui btop"
   },
   "clock": {
-    "format": " {:%a, %b %d  󰥔 %H:%M}",
+    "format": "   {:%a, %d %b   󰥔   %H:%M}",
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip": true,
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select",
     "tooltip-format": "Right click to change timezone"
   },
-  "custom/india-clock": {
-    "exec": "TZ=Asia/Kolkata date +'  %H:%M'",
+  "clock#india": {
+    "timezone": "Asia/Kolkata",
     "interval": 60,
-    "tooltip-format": "India Standard Time",
-    "format": "{}"
+    "tooltip-format": "India Standard Time (IST)",
+    "format": "  {:%H:%M}"
   },
   "custom/day-percentage": {
     "exec": "$HOME/.config/waybar/scripts/day-percentage.sh",
@@ -115,17 +115,17 @@
     "format-ethernet": "󰀂",
     "format-disconnected": "󰤮",
     "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\n󰩠: {ipaddr}",
-    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\n󰩠: {ipaddr}",
+    "tooltip-format-ethernet": "⇣   {bandwidthDownBytes}  ⇡   {bandwidthUpBytes}\n󰩠   {ipaddr}",
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
     "on-click": "omarchy-launch-wifi"
   },
   "battery": {
-    "format": "{icon} {capacity}%",
-    "format-discharging": "{icon} {power:02.0f}W↓ {capacity}%",
-    "format-charging": "{icon} {power:02.0f}W↑ {capacity}%",
-    "format-plugged": " {capacity}% ",
+    "format": "{icon}   {capacity}%",
+    "format-discharging": "{icon}   {power:02.0f}W↓ {capacity}%",
+    "format-charging": "{icon}   {power:02.0f}W↑ {capacity}%",
+    "format-plugged": "   {capacity}% ",
     "format-icons": {
       "charging": [
         "󰢜",
@@ -171,7 +171,7 @@
     "tooltip-format": "Controller name: {controller_alias}\nDevices connected: {num_connections}",
     "tooltip-format-connected": "Controller name: {controller_alias}\nDevices connected: {num_connections}\n{device_enumerate}",
     "tooltip-format-enumerate-connected": " > {device_alias}\t{device_address}",
-    "tooltip-format-enumerate-connected-battery": " > {device_alias} (󰥉 {device_battery_percentage}%)",
+    "tooltip-format-enumerate-connected-battery": " > {device_alias}   (󰥉 {device_battery_percentage}%)",
     "on-click": "omarchy-launch-bluetooth"
   },
   "pulseaudio": {

@@ -3,12 +3,24 @@
 * {
   background-color: @background;
   color: @foreground;
-
   border: none;
   border-radius: 0;
-  min-height: 0;
-  font-family: 'iA Writer Mono S';
-  font-size: 16px;
+  min-height: 30px;
+  font-family: 'Inter Display', 'Symbols Nerd Font Mono', 'iA Writer Mono S', sans-serif;
+  font-size: 18px;
+}
+
+/* Keep dynamic numbers visually stable without using full monospace everywhere. */
+#clock,
+#clock.india,
+#cpu,
+#custom-memory-gb,
+#battery {
+  font-feature-settings: "tnum";
+}
+
+#clock.india {
+  font-family: 'Symbols Nerd Font', 'Symbols Nerd Font Mono', 'Inter Display', sans-serif;
 }
 
 .modules-left {
@@ -73,7 +85,7 @@
 }
 
 tooltip {
-  padding: 2px;
+  padding: 3px;
 }
 
 #custom-update {
@@ -83,11 +95,14 @@ tooltip {
 #clock {
   margin-left: 10px;
   margin-right: 4px;
+  margin-top: 0px;
 }
 
 #custom-india-clock {
-  margin-left: 3px;
+  margin-left: 5px;
   margin-right: 3px;
+  margin-top: 0px;
+  /* font-size: 16px; */
 }
 
 #custom-day-percentage {
@@ -153,4 +168,38 @@ tooltip {
 
 #cpu.critical {
   color: #a55555;
+}
+
+/* Portrait monitor (DP-1): compact spacing to avoid center overlap. */
+/* window#waybar.DP-1 .modules-left {
+  margin-left: 6px;
+}
+
+window#waybar.DP-1 .modules-right {
+  margin-right: 6px;
+}
+
+window#waybar.DP-1 #privacy,
+window#waybar.DP-1 #bluetooth,
+window#waybar.DP-1 #network,
+window#waybar.DP-1 #pulseaudio,
+window#waybar.DP-1 #cpu,
+window#waybar.DP-1 #custom-memory-gb,
+window#waybar.DP-1 #battery {
+  margin-right: 10px;
+} */
+
+/* Hide bluetooth on the portrait monitor first, since it is the overlap culprit. */
+window#waybar.DP-1 #network {
+  min-width: 0;
+  margin-right: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+window#waybar.DP-1 #bluetooth {
+  min-width: 0;
+  margin-right: 0;
+  padding: 0;
+  opacity: 0;
 }

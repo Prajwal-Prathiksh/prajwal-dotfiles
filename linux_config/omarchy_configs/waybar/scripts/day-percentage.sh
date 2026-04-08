@@ -34,4 +34,4 @@ else
     icon="󰪞"
 fi
 
-echo " $icon $percentage%"
+echo " $icon   $percentage%"
