@@ -9,24 +9,25 @@
     "hyprland/workspaces"
   ],
   "modules-center": [
+    // "custom/day-percentage",
+    "custom/weather",
     "clock",
     "clock#india",
-    // "custom/day-percentage",
     "custom/update",
     "custom/voxtype",
     "custom/screenrecording-indicator",
     "custom/idle-indicator",
-    "custom/notification-silencing-indicator"
+    "custom/notification-silencing-indicator",
+    "privacy"
   ],
   "modules-right": [
-    "privacy",
+    // "group/tray-expander",
     "bluetooth",
     "network",
     "pulseaudio",
     "cpu",
     "custom/memory-gb",
     "battery"
-    // "group/tray-expander",
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -44,28 +45,22 @@
       "9": "9",
       "10": "0",
       "active": "󱓻"
-    },
-    "persistent-workspaces": {
-      "1": [],
-      "2": [],
-      "3": []
     }
   },
   "custom/omarchy": {
     "format": "<span font='omarchy'>\ue900</span>",
     "on-click": "omarchy-menu",
     "on-click-right": "xdg-terminal-exec",
-    "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
+    "tooltip-format": "<b>Omarchy Menu</b>\n<i>Super + Alt + Space</i>"
   },
   "custom/update": {
     "format": "",
     "exec": "omarchy-update-available",
     "on-click": "omarchy-launch-floating-terminal-with-presentation omarchy-update",
-    "tooltip-format": "Omarchy update available",
+    "tooltip-format": "<b>System Update</b>\n• Updates are available",
     "signal": 7,
     "interval": 21600
   },
-
   "cpu": {
     "interval": 5,
     "format": "󰍛   {usage}%",
@@ -85,21 +80,30 @@
   },
   "clock": {
     "format": "   {:%a, %d %b   󰥔   %H:%M}",
-    "format-alt": "{:L%d %B W%V %Y}",
     "tooltip": true,
-    "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select",
-    "tooltip-format": "Right click to change timezone"
+    "tooltip-format": "<tt><small>{calendar}</small></tt>\n\n<b>Right-Click:</b> Change TZ",
+    "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
   },
   "clock#india": {
     "timezone": "Asia/Kolkata",
     "interval": 60,
-    "tooltip-format": "India Standard Time (IST)",
+    "tooltip-format": "<b>Timezone:</b> India Standard Time (IST)",
     "format": "  {:%H:%M}"
+  },
+  "custom/weather": {
+    "exec": "$HOME/.config/waybar/scripts/weather.sh",
+    "interval": 60,
+    "format": "{}",
+    "tooltip": true,
+    "tooltip-format": "<b>Left-Click:</b> Refresh\n<b>Right-Click:</b> Edit",
+    "signal": 11,
+    "on-click": "$HOME/.config/waybar/scripts/weather.sh --update",
+    "on-click-right": "omarchy-launch-floating-terminal-with-presentation nvim $HOME/.config/waybar/scripts/weather.sh"
   },
   "custom/day-percentage": {
     "exec": "$HOME/.config/waybar/scripts/day-percentage.sh",
     "interval": 120,
-    "tooltip-format": "Percentage of day completed",
+    "tooltip-format": "<b>Day Progress:</b> <i>{} completed</i>",
     "format": "{}"
   },
   "network": {
@@ -114,9 +118,9 @@
     "format-wifi": "{icon}",
     "format-ethernet": "󰀂",
     "format-disconnected": "󰤮",
-    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}\n󰩠: {ipaddr}",
-    "tooltip-format-ethernet": "⇣   {bandwidthDownBytes}  ⇡   {bandwidthUpBytes}\n󰩠   {ipaddr}",
-    "tooltip-format-disconnected": "Disconnected",
+    "tooltip-format-wifi": "<b>Wi-Fi:</b> {essid} ({frequency} GHz)\n󰩠   {ipaddr}\n• ⇣ {bandwidthDownBytes}\n• ⇡ {bandwidthUpBytes}",
+    "tooltip-format-ethernet": "<b>Ethernet</b>\n󰩠   {ipaddr}\n•  ⇣   {bandwidthDownBytes}\n•  ⇡   {bandwidthUpBytes}",
+    "tooltip-format-disconnected": "<b>Network:</b> Disconnected",
     "interval": 3,
     "spacing": 1,
     "on-click": "omarchy-launch-wifi"
@@ -153,9 +157,9 @@
       ]
     },
     "format-full": "{capacity}% 󰂅",
-    "tooltip-format-discharging": "Power: {power:02.0f}W↓\nCapacity: {capacity}%\nTime left: {time}\nCycles: {cycles}\nHealth: {health}%",
-    "tooltip-format-charging": "Power: {power:02.0f}W↑\nCapacity: {capacity}%\nTime to full: {time}\nCycles: {cycles}\nHealth: {health}%",
-    "tooltip-format-plugged": "Capacity: {capacity}%\nCycles: {cycles}\nHealth: {health}%",
+    "tooltip-format-discharging": "<b>Power:</b> {power:02.0f}W ↓\n<b>Capacity:</b> {capacity}%\n<b>Time Left:</b> {time}\n• <b>Health:</b> {health}%\n• <b>Cycles:</b> {cycles}",
+    "tooltip-format-charging": "<b>Power:</b> {power:02.0f}W ↑\n<b>Capacity:</b> {capacity}%\n<b>Time to Full:</b> {time}\n• <b>Health:</b> {health}%\n• <b>Cycles:</b> {cycles}",
+    "tooltip-format-plugged": "<b>Power:</b> Plugged In\n<b>Capacity:</b> {capacity}%\n• <b>Health:</b> {health}%\n• <b>Cycles:</b> {cycles}",
     "interval": 5,
     "on-click": "omarchy-menu power",
     "states": {
@@ -168,10 +172,10 @@
     "format-disabled": "󰂲",
     "format-off": "󰂲",
     "format-connected": "󰂱",
-    "tooltip-format": "Controller name: {controller_alias}\nDevices connected: {num_connections}",
-    "tooltip-format-connected": "Controller name: {controller_alias}\nDevices connected: {num_connections}\n{device_enumerate}",
-    "tooltip-format-enumerate-connected": " > {device_alias}\t{device_address}",
-    "tooltip-format-enumerate-connected-battery": " > {device_alias}   (󰥉 {device_battery_percentage}%)",
+    "tooltip-format": "<b>Bluetooth:</b> {controller_alias}\n<b>Connected:</b> {num_connections} devices",
+    "tooltip-format-connected": "<b>Bluetooth:</b> {controller_alias}\n<b>Connected:</b> {num_connections} devices\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": " • {device_alias} ({device_address})",
+    "tooltip-format-enumerate-connected-battery": " • {device_alias} (󰥉 {device_battery_percentage}%)",
     "on-click": "omarchy-launch-bluetooth"
   },
   "pulseaudio": {
@@ -179,7 +183,7 @@
     "format-bluetooth": "{icon}",
     "on-click": "omarchy-launch-audio",
     "on-click-right": "pamixer -t",
-    "tooltip-format": "Volume: {volume}%\nDevice: {desc}",
+    "tooltip-format": "<b>Volume:</b> {volume}%\n<b>Device:</b> {desc}",
     "scroll-step": 2,
     "format-muted": "",
     "format-icons": {
@@ -197,15 +201,18 @@
       "headset": ""
     }
   },
-  "group/tray-expander": {
+"group/tray-expander": {
     "orientation": "inherit",
     "drawer": {
       "transition-duration": 600,
-      "children-class": "tray-group-item"
+      "children-class": "tray-group-item",
+      "transition-left-to-right": false
     },
     "modules": [
       "custom/expand-icon",
-      "tray"
+      
+      "bluetooth",          
+      "tray"                
     ]
   },
   "custom/expand-icon": {
@@ -223,8 +230,8 @@
     "return-type": "json"
   },
   "privacy": {
-    "icon-spacing": 17,
-    "icon-size": 12
+    "icon-spacing": 12,
+    "icon-size": 16
   },
   "custom/idle-indicator": {
     "on-click": "omarchy-toggle-idle",

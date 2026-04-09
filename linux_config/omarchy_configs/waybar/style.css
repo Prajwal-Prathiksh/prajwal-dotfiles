@@ -1,49 +1,92 @@
 @import "../omarchy/current/theme/waybar.css";
 
+/* GLOBAL STYLING */
 * {
-  background-color: @background;
+  background: transparent;
   color: @foreground;
   border: none;
   border-radius: 0;
   min-height: 30px;
   font-family: 'Inter Display', 'Symbols Nerd Font Mono', 'iA Writer Mono S', sans-serif;
   font-size: 18px;
+  font-weight: 500;
 }
 
-/* Keep dynamic numbers visually stable without using full monospace everywhere. */
-#clock,
-#clock.india,
-#cpu,
-#custom-memory-gb,
-#battery {
-  font-feature-settings: "tnum";
+window#waybar {
+  background: transparent; /* Makes the capsules look like they are floating */
 }
 
-#clock.india {
-  font-family: 'Symbols Nerd Font', 'Symbols Nerd Font Mono', 'Inter Display', sans-serif;
+/* THE FLOATING CAPSULES (PODS): GLASSY OVERHAUL */
+.modules-left, .modules-center, .modules-right {
+  /* Lowered the alpha slightly to make the glass look more frosted/transparent */
+  background: alpha(@background, 0.65); 
+  border-radius: 16px;
+  margin: 4px 12px; /* Gives the drop shadow room to breathe */
+  padding: 1px 10px;
+  
+  /* The Glass Effect: 
+     1. Outer drop shadow for floating depth 
+     2. Top inner shadow (inset) for the light reflection 
+     3. Bottom inner shadow for a subtle 3D bevel */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), 
+              inset 0 1px 0 alpha(@foreground, 0.15), 
+              inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
 
-.modules-left {
-  margin-left: 10px;
-}
-
-.modules-right {
-  margin-right: 10px;
-}
-
+/* WORKSPACES: GLASSY & MINIMALIST */
 #workspaces button {
-  all: initial;
-  padding: 1 13px;
-  margin: 0 5px;
-  min-width: 9px;
+  color: alpha(@foreground, 0.4); /* Slightly brighter base for readability */
+  padding: 0 8px; /* Tighter padding so the pill hugs the icon */
+  margin: 0 4px;  /* Cleaner spacing between buttons */
+  border-radius: 100px;
+  background: transparent;
+  /* macOS-like fluid animation curve */
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+#workspaces button:hover {
+  background: alpha(@foreground, 0.05); /* Very subtle interaction feedback */
+  color: alpha(@foreground, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Tiny lift on hover */
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+  color: @foreground;
+  font-weight: bold;
+  /* Softer, cleaner transparency to prevent the "muddy" look */
+  background: alpha(@foreground, 0.10);
+  /* Outer shadow for floating depth + Inner top-light for the glass edge reflection */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 alpha(@foreground, 0.15);
+  border-radius: 100px;
 }
 
 #workspaces button.empty {
   opacity: 0.2;
 }
 
-#tray,
-#privacy{
+/* CLOCK & WEATHER SPACING */
+#custom-weather {
+  margin-right: 10px;
+}
+
+#clock, #clock.india {
+  padding: 0 8px;
+}
+
+/* CLOCK INDIA: GLOBE FONT FIX */
+#clock.india {
+  font-family: 'Symbols Nerd Font', 'Symbols Nerd Font Mono', 'Inter Display', sans-serif;
+}
+
+#privacy {
+  padding: 0 0px; 
+  margin-right: 6px;
+  margin-left: 12px;
+}
+
+/* RIGHT MODULE SPACING */
+#tray {
   margin-left: 5px;
   margin-right: 46px;
 }
@@ -51,16 +94,6 @@
   margin-left: 5px;
   margin-right: 13px;
 }
-
-#custom-update {
-  min-width: 12px;
-  margin: 0 7.5px;
-}
-
-#tray {
-  margin-right: 13px;
-}
-
 #bluetooth {
   margin-right: 46px;
 }
@@ -79,127 +112,51 @@
 #battery{
   margin-right: 9px;
 }
-
 #custom-expand-icon {
   margin-right: 18px;
 }
 
-tooltip {
-  padding: 3px;
-}
-
-#custom-update {
-  font-size: 10px;
-}
-
-#clock {
-  margin-left: 10px;
-  margin-right: 4px;
-  margin-top: 0px;
-}
-
-#custom-india-clock {
-  margin-left: 5px;
-  margin-right: 3px;
-  margin-top: 0px;
-  /* font-size: 16px; */
-}
-
-#custom-day-percentage {
-  margin-left: 2px;
-  margin-left: 2px;
-}
-
-.hidden {
-  opacity: 0;
-}
-
-
-#custom-screenrecording-indicator{
-  min-width: 19px;
-  margin-left: 10px;
-  margin-right: 0px;
-  font-size: 16px;
-  padding-top: 2px;  
-}
+/* POP-UP INDICATORS SPACING (Mic, Update, Screenrecord, etc.) */
+#custom-voxtype,
+#custom-update,
+#custom-screenrecording-indicator,
 #custom-idle-indicator,
 #custom-notification-silencing-indicator {
-  min-width: 12px;
-  margin-left: 5px;
-  margin-right: 0;
-  font-size: 10px;
-  padding-bottom: 1px;
+  padding: 0 8px; /* Matches the clock padding perfectly */
 }
 
-#custom-screenrecording-indicator.active {
-  color: #a55555;
-}
-
-#custom-voxtype {
-  min-width: 12px;
-  margin: 0 0 0 7.5px;
-}
-
-#custom-voxtype.recording {
-  margin-left: 17px;
-  color: #a55555;
-}
-#custom-voxtype.transcribing {
-  margin-left: 17px;
-  color: #d8a657;
-}
-
+/* Restoring the dynamic colors when recording/transcribing */
+#custom-voxtype.recording,
+#custom-screenrecording-indicator.active,
 #custom-idle-indicator.active,
 #custom-notification-silencing-indicator.active {
-  color: #a55555;
+  color: #ea6962; /* Red critical color */
 }
 
-#custom-memory-gb.warning {
-  color: #d8a657;
+#custom-voxtype.transcribing {
+  color: #d8a657; /* Yellow warning color */
 }
 
-#custom-memory-gb.critical {
-  color: #a55555;
+/* WARNING AND CRITICAL STATES */
+#battery.charging {
+    color: #a9b665; 
 }
-
-#cpu.warning {
-  color: #d8a657;
+#battery.critical:not(.charging) {
+    color: #ea6962; 
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
+#custom-memory-gb.warning, #cpu.warning { color: #d8a657; }
+#custom-memory-gb.critical, #cpu.critical { color: #a55555; }
 
-#cpu.critical {
-  color: #a55555;
+/* TOOLTIP STYLING: MATCHING GLASS AESTHETIC */
+tooltip {
+  background: alpha(@background, 0.95); /* Frosted look */
+  border-radius: 12px;
+  /* Same floating glass lighting as the pods */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 alpha(@foreground, 0.15);
 }
-
-/* Portrait monitor (DP-1): compact spacing to avoid center overlap. */
-/* window#waybar.DP-1 .modules-left {
-  margin-left: 6px;
-}
-
-window#waybar.DP-1 .modules-right {
-  margin-right: 6px;
-}
-
-window#waybar.DP-1 #privacy,
-window#waybar.DP-1 #bluetooth,
-window#waybar.DP-1 #network,
-window#waybar.DP-1 #pulseaudio,
-window#waybar.DP-1 #cpu,
-window#waybar.DP-1 #custom-memory-gb,
-window#waybar.DP-1 #battery {
-  margin-right: 10px;
-} */
-
-/* Hide bluetooth on the portrait monitor first, since it is the overlap culprit. */
-window#waybar.DP-1 #network {
-  min-width: 0;
-  margin-right: 0;
-  padding: 0;
-  opacity: 0;
-}
-
-window#waybar.DP-1 #bluetooth {
-  min-width: 0;
-  margin-right: 0;
-  padding: 0;
-  opacity: 0;
-}
+tooltip label { padding: 10px; }
