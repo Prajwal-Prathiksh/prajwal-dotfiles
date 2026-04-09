@@ -1,3 +1,4 @@
+@import "../omarchy/current/theme/swayosd.css";
 @import "../omarchy/current/theme/waybar.css";
 
 /* GLOBAL STYLING */
@@ -16,21 +17,34 @@ window#waybar {
   background: transparent; /* Makes the capsules look like they are floating */
 }
 
-/* THE FLOATING CAPSULES (PODS): GLASSY OVERHAUL */
+/* THE FLOATING CAPSULES (PODS): REFINED 3D GLASS */
 .modules-left, .modules-center, .modules-right {
-  /* Lowered the alpha slightly to make the glass look more frosted/transparent */
-  background: alpha(@background, 0.65); 
-  border-radius: 16px;
-  margin: 4px 12px; /* Gives the drop shadow room to breathe */
+  background: alpha(@background, 0.9); 
+  border: 1px solid alpha(@border-color, 0.15);
+  border-radius: 10px;
+  margin: 4px 12px; 
   padding: 1px 10px;
   
-  /* The Glass Effect: 
-     1. Outer drop shadow for floating depth 
-     2. Top inner shadow (inset) for the light reflection 
-     3. Bottom inner shadow for a subtle 3D bevel */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), 
-              inset 0 1px 0 alpha(@foreground, 0.15), 
-              inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  /* The Glass Effect: Layered shadows for smooth depth + Inner bevels */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15),         /* Tight shadow for immediate weight */
+              0 8px 20px rgba(0, 0, 0, 0.15),        /* Wide, soft shadow for the float */
+              inset 0 1px 0 alpha(@foreground, 0.2), /* Brighter top edge reflection */
+              inset 0 -1px 0 rgba(0, 0, 0, 0.2);     /* Deeper bottom inside bevel */
+}
+
+/* TOOLTIP STYLING: MATCHING 3D GLASS */
+tooltip {
+  background: alpha(@background, 0.9); 
+  border-radius: 5px;
+  
+  /* Matches the layered float of the pods */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), 
+              0 12px 25px rgba(0, 0, 0, 0.15), 
+              inset 0 1px 0 alpha(@foreground, 0.2);
+}
+tooltip label { 
+  padding: 10px; 
+  text-shadow: none; /* Kills the default GTK shadow causing the double-text */
 }
 
 /* WORKSPACES: GLASSY & MINIMALIST */
@@ -152,11 +166,5 @@ window#waybar {
 #custom-memory-gb.warning, #cpu.warning { color: #d8a657; }
 #custom-memory-gb.critical, #cpu.critical { color: #a55555; }
 
-/* TOOLTIP STYLING: MATCHING GLASS AESTHETIC */
-tooltip {
-  background: alpha(@background, 0.95); /* Frosted look */
-  border-radius: 12px;
-  /* Same floating glass lighting as the pods */
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 alpha(@foreground, 0.15);
-}
-tooltip label { padding: 10px; }
+
+
