@@ -1,39 +1,50 @@
 /* --- THEME & VARIABLE IMPORT --- */
-/* Imports auto-generated colors: @text, @base, @selected-text, @border, @foreground, @background */
 @import "../../../../../../../.config/omarchy/current/theme/walker.css";
 
 /* --- GLOBAL RESET & TYPOGRAPHY --- */
 * {
   all: unset;
-  font-family: "Inter", sans-serif; /* High-end UI font matching the system aesthetic */
+  font-family: "Inter", sans-serif;
   font-size: 15px;
   color: @text;
+  text-shadow: none; /* Prevents double-text artifacts on light themes */
 }
 
-/* --- THE MAIN OUTER SHELL (FROSTED GLASS CARD) --- */
+/* Ensure the absolute root window is invisible so the shadow has room */
+window {
+  background: transparent;
+}
+
+/* --- THE MAIN OUTER SHELL (3D GLASS CARD) --- */
 .box-wrapper {
-  /* 0.8 alpha provides a solid 'Pure White' look in light themes and 'Solid Glass' in dark themes */
-  background: alpha(@base, 0.8); 
+  /* Match the 0.9 solid opacity of Waybar and SwayOSD */
+  background: alpha(@base, 0.9); 
+  
+  /* Crisp physical edge */
+  border: 1px solid alpha(@border, 0.15);
+  border-radius: 24px;
+  
+  /* Margin is strictly required to prevent GTK from chopping off the shadow */
+  margin: 32px;
   padding: 18px;
-  border-radius: 28px;
   
-  /* Top-down light effect: brighter edge on top to simulate depth */
-  border: 1px solid alpha(@border, 0.2);
-  border-top: 1px solid alpha(@border, 0.4); 
-  
-  /* Deep inner glow for premium aesthetic */
-  box-shadow: inset 0 0 25px 0 alpha(@foreground, 0.05);
+  /* The exact layered 3D shadows for smooth depth + Inner bevels */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15),        /* Tight shadow for immediate weight */
+              0 15px 35px rgba(0, 0, 0, 0.15),       /* Wide, soft shadow for the float */
+              inset 0 1px 0 alpha(@foreground, 0.2), /* Brighter top edge reflection */
+              inset 0 -1px 0 rgba(0, 0, 0, 0.2);     /* Deeper bottom inside bevel */
 }
 
-/* --- SEARCH BAR (FLOATING INPUT) --- */
+/* --- SEARCH BAR (CARVED TRACK) --- */
 .search-container {
-  /* Subtle etched look with internal shadow */
-  background: alpha(@foreground, 0.06);
+  background: alpha(@foreground, 0.05);
   padding: 16px 22px;
   margin-bottom: 12px;
-  border-radius: 20px;
-  border: 1px solid alpha(@border, 0.1);
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  
+  /* Carved inner depth to match SwayOSD's empty track */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid alpha(@border, 0.05);
 }
 
 .input {
@@ -50,27 +61,23 @@
 .item-box {
   padding: 12px 20px;
   margin: 4px 0;
-  border-radius: 16px;
-  
-  /* Pre-defining a transparent border prevents the 1px 'jump' when selecting an item */
+  border-radius: 14px;
   border: 1px solid transparent; 
   
-  /* Smooth transitions using a custom cubic-bezier for a natural feel */
-  transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              border 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Extremely fast, smooth transition to handle rapid up/down scrolling */
+  transition: all 0.08s ease-out;
 }
 
-/* THE GLOWING SELECTION PILL */
+/* THE GLOSSY SELECTION PILL (Softer) */
 child:selected .item-box {
-  /* Vibrant linear gradient using the theme's accent color */
-  background: linear-gradient(to right, @selected-text, alpha(@selected-text, 0.8));
-  box-shadow: 0 8px 20px 0 alpha(@selected-text, 0.3);
+  /* Reduced opacity for a softer, less aggressive highlight */
+  background: alpha(@selected-text, 0.7); 
+  border: 1px solid transparent;
   
-  /* Highlight border for extra clarity */
-  border: 1px solid alpha(@base, 0.2); 
+  /* Reduced outer glow and softer top-edge reflection */
+  box-shadow: 0 4px 10px alpha(@selected-text, 0.15),
+              inset 0 1px 0 alpha(white, 0.15);
 }
-
 /* Ensures text is readable on the colored selection pill */
 child:selected .item-box * {
   color: @base;
@@ -87,11 +94,10 @@ child:selected .item-box * {
   justify-content: flex-start;
 }
 
-/* Force the key combination into a reliable fixed-width column */
 .item-text label:first-child {
-  font-family: "JetBrains Mono", monospace; /* Monospace keeps character widths identical */
+  font-family: "JetBrains Mono", monospace; 
   font-weight: 600;
-  min-width: 320px; /* Large enough for "SUPER SHIFT CTRL + SPACE" */
+  min-width: 320px; 
   margin-right: 20px;
   opacity: 0.9;
 }
@@ -107,7 +113,7 @@ child:selected .item-box * {
   border-top: 1px solid alpha(@border, 0.1);
 }
 
-/* Base Badge Style for all hint labels */
+/* Base Badge Style */
 .global-keybinds label, 
 .item-keybinds label {
   font-family: "Inter", sans-serif;
@@ -120,13 +126,14 @@ child:selected .item-box * {
   margin: 0 4px;
   transition: all 0.2s ease;
   
-  /* DEFAULT: Subtle color for the descriptions (Odd-numbered items) */
+  /* Subtle etched look */
   color: alpha(@text, 0.6);
   background: alpha(@foreground, 0.05);
   border: 1px solid alpha(@border, 0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* SPECIFIC: High-contrast accent color for the actual Keybinds (Even-numbered items) */
+/* Active/Accent Badge Style */
 .global-keybinds label:nth-child(even),
 .item-keybinds label:nth-child(even) {
   color: @selected-text;
