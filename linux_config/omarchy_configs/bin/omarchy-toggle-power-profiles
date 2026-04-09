@@ -44,4 +44,17 @@ case "$next_profile" in
         ;;
 esac
 
-swayosd-client --custom-message "Power Profile: $next_profile" --custom-icon "$icon"
+# Rename the profile for display purposes
+case "$next_profile" in
+    "power-saver")
+        next_profile="Power Saver"
+        ;;
+    "balanced")
+        next_profile="Balanced"
+        ;;
+    "performance")
+        next_profile="Performance"
+        ;;
+esac
+
+swayosd-client --monitor "$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"  --custom-message "Power Profile: $next_profile" --custom-icon "$icon"
