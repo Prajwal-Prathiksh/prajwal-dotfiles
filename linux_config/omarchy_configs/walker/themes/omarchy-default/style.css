@@ -1,25 +1,33 @@
+/* --- THEME & VARIABLE IMPORT --- */
+/* Imports auto-generated colors: @text, @base, @selected-text, @border, @foreground, @background */
 @import "../../../../../../../.config/omarchy/current/theme/walker.css";
 
 /* --- GLOBAL RESET & TYPOGRAPHY --- */
 * {
   all: unset;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", sans-serif; /* High-end UI font matching the system aesthetic */
   font-size: 15px;
   color: @text;
 }
 
-/* --- THE GLASS OUTER SHELL --- */
+/* --- THE MAIN OUTER SHELL (FROSTED GLASS CARD) --- */
 .box-wrapper {
+  /* 0.8 alpha provides a solid 'Pure White' look in light themes and 'Solid Glass' in dark themes */
   background: alpha(@base, 0.8); 
   padding: 18px;
   border-radius: 28px;
+  
+  /* Top-down light effect: brighter edge on top to simulate depth */
   border: 1px solid alpha(@border, 0.2);
   border-top: 1px solid alpha(@border, 0.4); 
+  
+  /* Deep inner glow for premium aesthetic */
   box-shadow: inset 0 0 25px 0 alpha(@foreground, 0.05);
 }
 
-/* --- FLOATING SEARCH BAR --- */
+/* --- SEARCH BAR (FLOATING INPUT) --- */
 .search-container {
+  /* Subtle etched look with internal shadow */
   background: alpha(@foreground, 0.06);
   padding: 16px 22px;
   margin-bottom: 12px;
@@ -38,30 +46,32 @@
   font-style: italic;
 }
 
-/* --- LIST ITEMS & OPTIMIZED SELECTION --- */
+/* --- LIST ITEMS & FOCUS LOGIC --- */
 .item-box {
   padding: 12px 20px;
   margin: 4px 0;
   border-radius: 16px;
   
-  /* FIXED: Pre-defining a transparent border prevents the 1px 'jump' during selection */
+  /* Pre-defining a transparent border prevents the 1px 'jump' when selecting an item */
   border: 1px solid transparent; 
   
-  /* FIXED: Specific transitions with a smoother cubic-bezier curve */
+  /* Smooth transitions using a custom cubic-bezier for a natural feel */
   transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
               box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
               border 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* The Glowing Selection Pill */
+/* THE GLOWING SELECTION PILL */
 child:selected .item-box {
+  /* Vibrant linear gradient using the theme's accent color */
   background: linear-gradient(to right, @selected-text, alpha(@selected-text, 0.8));
   box-shadow: 0 8px 20px 0 alpha(@selected-text, 0.3);
   
-  /* Border is now just a color change, not a size change */
+  /* Highlight border for extra clarity */
   border: 1px solid alpha(@base, 0.2); 
 }
 
+/* Ensures text is readable on the colored selection pill */
 child:selected .item-box * {
   color: @base;
 }
@@ -71,16 +81,17 @@ child:selected .item-box * {
   -gtk-icon-size: 32px;
 }
 
-/* --- FIXED KEYBINDING ALIGNMENT --- */
+/* --- KEYBINDING ALIGNMENT (TWO-COLUMN LAYOUT) --- */
 .item-text {
   display: flex;
   justify-content: flex-start;
 }
 
+/* Force the key combination into a reliable fixed-width column */
 .item-text label:first-child {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono", monospace; /* Monospace keeps character widths identical */
   font-weight: 600;
-  min-width: 320px; 
+  min-width: 320px; /* Large enough for "SUPER SHIFT CTRL + SPACE" */
   margin-right: 20px;
   opacity: 0.9;
 }
@@ -89,9 +100,36 @@ child:selected .item-box * {
   opacity: 0.8;
 }
 
-/* --- FOOTER & KEYBIND HINTS --- */
+/* --- ACTION HINTS FOOTER (BADGE STYLE) --- */
 .keybinds {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 16px;
+  padding: 12px 0;
   border-top: 1px solid alpha(@border, 0.1);
+}
+
+/* Base Badge Style for all hint labels */
+.global-keybinds label, 
+.item-keybinds label {
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  margin: 0 4px;
+  transition: all 0.2s ease;
+  
+  /* DEFAULT: Subtle color for the descriptions (Odd-numbered items) */
+  color: alpha(@text, 0.6);
+  background: alpha(@foreground, 0.05);
+  border: 1px solid alpha(@border, 0.1);
+}
+
+/* SPECIFIC: High-contrast accent color for the actual Keybinds (Even-numbered items) */
+.global-keybinds label:nth-child(even),
+.item-keybinds label:nth-child(even) {
+  color: @selected-text;
+  background: alpha(@selected-text, 0.1);
+  border: 1px solid alpha(@selected-text, 0.2);
 }
