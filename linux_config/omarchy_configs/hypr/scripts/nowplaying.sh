@@ -1,19 +1,31 @@
 #!/bin/bash
-status=$(playerctl status 2>/dev/null)
-if [ "$status" != "Playing" ]; then
+
+# Define the players you actually use
+TARGET_PLAYERS="spotify,chromium,brave,vivaldi,microsoft-edge,google-chrome"
+
+# 1. Check the status of ONLY your target players
+# This prevents a random paused browser tab from overriding your music
+STATUS=$(playerctl -p "$TARGET_PLAYERS" status 2>/dev/null)
+
+# 2. If none of those players are running or playing, show idle
+if [ -z "$STATUS" ] || [ "$STATUS" != "Playing" ]; then
     echo "󰝛  System Idle"
     exit 0
 fi
 
-player_name=$(playerctl metadata --format '{{playerName}}' | grep -iE 'spotify|chromium|edge|brave')
+# 3. Get the metadata for the active target player
+player_name=$(playerctl -p "$TARGET_PLAYERS" metadata --format '{{playerName}}' 2>/dev/null)
 
 if echo "$player_name" | grep -iq 'spotify'; then
     icon=""
-elif echo "$player_name" | grep -iqE 'chrome|chromium|brave|edge'; then
+    song_info="$(playerctl -p spotify metadata --format "{{artist}} - {{title}}")"
+elif echo "$player_name" | grep -iqE 'chrome|chromium|brave|vivaldi|edge'; then
     icon=""
+    # Browsers often don't have artist metadata formatted as cleanly as Spotify
+    song_info="$(playerctl -p "$player_name" metadata --format "{{title}}")"
 else
-    icon="󰎆"
+    icon="󰝚"
+    song_info="$(playerctl -p "$player_name" metadata --format "{{title}}")"
 fi
 
-song_info=$(playerctl metadata --format "{{artist}} - {{title}}" | cut -c1-35)
-echo "$icon  $song_info"
+echo "${icon}   ${song_info}"
