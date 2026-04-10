@@ -28,7 +28,7 @@ fetch_weather() {
         if [ -f "$CACHE_FILE" ]; then
             cat "$CACHE_FILE"
         else
-            echo "󰖪 Offline"
+            echo "󰖪   Weather Offline"
         fi
     fi
 }

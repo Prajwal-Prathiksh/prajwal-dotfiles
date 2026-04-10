@@ -9,7 +9,6 @@
     "hyprland/workspaces"
   ],
   "modules-center": [
-    // "custom/day-percentage",
     "custom/weather",
     "clock",
     "clock#india",
@@ -99,12 +98,6 @@
     "signal": 11,
     "on-click": "$HOME/.config/waybar/scripts/weather.sh --update",
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation nvim $HOME/.config/waybar/scripts/weather.sh"
-  },
-  "custom/day-percentage": {
-    "exec": "$HOME/.config/waybar/scripts/day-percentage.sh",
-    "interval": 120,
-    "tooltip-format": "<b>Day Progress:</b> <i>{} completed</i>",
-    "format": "{}"
   },
   "network": {
     "format-icons": [
