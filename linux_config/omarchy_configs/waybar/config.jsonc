@@ -92,9 +92,9 @@
   "custom/weather": {
     "exec": "$HOME/.config/waybar/scripts/weather.sh",
     "interval": 60,
+    "return-type": "json",
     "format": "{}",
     "tooltip": true,
-    "tooltip-format": "<b>Left-Click:</b> Refresh\n<b>Right-Click:</b> Edit",
     "signal": 11,
     "on-click": "$HOME/.config/waybar/scripts/weather.sh --update",
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation nvim $HOME/.config/waybar/scripts/weather.sh"
@@ -155,6 +155,7 @@
     "tooltip-format-plugged": "<b>Power:</b> Plugged In\n<b>Capacity:</b> {capacity}%\n• <b>Health:</b> {health}%\n• <b>Cycles:</b> {cycles}",
     "interval": 5,
     "on-click": "omarchy-menu power",
+    "on-click-right": "omarchy-launch-floating-terminal-with-presentation battery-zen tui",
     "states": {
       "warning": 20,
       "critical": 10
