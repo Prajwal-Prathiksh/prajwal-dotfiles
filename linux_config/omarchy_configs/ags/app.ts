@@ -4,7 +4,7 @@ import Gio from "gi://Gio?version=2.0"
 import GLib from "gi://GLib?version=2.0"
 import { compact, parseJson, poll, run, spawn } from "./lib/helpers"
 import { HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_SCRIPT, WEATHER_AGS_SCRIPT, WEATHER_SCRIPT } from "./lib/paths"
-import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getCpuUsage, getNetworkInfo, indiaClockText, localClockText } from "./lib/system"
+import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getCpuUsage, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
 import { applyDynamicCss, watchStyle } from "./lib/theme"
 import type { BarRefs, ControlCenterRefs, WeatherData, WeatherPanelRefs } from "./lib/types"
 import { addRightClick, addScroll, capsule, controlTile, moduleButton, moduleLabel, setTooltip, setWindowMargins, togglePopover, valueLabel, workspaceButton } from "./lib/widgets"
@@ -16,6 +16,15 @@ let volumeTimer = 0
 let syncingBrightness = false
 let syncingVolume = false
 let hyprSocketStream: Gio.DataInputStream | null = null
+
+function schedulePrivacyRefresh() {
+    ;[80, 220, 500, 900].forEach((delay) => {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+            void updatePrivacy()
+            return GLib.SOURCE_REMOVE
+        })
+    })
+}
 
 function connectHyprlandEvents() {
     const runtimeDir = GLib.getenv("XDG_RUNTIME_DIR")
@@ -201,23 +210,19 @@ async function updateCpu() {
 }
 
 async function updateIndicators() {
-    const [recordRaw, idleRaw, notifRaw, voxtypeRaw, updateRaw] = await Promise.all([
-        run([SCREENREC_SCRIPT]),
+    const [idleRaw, notifRaw, voxtypeRaw, updateRaw] = await Promise.all([
         run([IDLE_SCRIPT]),
         run([NOTIF_SCRIPT]),
         run(["omarchy-voxtype-status"]),
         run(["omarchy-update-available"]),
     ])
 
-    const record = parseJson<{ text?: string; tooltip?: string }>(recordRaw, {})
     const idle = parseJson<{ text?: string; tooltip?: string }>(idleRaw, {})
     const notif = parseJson<{ text?: string; tooltip?: string }>(notifRaw, {})
     const voxtype = parseJson<{ alt?: string; tooltip?: string }>(voxtypeRaw, {})
     const voxtypeIcon = voxtype.alt === "recording" ? "󰍬" : voxtype.alt === "transcribing" ? "󰔟" : ""
 
     for (const refs of bars) {
-        refs.record.set_label(record.text ?? "")
-        refs.recordButton.set_visible(Boolean(record.text))
         refs.idle.set_label(idle.text ?? "")
         refs.idleButton.set_visible(Boolean(idle.text))
         refs.notif.set_label(notif.text ?? "")
@@ -227,11 +232,32 @@ async function updateIndicators() {
         refs.update.set_label(updateRaw ? "" : "")
         refs.updateButton.set_visible(Boolean(updateRaw))
 
-        setTooltip(refs.recordButton, record.tooltip ?? "")
         setTooltip(refs.idleButton, idle.tooltip ?? "")
         setTooltip(refs.notifButton, notif.tooltip ?? "")
         setTooltip(refs.voxtypeButton, voxtype.tooltip ?? "")
         setTooltip(refs.updateButton, updateRaw ? "<b>System Update</b>\nUpdates are available" : "")
+    }
+}
+
+async function updatePrivacy() {
+    const [privacy, recordRaw] = await Promise.all([
+        getPrivacyInfo(),
+        run([SCREENREC_SCRIPT]),
+    ])
+    const record = parseJson<{ text?: string; tooltip?: string; class?: string }>(recordRaw, {})
+
+    for (const refs of bars) {
+        refs.privacy.set_label(privacy.text)
+        refs.privacyButton.set_visible(Boolean(privacy.text))
+        refs.privacyButton.remove_css_class("critical")
+        if (privacy.micActive || privacy.screenActive) refs.privacyButton.add_css_class("critical")
+        setTooltip(refs.privacyButton, privacy.tooltip)
+
+        refs.record.set_label(record.text ?? "")
+        refs.recordButton.set_visible(Boolean(record.text))
+        refs.recordButton.remove_css_class("critical")
+        if (record.class === "active") refs.recordButton.add_css_class("critical")
+        setTooltip(refs.recordButton, record.tooltip ?? "")
     }
 }
 
@@ -577,6 +603,10 @@ function buildBar(monitor: number): Astal.Window {
     const indiaClock = moduleLabel(indiaClockText())
     const indiaButton = moduleButton(["clock", "india"], indiaClock)
 
+    const privacy = moduleLabel("")
+    const privacyButton = moduleButton(["status-indicator", "privacy"], privacy, () => spawn(["omarchy-launch-audio"]))
+    privacyButton.set_visible(false)
+
     const update = moduleLabel("")
     const updateButton = moduleButton(["status-indicator"], update, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "omarchy-update"]))
 
@@ -585,7 +615,10 @@ function buildBar(monitor: number): Astal.Window {
     addRightClick(voxtypeButton, () => spawn(["omarchy-voxtype-config"]))
 
     const record = moduleLabel("")
-    const recordButton = moduleButton(["status-indicator"], record, () => spawn(["omarchy-cmd-screenrecord"]))
+    const recordButton = moduleButton(["status-indicator"], record, () => {
+        spawn(["omarchy-cmd-screenrecord"])
+        schedulePrivacyRefresh()
+    })
 
     const idle = moduleLabel("")
     const idleButton = moduleButton(["status-indicator"], idle, () => spawn(["omarchy-toggle-idle"]))
@@ -595,7 +628,7 @@ function buildBar(monitor: number): Astal.Window {
 
     const centerCapsule = capsule(["center-capsule"])
     centerCapsule.set_spacing(4)
-    ;[weatherButton, clockButton, indiaButton, updateButton, voxtypeButton, recordButton, idleButton, notifButton].forEach((widget) => centerCapsule.append(widget))
+    ;[weatherButton, clockButton, indiaButton, privacyButton, updateButton, voxtypeButton, recordButton, idleButton, notifButton].forEach((widget) => centerCapsule.append(widget))
 
     const bluetooth = moduleLabel("")
     const bluetoothButton = moduleButton(["compact"], bluetooth, () => spawn(["omarchy-launch-bluetooth"]))
@@ -627,11 +660,25 @@ function buildBar(monitor: number): Astal.Window {
     rightCapsule.set_spacing(6)
     ;[bluetoothButton, networkButton, audioButton, brightnessButton, cpuButton, memoryButton, batteryButton].forEach((widget) => rightCapsule.append(widget))
 
-    const root = new Gtk.CenterBox({ hexpand: true })
-    root.add_css_class("bar-root")
-    root.set_start_widget(leftCapsule)
-    root.set_center_widget(centerCapsule)
-    root.set_end_widget(rightCapsule)
+    const leftWrap = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
+    leftWrap.set_halign(Gtk.Align.START)
+    leftWrap.append(leftCapsule)
+
+    const rightWrap = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
+    rightWrap.set_halign(Gtk.Align.END)
+    rightWrap.append(rightCapsule)
+
+    const track = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
+    track.add_css_class("bar-root")
+    track.append(leftWrap)
+    track.append(rightWrap)
+
+    centerCapsule.set_halign(Gtk.Align.CENTER)
+    centerCapsule.set_valign(Gtk.Align.CENTER)
+
+    const root = new Gtk.Overlay({ hexpand: true })
+    root.set_child(track)
+    root.add_overlay(centerCapsule)
 
     const shell = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
     shell.add_css_class("bar-shell")
@@ -644,6 +691,8 @@ function buildBar(monitor: number): Astal.Window {
         weatherPanel,
         clock,
         indiaClock,
+        privacy,
+        privacyButton,
         update,
         updateButton,
         voxtype,
@@ -708,6 +757,7 @@ App.start({
         poll(5, updateMemory)
         poll(5, updateBattery)
         poll(5, updateBrightness)
+        poll(1, updatePrivacy)
         poll(8, updateIndicators)
         poll(60, updateWeather)
         void updateWorkspaces()

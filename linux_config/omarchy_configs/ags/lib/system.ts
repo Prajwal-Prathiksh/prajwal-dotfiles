@@ -1,6 +1,6 @@
 import GLib from "gi://GLib?version=2.0";
 import { run, safeRead, sh } from "./helpers";
-import type { AudioInfo, BatteryInfo, BluetoothInfo, BrightnessInfo, NetworkInfo } from "./types";
+import type { AudioInfo, BatteryInfo, BluetoothInfo, BrightnessInfo, NetworkInfo, PrivacyInfo } from "./types";
 
 let previousCpu: { idle: number; total: number } | null = null
 let previousTraffic: { rx: number; tx: number; timestamp: number } | null = null
@@ -114,6 +114,32 @@ export async function getBluetoothInfo(): Promise<BluetoothInfo> {
         icon: blocked ? "󰂲" : "",
         label: blocked ? "󰂲" : "",
         tooltip: `<b>Bluetooth</b>\n${blocked ? "Disabled" : "Ready"}`,
+    }
+}
+
+export async function getPrivacyInfo(): Promise<PrivacyInfo> {
+    const [micCountRaw, recorderRaw] = await Promise.all([
+        sh("pactl list source-outputs short 2>/dev/null | wc -l"),
+        sh("pgrep -f '^gpu-screen-recorder' >/dev/null && echo 1 || echo 0"),
+    ])
+
+    const micActive = (Number.parseInt(micCountRaw.trim(), 10) || 0) > 0
+    const screenActive = recorderRaw.trim() === "1"
+    const icons = [
+        micActive ? "" : "",
+        screenActive ? "󰹑" : "",
+    ].filter(Boolean)
+
+    const details = [
+        micActive ? "Microphone in use" : "",
+        screenActive ? "Screen capture active" : "",
+    ].filter(Boolean)
+
+    return {
+        text: icons.join("  "),
+        tooltip: details.length ? `<b>Privacy</b>\n${details.join("\n")}` : "<b>Privacy</b>\nNo active capture",
+        micActive,
+        screenActive,
     }
 }
 

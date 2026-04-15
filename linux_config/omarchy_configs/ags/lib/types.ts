@@ -9,6 +9,8 @@ export type BarRefs = {
     weatherPanel: WeatherPanelRefs
     clock: Gtk.Label
     indiaClock: Gtk.Label
+    privacy: Gtk.Label
+    privacyButton: Gtk.Button
     update: Gtk.Label
     updateButton: Gtk.Button
     voxtype: Gtk.Label
@@ -125,4 +127,11 @@ export type BluetoothInfo = {
     icon: string
     label: string
     tooltip: string
+}
+
+export type PrivacyInfo = {
+    text: string
+    tooltip: string
+    micActive: boolean
+    screenActive: boolean
 }
