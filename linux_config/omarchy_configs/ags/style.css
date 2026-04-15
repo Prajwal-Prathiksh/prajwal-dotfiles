@@ -1,0 +1,376 @@
+* {
+  color: @fg;
+  font-family: "Inter Display", "Symbols Nerd Font Mono", "iA Writer Mono S", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+window {
+  background: transparent;
+}
+
+tooltip {
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.96), alpha(@bg, 0.9)),
+    linear-gradient(to right, alpha(@accent, 0.08), transparent 45%);
+  background-color: @tooltip_bg;
+  border: 1px solid @tooltip_border;
+  border-radius: 14px;
+  box-shadow:
+    0 12px 28px alpha(black, 0.18),
+    inset 0 1px 0 alpha(white, 0.18);
+}
+
+tooltip label {
+  color: @fg;
+  padding: 9px 11px;
+}
+
+.bar-shell {
+  padding: 0 8px 2px;
+}
+
+.bar-root {
+  min-height: 18px;
+}
+
+.capsule {
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.78), alpha(@bg, 0.54)),
+    linear-gradient(to right, @tint, transparent);
+  background-color: @glass;
+  border: 1px solid @stroke;
+  border-radius: 15px;
+  padding: 2px 7px;
+  box-shadow:
+    0 8px 26px @shadow,
+    0 0 0 1px alpha(@mode_fg, 0.04),
+    0 2px 6px alpha(black, 0.12),
+    inset 0 1px 0 alpha(white, 0.28),
+    inset 0 -1px 0 alpha(black, 0.12);
+}
+
+.left-capsule {
+  margin-right: 8px;
+}
+
+.center-capsule {
+  margin: 0 10px;
+}
+
+.right-capsule {
+  margin-left: 8px;
+}
+
+.module-button {
+  background: transparent;
+  border: none;
+  border-radius: 11px;
+  box-shadow: none;
+  padding: 0;
+  min-height: 22px;
+  transition:
+    background-color 220ms cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 220ms cubic-bezier(0.25, 1, 0.5, 1),
+    color 180ms ease;
+}
+
+.module-button:hover {
+  background: alpha(@fg, 0.06);
+}
+
+.module-button:active {
+  background: alpha(@fg, 0.12);
+}
+
+.module-button.compact {
+  min-width: 28px;
+  padding: 0 5px;
+}
+
+.module-button.metric,
+.module-button.battery,
+.module-button.weather,
+.module-button.clock,
+.module-button.brightness,
+.module-button.logo-button,
+.status-indicator {
+  padding: 0 6px;
+}
+
+.module-label {
+  letter-spacing: 0.02em;
+}
+
+.logo-button .module-label {
+  font-size: 16px;
+}
+
+.workspaces {
+  margin-left: 3px;
+}
+
+.workspace-button {
+  min-width: 22px;
+  padding: 0 3px;
+  transition:
+    background-color 280ms cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 280ms cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 200ms ease;
+}
+
+.workspace-button .module-label {
+  color: alpha(@fg, 0.46);
+  transition: color 220ms ease;
+}
+
+.module-button.india .module-label {
+  font-family: "Inter Display", "Noto Sans", sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.workspace-button:hover {
+  background: alpha(@fg, 0.04);
+}
+
+.workspace-button.active {
+  background-image:
+    linear-gradient(to bottom, alpha(@mode_fg, 0.12), alpha(@mode_fg, 0.04)),
+    linear-gradient(to right, @glow, transparent);
+  background-color: alpha(@fg, 0.08);
+  box-shadow:
+    0 8px 18px alpha(black, 0.1),
+    inset 0 1px 0 alpha(white, 0.24);
+}
+
+.workspace-button.active .module-label {
+  color: @fg;
+}
+
+.module-button.warning .module-label {
+  color: @warn;
+}
+
+.module-button.critical .module-label,
+.status-indicator .module-label {
+  color: @danger;
+}
+
+.battery.charging .module-label {
+  color: @success;
+}
+
+.control-center {
+  min-width: 410px;
+  padding: 14px;
+  border-radius: 28px;
+  border: 1px solid @stroke-strong;
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.86), alpha(@bg, 0.72)),
+    linear-gradient(135deg, @tint, transparent 42%);
+  background-color: @glass-strong;
+  box-shadow:
+    0 28px 60px alpha(black, 0.24),
+    0 8px 20px alpha(black, 0.14),
+    0 0 0 1px alpha(@mode_fg, 0.05),
+    inset 0 1px 0 alpha(white, 0.34),
+    inset 0 -1px 0 alpha(black, 0.08);
+}
+
+.weather-shell {
+  margin-top: 12px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+popover.weather-shell,
+popover.weather-shell contents,
+popover.weather-shell > contents {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+popover.weather-shell arrow {
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+}
+
+.weather-panel {
+  min-width: 432px;
+  padding: 14px;
+  border-radius: 26px;
+  border: 1px solid @stroke-strong;
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.9), alpha(@bg, 0.78)),
+    linear-gradient(135deg, @tint, transparent 40%);
+  background-color: @glass-strong;
+  box-shadow:
+    0 22px 52px alpha(black, 0.24),
+    0 8px 18px alpha(black, 0.14),
+    0 0 0 1px alpha(@mode_fg, 0.05),
+    inset 0 1px 0 alpha(white, 0.30);
+}
+
+.weather-header {
+  margin-bottom: 10px;
+}
+
+.weather-location {
+  font-size: 13px;
+  font-weight: 700;
+  color: alpha(@fg, 0.68);
+}
+
+.weather-refresh {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.weather-current {
+  border-radius: 22px;
+  border: 1px solid @stroke;
+  padding: 12px 14px;
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.58), alpha(@bg, 0.4)),
+    linear-gradient(to right, alpha(@accent, 0.1), transparent 55%);
+  background-color: alpha(@bg, 0.16);
+  box-shadow:
+    inset 0 1px 0 alpha(white, 0.22),
+    0 6px 14px alpha(black, 0.08);
+}
+
+.weather-hero-icon {
+  font-size: 34px;
+}
+
+.weather-temp {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.weather-condition {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.weather-meta,
+.weather-updated {
+  font-size: 13px;
+  color: alpha(@fg, 0.7);
+}
+
+.weather-forecast {
+  margin-top: 12px;
+}
+
+.weather-forecast-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: alpha(@fg, 0.66);
+  margin-bottom: 8px;
+}
+
+.forecast-row {
+  border-radius: 16px;
+  border: 1px solid alpha(@fg, 0.08);
+  min-width: 0;
+  padding: 10px 8px;
+  background: alpha(@bg, 0.14);
+  box-shadow:
+    inset 0 1px 0 alpha(white, 0.12),
+    0 4px 10px alpha(black, 0.05);
+}
+
+.forecast-time {
+  font-size: 13px;
+  font-weight: 700;
+  color: alpha(@fg, 0.72);
+  margin-bottom: 2px;
+}
+
+.forecast-icon {
+  font-size: 23px;
+}
+
+.forecast-desc {
+  font-size: 13px;
+  font-weight: 700;
+  color: alpha(@fg, 0.82);
+  min-height: 34px;
+}
+
+.forecast-meta {
+  font-size: 12px;
+  color: alpha(@fg, 0.62);
+}
+
+.control-tile,
+.detail-card {
+  border-radius: 20px;
+  border: 1px solid @stroke;
+  background-image: linear-gradient(to bottom, alpha(@bg, 0.6), alpha(@bg, 0.4));
+  background-color: alpha(@bg, 0.16);
+  box-shadow:
+    inset 0 1px 0 alpha(white, 0.22),
+    0 6px 14px alpha(black, 0.08);
+}
+
+.control-tile {
+  padding: 10px 12px;
+}
+
+.control-tile:hover {
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.7), alpha(@bg, 0.48)),
+    linear-gradient(to right, alpha(@accent, 0.12), transparent);
+}
+
+.detail-card {
+  padding: 12px 14px;
+}
+
+.tile-icon {
+  font-size: 20px;
+}
+
+.tile-title,
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: alpha(@fg, 0.72);
+}
+
+.tile-value,
+.value-text {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.cc-slider {
+  margin-top: 4px;
+}
+
+.cc-slider trough {
+  min-height: 8px;
+  border-radius: 999px;
+  background: alpha(@fg, 0.12);
+}
+
+.cc-slider highlight {
+  border-radius: 999px;
+  background: @accent;
+}
+
+.cc-slider slider {
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 999px;
+  background: @bg;
+  box-shadow: 0 4px 12px alpha(black, 0.22);
+}
