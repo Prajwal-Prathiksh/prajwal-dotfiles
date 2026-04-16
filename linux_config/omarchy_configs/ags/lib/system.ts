@@ -60,18 +60,25 @@ export async function getAudioInfo(): Promise<AudioInfo> {
     ])
     const value = Number.parseInt(volumeRaw, 10) || 0
     const muted = mutedRaw === "true"
-    const baseIcon = muted ? "" : value >= 67 ? "󰕾" : value >= 34 ? "󰖀" : "󰕿"
+    const baseIcon = muted || value === 0 ? "" : value >= 67 ? "󰕾" : value >= 34 ? "󰖀" : "󰕿"
     const sinkName = sinkRaw.trim()
     const sinkDescription = sinkDescriptionRaw.trim() || sinkName || "Default output"
     const bluetooth = sinkName.startsWith("bluez_output.") || /bluetooth/i.test(sinkDescription)
     const icon = bluetooth ? `${baseIcon}` : baseIcon
+    const filled = Math.max(0, Math.min(8, Math.round(value / 12.5)))
+    const bar = `${"●".repeat(filled)}${"·".repeat(8 - filled)}`
 
     return {
         icon,
         value,
         muted,
         text: icon,
-        tooltip: `<b>Volume:</b> ${muted ? "Muted" : `${value}%`}\n<b>Device:</b> ${sinkDescription}`,
+        tooltip: [
+            "<b>Audio</b>",
+            `<tt>${muted ? "Muted".padEnd(5, " ") : `${String(value).padStart(2, "0")}%`.padEnd(5, " ")}  ${bar}</tt>`,
+            "",
+            `<tt>Device  ${sinkDescription}</tt>`,
+        ].join("\n"),
     }
 }
 
@@ -147,7 +154,10 @@ export async function getNetworkInfo(): Promise<NetworkInfo> {
         return {
             icon: "󰤮",
             label: "󰤮",
-            tooltip: "<b>Network</b>\nDisconnected",
+            tooltip: [
+                "<b>Network</b>",
+                `<tt>Status   Offline</tt>`,
+            ].join("\n"),
             details: "No active network",
         }
     }
@@ -176,18 +186,19 @@ export async function getNetworkInfo(): Promise<NetworkInfo> {
         label: icon,
         tooltip: wireless
             ? [
-                `<b>Wi-Fi</b>: ${wifi?.ssid || iface}${wifi?.frequencyLabel ? ` (${wifi.frequencyLabel})` : ""}`,
-                `<tt>Signal    ${String(wifi?.strength ?? 0).padStart(2, "0")}%${wifi?.signalDbm !== null ? `   ${Math.round(wifi.signalDbm)} dBm` : ""}</tt>`,
-                `<tt>Address   ${ip || "No IP"}</tt>`,
-                `<tt>Download  ${downText}</tt>`,
-                `<tt>Upload    ${upText}</tt>`,
+                "<b>Wi-Fi</b>",
+                `<tt>Name     ${wifi?.ssid || iface}${wifi?.frequencyLabel ? ` (${wifi.frequencyLabel})` : ""}</tt>`,
+                `<tt>Signal   ${String(wifi?.strength ?? 0).padStart(2, "0")}%${wifi?.signalDbm !== null ? `   ${Math.round(wifi.signalDbm)} dBm` : ""}</tt>`,
+                `<tt>Address  ${ip || "No IP"}</tt>`,
+                `<tt>Down     ${downText}</tt>`,
+                `<tt>Up       ${upText}</tt>`,
             ].join("\n")
             : [
                 "<b>Ethernet</b>",
-                `<tt>Interface ${iface}</tt>`,
-                `<tt>Address   ${ip || "No IP"}</tt>`,
-                `<tt>Download  ${downText}</tt>`,
-                `<tt>Upload    ${upText}</tt>`,
+                `<tt>Device   ${iface}</tt>`,
+                `<tt>Address  ${ip || "No IP"}</tt>`,
+                `<tt>Down     ${downText}</tt>`,
+                `<tt>Up       ${upText}</tt>`,
             ].join("\n"),
         details: `${iface}  ${ip || "No IP"}\n${speedText}`,
     }
@@ -205,7 +216,11 @@ export async function getBluetoothInfo(): Promise<BluetoothInfo> {
         return {
             icon: "󰂲",
             label: "󰂲",
-            tooltip: `<b>Bluetooth</b>\nDisabled`,
+            tooltip: [
+                "<b>Bluetooth</b>",
+                `<tt>Status    Disabled</tt>`,
+                `<tt>Connected 0 devices</tt>`,
+            ].join("\n"),
             connected: false,
         }
     }
@@ -249,8 +264,9 @@ export async function getBluetoothInfo(): Promise<BluetoothInfo> {
         const connected = connectedDevices.length > 0
         const icon = connected ? "󰂱" : ""
         const tooltip = [
-            `<b>Bluetooth</b>: ${controllerAlias}`,
-            `<b>Connected</b>: ${connectedDevices.length} device${connectedDevices.length === 1 ? "" : "s"}`,
+            "<b>Bluetooth</b>",
+            `<tt>Device    ${controllerAlias}</tt>`,
+            `<tt>Connected ${connectedDevices.length} device${connectedDevices.length === 1 ? "" : "s"}</tt>`,
             ...connectedDevices.map((device) =>
                 device.battery !== null
                     ? ` • ${device.name} (󰥉 ${device.battery}%)`
@@ -268,7 +284,7 @@ export async function getBluetoothInfo(): Promise<BluetoothInfo> {
         return {
             icon: "",
             label: "",
-            tooltip: `<b>Bluetooth</b>: Controller\n<b>Connected</b>: 0 devices`,
+            tooltip: "<b>Bluetooth</b>\n<tt>Device    Controller</tt>\n<tt>Connected 0 devices</tt>",
             connected: false,
         }
     }
@@ -333,16 +349,21 @@ export function getBatteryInfo(): BatteryInfo {
     if (status === "Not charging") text = `  ${capacity}%`
 
     const levelClass = capacity <= 10 ? "critical" : capacity <= 20 ? "warning" : ""
+    const percentText = `${String(capacity).padStart(2, "0")}%`
+    const filled = Math.max(0, Math.min(8, Math.round(capacity / 12.5)))
+    const bar = `${"●".repeat(filled)}${"·".repeat(8 - filled)}`
+    const chargeLine = `<tt>${percentText}  ${bar}  ${status}</tt>`
+    const detailLines = [
+        wattsText ? `<tt>Power   ${wattsText}${status === "Charging" ? " ↑" : status === "Discharging" ? " ↓" : ""}</tt>` : "",
+        health ? `<tt>Health  ${health}</tt>` : "",
+        cycles ? `<tt>Cycles  ${cycles}</tt>` : "",
+    ].filter(Boolean)
     const tooltip = [
-        `<b>Battery</b>`,
-        `Status: ${status}`,
-        `Charge: ${capacity}%`,
-        wattsText ? `Power: ${wattsText}` : "",
-        health ? `Health: ${health}` : "",
-        cycles ? `Cycles: ${cycles}` : "",
-    ]
-        .filter(Boolean)
-        .join("\n")
+        "<b>Battery</b>",
+        chargeLine,
+        "",
+        ...detailLines,
+    ].join("\n")
 
     return { icon, text, tooltip, levelClass, value: capacity, watts: wattsText, status }
 }

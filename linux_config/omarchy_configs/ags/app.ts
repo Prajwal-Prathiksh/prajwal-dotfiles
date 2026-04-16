@@ -393,7 +393,7 @@ async function updateIndicators() {
         setTooltip(refs.idleButton, idle.tooltip ?? "")
         setTooltip(refs.notifButton, notif.tooltip ?? "")
         setTooltip(refs.voxtypeButton, voxtype.tooltip ?? "")
-        setTooltip(refs.updateButton, updateRaw ? "<b>System Update</b>\nUpdates are available" : "")
+        setTooltip(refs.updateButton, updateRaw ? "<b>System Update</b>\n<tt>Status  Updates available</tt>" : "")
     }
 }
 
@@ -429,11 +429,16 @@ async function updateAudio() {
 
 async function updateBrightness() {
     const info = await getBrightnessInfo()
+    const filled = Math.max(0, Math.min(8, Math.round(info.value / 12.5)))
+    const bar = `${"●".repeat(filled)}${"·".repeat(8 - filled)}`
     for (const refs of bars) {
         refs.brightness.set_label(info.text)
         setTooltip(
             refs.brightnessButton,
-            `<b>Brightness</b>\n${info.value}%\nScroll: adjust\nClick: toggle night light`,
+            [
+                "<b>Brightness</b>",
+                `<tt>${String(info.value).padStart(2, "0")}%  ${bar}${info.nightLight ? "  " : ""}</tt>`,
+            ].join("\n"),
         )
     }
 }
@@ -564,6 +569,7 @@ function buildBar(monitor: number): Astal.Window {
     omarchyLabel.set_use_markup(true)
     const omarchyButton = moduleButton(["logo-button"], omarchyLabel, () => spawn(["omarchy-menu"]))
     addRightClick(omarchyButton, () => spawn(["xdg-terminal-exec"]))
+    setTooltip(omarchyButton, "")
 
     const workspaceBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 2 })
     workspaceBox.add_css_class("workspaces")
@@ -582,10 +588,11 @@ function buildBar(monitor: number): Astal.Window {
     const clock = moduleLabel(localClockText())
     const clockButton = moduleButton(["clock"], clock)
     addRightClick(clockButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "omarchy-tz-select"]))
-    setTooltip(clockButton, "<b>Clock</b>\nRight-click: change timezone")
+    setTooltip(clockButton, `<b>Local Time</b>\n<tt>${GLib.DateTime.new_now_local()?.format("%a, %d %b  %H:%M") ?? ""}</tt>`)
 
     const indiaClock = moduleLabel(indiaClockText())
     const indiaButton = moduleButton(["clock", "india"], indiaClock)
+    setTooltip(indiaButton, "")
 
     const privacy = moduleLabel("")
     const privacyButton = moduleButton(["status-indicator", "privacy"], privacy, () => spawn(["omarchy-launch-audio"]))
