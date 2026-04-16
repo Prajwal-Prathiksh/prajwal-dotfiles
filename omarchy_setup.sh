@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+OMARCHY_CONFIGS_DIR="$SCRIPT_DIR/linux_config/omarchy_configs"
 
 if [ -z "$OMARCHY_PATH" ]; then
     echo "OMARCHY_PATH is not set" >&2
@@ -28,12 +29,13 @@ copy_path() {
     echo "Copied file from $resolved_source to $dest_path"
 }
 
-copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/bin" "$OMARCHY_BASE/bin"
-copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/hypr" "$HOME/.config/hypr"
-copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/mako/core.ini" "$OMARCHY_BASE/default/mako/core.ini"
-copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/swayosd" "$HOME/.config/swayosd"
-copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/walker/config.toml" "$HOME/.config/walker/config.toml"
-copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/walker/themes/omarchy-default" "$OMARCHY_BASE/default/walker/themes/omarchy-default"
+copy_path "$OMARCHY_CONFIGS_DIR/bin" "$OMARCHY_BASE/bin"
+copy_path "$OMARCHY_CONFIGS_DIR/hypr" "$HOME/.config/hypr"
+copy_path "$OMARCHY_CONFIGS_DIR/mako/core.ini" "$OMARCHY_BASE/default/mako/core.ini"
+copy_path "$OMARCHY_CONFIGS_DIR/swayosd" "$HOME/.config/swayosd"
+copy_path "$OMARCHY_CONFIGS_DIR/walker/config.toml" "$HOME/.config/walker/config.toml"
+copy_path "$OMARCHY_CONFIGS_DIR/walker/themes/omarchy-default" "$OMARCHY_BASE/default/walker/themes/omarchy-default"
+copy_path "$SCRIPT_DIR/linux_config/omarchy_configs/default/hypr/autostart.conf" "$OMARCHY_BASE/default/hypr/autostart.conf"
 
 echo "Set power profile based on source switching (AC or Battery)"
 
