@@ -1,4 +1,5 @@
 import GLib from "gi://GLib?version=2.0";
+import Gio from "gi://Gio?version=2.0";
 import { run, safeRead, sh } from "./helpers";
 import type { AudioInfo, BatteryInfo, BluetoothInfo, BrightnessInfo, NetworkInfo, PrivacyInfo } from "./types";
 
@@ -40,19 +41,37 @@ export async function getBrightnessWatchPaths(): Promise<string[]> {
 }
 
 export async function getAudioInfo(): Promise<AudioInfo> {
-    const volumeRaw = await run(["pamixer", "--get-volume"])
-    const mutedRaw = await run(["pamixer", "--get-mute"])
-    const sinkRaw = await sh("pactl info | sed -n 's/^Default Sink: //p'")
+    const [volumeRaw, mutedRaw, sinkRaw, sinkDescriptionRaw] = await Promise.all([
+        run(["pamixer", "--get-volume"]),
+        run(["pamixer", "--get-mute"]),
+        sh("pactl info | sed -n 's/^Default Sink: //p'"),
+        sh(`
+            default_sink="$(pactl info | sed -n 's/^Default Sink: //p' | head -n1)"
+            [ -n "$default_sink" ] || exit 0
+            pactl list sinks | awk -v target="$default_sink" '
+                $1 == "Name:" { in_sink = ($2 == target) }
+                in_sink && $1 == "Description:" {
+                    sub(/^[[:space:]]*Description:[[:space:]]*/, "")
+                    print
+                    exit
+                }
+            '
+        `),
+    ])
     const value = Number.parseInt(volumeRaw, 10) || 0
     const muted = mutedRaw === "true"
-    const icon = muted ? "" : value >= 67 ? "󰕾" : value >= 34 ? "󰖀" : "󰕿"
-    const sink = sinkRaw || "Default output"
+    const baseIcon = muted ? "" : value >= 67 ? "󰕾" : value >= 34 ? "󰖀" : "󰕿"
+    const sinkName = sinkRaw.trim()
+    const sinkDescription = sinkDescriptionRaw.trim() || sinkName || "Default output"
+    const bluetooth = sinkName.startsWith("bluez_output.") || /bluetooth/i.test(sinkDescription)
+    const icon = bluetooth ? `${baseIcon}` : baseIcon
+
     return {
         icon,
         value,
         muted,
         text: icon,
-        tooltip: `<b>Volume</b>\n${muted ? "Muted" : `${value}%`}\n${sink}`,
+        tooltip: `<b>Volume:</b> ${muted ? "Muted" : `${value}%`}\n<b>Device:</b> ${sinkDescription}`,
     }
 }
 
@@ -85,6 +104,43 @@ function formatRate(bytesPerSecond: number): string {
     return `${Math.round(bytesPerSecond)} B/s`
 }
 
+function wifiIconFromStrength(strength: number): string {
+    if (strength <= 20) return "󰤯"
+    if (strength <= 40) return "󰤟"
+    if (strength <= 60) return "󰤢"
+    if (strength <= 80) return "󰤥"
+    return "󰤨"
+}
+
+function dbmToPercent(dbm: number): number {
+    if (dbm <= -90) return 0
+    if (dbm >= -50) return 100
+    return Math.round(((dbm + 90) / 40) * 100)
+}
+
+function formatFrequencyLabel(freq: number): string {
+    if (!freq) return ""
+    const ghz = freq >= 1000 ? freq / 1000 : freq
+    return `${ghz.toFixed(1)} GHz`
+}
+
+async function getWifiAccessPointInfo(iface: string): Promise<{ ssid: string; strength: number; frequencyLabel: string; signalDbm: number | null } | null> {
+    const raw = await sh(`iw dev ${iface} link 2>/dev/null || true`)
+    if (!raw || raw.includes("Not connected.")) return null
+
+    const ssid = raw.match(/^\s*SSID:\s+(.+)$/m)?.[1]?.trim() ?? ""
+    const freq = Number.parseFloat(raw.match(/^\s*freq:\s+([0-9.]+)$/m)?.[1] ?? "0")
+    const signalDbm = Number.parseFloat(raw.match(/^\s*signal:\s+(-?[0-9.]+)\s+dBm$/m)?.[1] ?? "")
+    const strength = Number.isFinite(signalDbm) ? dbmToPercent(signalDbm) : 0
+
+    return {
+        ssid: ssid || iface,
+        strength,
+        frequencyLabel: formatFrequencyLabel(freq),
+        signalDbm: Number.isFinite(signalDbm) ? signalDbm : null,
+    }
+}
+
 export async function getNetworkInfo(): Promise<NetworkInfo> {
     const iface = parseDefaultInterface()
     if (!iface) {
@@ -110,12 +166,29 @@ export async function getNetworkInfo(): Promise<NetworkInfo> {
     previousTraffic = { ...traffic, timestamp: now }
 
     const wireless = iface.startsWith("wl")
-    const icon = wireless ? "󰤨" : "󰀂"
-    const speedText = `⇣ ${formatRate(down)}   ⇡ ${formatRate(up)}`
+    const wifi = wireless ? await getWifiAccessPointInfo(iface) : null
+    const icon = wireless ? wifiIconFromStrength(wifi?.strength ?? 100) : "󰀂"
+    const downText = formatRate(down)
+    const upText = formatRate(up)
+    const speedText = `⇣ ${downText}   ⇡ ${upText}`
     return {
         icon,
         label: icon,
-        tooltip: `<b>${wireless ? "Wi-Fi" : "Ethernet"}</b>\n${ip || "No IP"}\n${speedText}`,
+        tooltip: wireless
+            ? [
+                `<b>Wi-Fi</b>: ${wifi?.ssid || iface}${wifi?.frequencyLabel ? ` (${wifi.frequencyLabel})` : ""}`,
+                `<tt>Signal    ${String(wifi?.strength ?? 0).padStart(2, "0")}%${wifi?.signalDbm !== null ? `   ${Math.round(wifi.signalDbm)} dBm` : ""}</tt>`,
+                `<tt>Address   ${ip || "No IP"}</tt>`,
+                `<tt>Download  ${downText}</tt>`,
+                `<tt>Upload    ${upText}</tt>`,
+            ].join("\n")
+            : [
+                "<b>Ethernet</b>",
+                `<tt>Interface ${iface}</tt>`,
+                `<tt>Address   ${ip || "No IP"}</tt>`,
+                `<tt>Download  ${downText}</tt>`,
+                `<tt>Upload    ${upText}</tt>`,
+            ].join("\n"),
         details: `${iface}  ${ip || "No IP"}\n${speedText}`,
     }
 }
@@ -128,11 +201,78 @@ export async function getBluetoothInfo(): Promise<BluetoothInfo> {
     const devices = data.rfkilldevices ?? []
     const bluetooth = devices.find((entry) => entry.type === "bluetooth")
     const blocked = bluetooth?.soft === "blocked"
-    return {
-        icon: blocked ? "󰂲" : "",
-        label: blocked ? "󰂲" : "",
-        tooltip: `<b>Bluetooth</b>\n${blocked ? "Disabled" : "Ready"}`,
+    if (blocked) {
+        return {
+            icon: "󰂲",
+            label: "󰂲",
+            tooltip: `<b>Bluetooth</b>\nDisabled`,
+            connected: false,
+        }
     }
+
+    try {
+        const manager = Gio.DBusObjectManagerClient.new_for_bus_sync(
+            Gio.BusType.SYSTEM,
+            Gio.DBusObjectManagerClientFlags.NONE,
+            "org.bluez",
+            "/",
+            null,
+            null,
+        )
+
+        let controllerAlias = "Controller"
+        const connectedDevices: Array<{ name: string; mac: string; battery: number | null }> = []
+
+        manager.get_objects().forEach((object) => {
+            const adapter = object.get_interface("org.bluez.Adapter1") as Gio.DBusProxy | null
+            if (adapter && controllerAlias === "Controller") {
+                controllerAlias = adapter.get_cached_property("Alias")?.unpack() ?? controllerAlias
+            }
+
+            const device = object.get_interface("org.bluez.Device1") as Gio.DBusProxy | null
+            if (!device) return
+
+            const connected = Boolean(device.get_cached_property("Connected")?.unpack())
+            if (!connected) return
+
+            const name =
+                device.get_cached_property("Alias")?.unpack() ??
+                device.get_cached_property("Name")?.unpack() ??
+                "Bluetooth device"
+            const mac = device.get_cached_property("Address")?.unpack() ?? ""
+            const batteryIface = object.get_interface("org.bluez.Battery1") as Gio.DBusProxy | null
+            const batteryRaw = batteryIface?.get_cached_property("Percentage")?.unpack()
+            const battery = typeof batteryRaw === "number" ? Math.round(batteryRaw) : null
+            connectedDevices.push({ name, mac, battery })
+        })
+
+        const connected = connectedDevices.length > 0
+        const icon = connected ? "󰂱" : ""
+        const tooltip = [
+            `<b>Bluetooth</b>: ${controllerAlias}`,
+            `<b>Connected</b>: ${connectedDevices.length} device${connectedDevices.length === 1 ? "" : "s"}`,
+            ...connectedDevices.map((device) =>
+                device.battery !== null
+                    ? ` • ${device.name} (󰥉 ${device.battery}%)`
+                    : ` • ${device.name}${device.mac ? ` (${device.mac})` : ""}`,
+            ),
+        ].join("\n")
+
+        return {
+            icon,
+            label: icon,
+            tooltip,
+            connected,
+        }
+    } catch {
+        return {
+            icon: "",
+            label: "",
+            tooltip: `<b>Bluetooth</b>: Controller\n<b>Connected</b>: 0 devices`,
+            connected: false,
+        }
+    }
+
 }
 
 export async function getPrivacyInfo(): Promise<PrivacyInfo> {

@@ -3,8 +3,8 @@ import App from "ags/gtk4/app"
 import Gio from "gi://Gio?version=2.0"
 import GLib from "gi://GLib?version=2.0"
 import { compact, parseJson, poll, run, spawn } from "./lib/helpers"
-import { HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_SCRIPT, WEATHER_AGS_SCRIPT } from "./lib/paths"
-import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getBrightnessWatchPaths, getCpuUsage, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
+import { CPU_SCRIPT, HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_SCRIPT, WEATHER_AGS_SCRIPT } from "./lib/paths"
+import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getBrightnessWatchPaths, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
 import { applyDynamicCss, watchStyle } from "./lib/theme"
 import type { BarRefs, WeatherData, WeatherPanelRefs } from "./lib/types"
 import { addRightClick, addScroll, capsule, moduleButton, moduleLabel, setTooltip, setWindowMargins, togglePopover, valueLabel, workspaceButton } from "./lib/widgets"
@@ -13,6 +13,9 @@ const bars: BarRefs[] = []
 let hyprSocketStream: Gio.DataInputStream | null = null
 const brightnessMonitors: Gio.FileMonitor[] = []
 let monitorRefreshTimer = 0
+let audioSubscribeProcess: Gio.Subprocess | null = null
+let audioSubscribeStream: Gio.DataInputStream | null = null
+let audioRefreshTimer = 0
 
 function schedulePrivacyRefresh() {
     ;[80, 220, 500, 900].forEach((delay) => {
@@ -29,6 +32,15 @@ function scheduleBrightnessRefresh() {
             void updateBrightness()
             return GLib.SOURCE_REMOVE
         })
+    })
+}
+
+function scheduleAudioRefresh() {
+    if (audioRefreshTimer) GLib.source_remove(audioRefreshTimer)
+    audioRefreshTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 40, () => {
+        void updateAudio()
+        audioRefreshTimer = 0
+        return GLib.SOURCE_REMOVE
     })
 }
 
@@ -120,6 +132,57 @@ function connectHyprlandEvents() {
             })
         }
     })
+}
+
+function connectAudioEvents() {
+    try {
+        const process = Gio.Subprocess.new(
+            ["bash", "-lc", "pactl subscribe 2>/dev/null"],
+            Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_SILENCE,
+        )
+        const stdout = process.get_stdout_pipe()
+        if (!stdout) return
+
+        const stream = new Gio.DataInputStream({ base_stream: stdout })
+        audioSubscribeProcess = process
+        audioSubscribeStream = stream
+
+        const readNext = () => {
+            stream.read_line_async(GLib.PRIORITY_DEFAULT, null, (_stream, res) => {
+                try {
+                    const [line] = stream.read_line_finish_utf8(res)
+                    if (line === null) {
+                        audioSubscribeProcess = null
+                        audioSubscribeStream = null
+                        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+                            connectAudioEvents()
+                            return GLib.SOURCE_REMOVE
+                        })
+                        return
+                    }
+
+                    if (
+                        line.includes("on sink") ||
+                        line.includes("on server") ||
+                        line.includes("on sink-input")
+                    ) {
+                        scheduleAudioRefresh()
+                    }
+
+                    readNext()
+                } catch {
+                    audioSubscribeProcess = null
+                    audioSubscribeStream = null
+                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+                        connectAudioEvents()
+                        return GLib.SOURCE_REMOVE
+                    })
+                }
+            })
+        }
+
+        readNext()
+    } catch {}
 }
 
 async function updateWorkspaces() {
@@ -220,26 +283,87 @@ async function updateWeather() {
 
 async function updateMemory() {
     const raw = await run([MEMORY_SCRIPT])
-    const data = parseJson<{ text?: string; tooltip?: string; class?: string }>(raw, {})
+    const data = parseJson<{
+        text?: string
+        class?: string
+        used_gb?: string
+        used_pct?: string
+        total_gb?: string
+        swap_gb?: string
+        swap_pct?: string
+        swap_total_gb?: string
+        top?: Array<{ name?: string; gb?: string }>
+    }>(raw, {})
     const text = compact(data.text ?? "󰘚 0.0GB").replace(/^(\S+)\s+/, "$1  ")
+    const percent = Number.parseInt((data.used_pct ?? "0%").replace("%", ""), 10) || 0
+    const swapPercent = Number.parseInt((data.swap_pct ?? "0%").replace("%", ""), 10) || 0
+    const percentText = `${String(percent).padStart(2, "0")}%`
+    const swapPercentText = `${String(swapPercent).padStart(2, "0")}%`
+    const filled = Math.max(0, Math.min(8, Math.round(percent / 12.5)))
+    const swapFilled = Math.max(0, Math.min(8, Math.round(swapPercent / 12.5)))
+    const bar = `${"●".repeat(filled)}${"·".repeat(8 - filled)}`
+    const swapBar = `${"●".repeat(swapFilled)}${"·".repeat(8 - swapFilled)}`
+    const memoryLine = `${(data.used_gb ?? "0.0 GB").padStart(6, " ")} / ${(data.total_gb ?? "0.0 GB").padStart(6, " ")}  (${percentText})  ${bar}`
+    const swapLine = `${(data.swap_gb ?? "0.0 GB").padStart(6, " ")} / ${(data.swap_total_gb ?? "0.0 GB").padStart(6, " ")}   (${swapPercentText})  ${swapBar}`
+    const rows = (data.top ?? []).map((item) => ({
+        name: (item.name ?? "unknown").slice(0, 12),
+        gb: item.gb ?? "0.00 GB",
+    }))
+    const nameWidth = Math.max(4, ...rows.map((row) => row.name.length))
+    const valueWidth = Math.max(7, ...rows.map((row) => row.gb.length))
+    const topPrograms = rows
+        .map((row) => `${row.name.padEnd(nameWidth, " ")}  ${row.gb.padStart(valueWidth, " ")}`)
+        .join("\n")
+    const tooltip = [
+        "<b>Memory</b>",
+        `<tt>${memoryLine}</tt>`,
+        "",
+        "<b>Swap</b>",
+        `<tt>${swapLine}</tt>`,
+        "",
+        "<b>Top Apps</b>",
+        topPrograms ? `<tt>${topPrograms}</tt>` : `<span alpha="70%">No active process data</span>`,
+    ].join("\n")
     for (const refs of bars) {
         refs.memory.set_label(text)
         refs.memoryButton.remove_css_class("warning")
         refs.memoryButton.remove_css_class("critical")
         if (data.class) refs.memoryButton.add_css_class(data.class)
-        setTooltip(refs.memoryButton, data.tooltip ?? "")
+        setTooltip(refs.memoryButton, tooltip)
     }
 }
 
 async function updateCpu() {
-    const usage = getCpuUsage()
+    const raw = await run([CPU_SCRIPT])
+    const data = parseJson<{
+        text?: string
+        class?: string
+        usage?: string
+        load1?: string
+        load5?: string
+        load15?: string
+        cores?: string
+    }>(raw, {})
+    const text = compact(data.text ?? "󰍛  0%").replace(/^(\S+)\s+/, "$1  ")
+    const percent = Number.parseInt((data.usage ?? "0%").replace("%", ""), 10) || 0
+    const filled = Math.max(0, Math.min(8, Math.round(percent / 12.5)))
+    const bar = `${"●".repeat(filled)}${"·".repeat(8 - filled)}`
+    const tooltip = [
+        "<b>CPU</b>",
+        `<tt>${(data.usage ?? "0%").padEnd(4, " ")}  ${bar}  •  ${data.cores ?? "0"} cores</tt>`,
+        "",
+        "<b>Avg Load</b>",
+        `<tt>01 min   ${(data.load1 ?? "0.00").padStart(5, " ")}</tt>`,
+        `<tt>05 min   ${(data.load5 ?? "0.00").padStart(5, " ")}</tt>`,
+        `<tt>15 min   ${(data.load15 ?? "0.00").padStart(5, " ")}</tt>`,
+    ].join("\n")
     for (const refs of bars) {
-        refs.cpu.set_label(`󰍛  ${usage}%`)
+        refs.cpu.set_label(text)
         refs.cpuButton.remove_css_class("warning")
         refs.cpuButton.remove_css_class("critical")
-        if (usage >= 85) refs.cpuButton.add_css_class("critical")
-        else if (usage >= 65) refs.cpuButton.add_css_class("warning")
-        setTooltip(refs.cpuButton, `<b>CPU</b>\nUsage: ${usage}%`)
+        if (data.class === "critical") refs.cpuButton.add_css_class("critical")
+        else if (data.class === "warning") refs.cpuButton.add_css_class("warning")
+        setTooltip(refs.cpuButton, tooltip)
     }
 }
 
@@ -332,6 +456,8 @@ async function updateNetwork() {
     for (const refs of bars) {
         refs.network.set_label(network.label)
         refs.bluetooth.set_label(bluetooth.label)
+        refs.bluetoothButton.remove_css_class("connected")
+        if (bluetooth.connected) refs.bluetoothButton.add_css_class("connected")
         setTooltip(refs.networkButton, network.tooltip)
         setTooltip(refs.bluetoothButton, bluetooth.tooltip)
     }
@@ -496,8 +622,21 @@ function buildBar(monitor: number): Astal.Window {
 
     const audio = moduleLabel("󰕿")
     const audioButton = moduleButton(["compact"], audio, () => spawn(["omarchy-launch-audio"]))
-    addRightClick(audioButton, () => spawn(["pamixer", "-t"]))
-    addScroll(audioButton, () => spawn(["pamixer", "--increase", "2"]), () => spawn(["pamixer", "--decrease", "2"]))
+    addRightClick(audioButton, () => {
+        spawn(["pamixer", "-t"])
+        scheduleAudioRefresh()
+    })
+    addScroll(
+        audioButton,
+        () => {
+            spawn(["pamixer", "--increase", "2"])
+            scheduleAudioRefresh()
+        },
+        () => {
+            spawn(["pamixer", "--decrease", "2"])
+            scheduleAudioRefresh()
+        },
+    )
 
     const brightness = moduleLabel("󰃟 0%")
     const brightnessButton = moduleButton(["compact", "brightness"], brightness, () => {
@@ -636,7 +775,6 @@ App.start({
 
         poll(1, refreshClocks)
         poll(3, updateNetwork)
-        poll(4, updateAudio)
         poll(5, updateCpu)
         poll(5, updateMemory)
         poll(5, updateBattery)
@@ -644,7 +782,9 @@ App.start({
         poll(1, updatePrivacy)
         poll(8, updateIndicators)
         poll(60, updateWeather)
+        poll(30, updateAudio)
         void connectBrightnessWatch()
+        connectAudioEvents()
         void updateWorkspaces()
         connectHyprlandEvents()
     },

@@ -107,6 +107,7 @@ export type BluetoothInfo = {
     icon: string
     label: string
     tooltip: string
+    connected: boolean
 }
 
 export type PrivacyInfo = {
