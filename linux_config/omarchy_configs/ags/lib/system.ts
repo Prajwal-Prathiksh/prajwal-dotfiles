@@ -14,11 +14,29 @@ export function indiaClockText() {
 }
 
 export async function getBrightnessInfo(): Promise<BrightnessInfo> {
-    const raw = await run(["brightnessctl", "-m", "info"])
+    const [raw, hyprsunsetRaw] = await Promise.all([
+        run(["brightnessctl", "-m", "info"]),
+        sh("hyprctl hyprsunset temperature 2>/dev/null | grep -oE '[0-9]+' | head -n1"),
+    ])
     const parts = raw.split(",")
     const value = Number.parseInt((parts[3] ?? "0").replace("%", ""), 10) || 0
-    const icon = value >= 75 ? "󰃠" : value >= 35 ? "󰃟" : "󰃞"
-    return { icon, value, text: `${icon}  ${value}%` }
+    const temperature = Number.parseInt(hyprsunsetRaw.trim(), 10) || 6000
+    const nightLight = temperature < 6000
+    const icon = nightLight ? "" : value >= 75 ? "󰃠" : value >= 35 ? "󰃟" : "󰃞"
+    return { icon, value, text: `${icon}  ${value}%`, nightLight }
+}
+
+export async function getBrightnessWatchPaths(): Promise<string[]> {
+    const raw = await sh(`
+        for d in /sys/class/backlight/*; do
+            [ -e "$d/actual_brightness" ] && printf '%s\n' "$d/actual_brightness"
+        done
+    `)
+
+    return raw
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
 }
 
 export async function getAudioInfo(): Promise<AudioInfo> {

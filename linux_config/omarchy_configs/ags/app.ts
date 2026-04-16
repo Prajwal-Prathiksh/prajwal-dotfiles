@@ -3,19 +3,16 @@ import App from "ags/gtk4/app"
 import Gio from "gi://Gio?version=2.0"
 import GLib from "gi://GLib?version=2.0"
 import { compact, parseJson, poll, run, spawn } from "./lib/helpers"
-import { HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_SCRIPT, WEATHER_AGS_SCRIPT, WEATHER_SCRIPT } from "./lib/paths"
-import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getCpuUsage, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
+import { HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_SCRIPT, WEATHER_AGS_SCRIPT } from "./lib/paths"
+import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getBrightnessWatchPaths, getCpuUsage, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
 import { applyDynamicCss, watchStyle } from "./lib/theme"
-import type { BarRefs, ControlCenterRefs, WeatherData, WeatherPanelRefs } from "./lib/types"
-import { addRightClick, addScroll, capsule, controlTile, moduleButton, moduleLabel, setTooltip, setWindowMargins, togglePopover, valueLabel, workspaceButton } from "./lib/widgets"
+import type { BarRefs, WeatherData, WeatherPanelRefs } from "./lib/types"
+import { addRightClick, addScroll, capsule, moduleButton, moduleLabel, setTooltip, setWindowMargins, togglePopover, valueLabel, workspaceButton } from "./lib/widgets"
 
 const bars: BarRefs[] = []
-let controlCenter: ControlCenterRefs | null = null
-let brightnessTimer = 0
-let volumeTimer = 0
-let syncingBrightness = false
-let syncingVolume = false
 let hyprSocketStream: Gio.DataInputStream | null = null
+const brightnessMonitors: Gio.FileMonitor[] = []
+let monitorRefreshTimer = 0
 
 function schedulePrivacyRefresh() {
     ;[80, 220, 500, 900].forEach((delay) => {
@@ -23,6 +20,37 @@ function schedulePrivacyRefresh() {
             void updatePrivacy()
             return GLib.SOURCE_REMOVE
         })
+    })
+}
+
+function scheduleBrightnessRefresh() {
+    ;[50, 140, 260].forEach((delay) => {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+            void updateBrightness()
+            return GLib.SOURCE_REMOVE
+        })
+    })
+}
+
+function scheduleBarRestart() {
+    if (monitorRefreshTimer) return
+    monitorRefreshTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        spawn([`${HOME}/.config/ags/restart.sh`])
+        monitorRefreshTimer = 0
+        return GLib.SOURCE_REMOVE
+    })
+}
+
+async function connectBrightnessWatch() {
+    const paths = await getBrightnessWatchPaths()
+    paths.forEach((path) => {
+        try {
+            const monitor = Gio.File.new_for_path(path).monitor_file(Gio.FileMonitorFlags.NONE, null)
+            monitor.connect("changed", () => {
+                scheduleBrightnessRefresh()
+            })
+            brightnessMonitors.push(monitor)
+        } catch {}
     })
 }
 
@@ -63,6 +91,14 @@ function connectHyprlandEvents() {
                             line.startsWith("renameworkspace")
                         ) {
                             void updateWorkspaces()
+                        }
+
+                        if (
+                            line.startsWith("monitoradded") ||
+                            line.startsWith("monitorremoved") ||
+                            line.startsWith("monitoraddedv2")
+                        ) {
+                            scheduleBarRestart()
                         }
 
                         readNext()
@@ -138,7 +174,6 @@ async function updateWeather() {
         refs.weather.set_label(text)
         setTooltip(refs.weatherButton, "<b>Weather</b>\nClick to open forecast")
     }
-    if (controlCenter) controlCenter.centerWeather.set_label(text)
     for (const refs of bars) {
         const panel = refs.weatherPanel
         panel.location.set_label(data.location)
@@ -206,7 +241,6 @@ async function updateCpu() {
         else if (usage >= 65) refs.cpuButton.add_css_class("warning")
         setTooltip(refs.cpuButton, `<b>CPU</b>\nUsage: ${usage}%`)
     }
-    if (controlCenter) controlCenter.systemValue.set_label(`CPU ${usage}%`)
 }
 
 async function updateIndicators() {
@@ -267,26 +301,16 @@ async function updateAudio() {
         refs.audio.set_label(info.text)
         setTooltip(refs.audioButton, info.tooltip)
     }
-    if (controlCenter) {
-        controlCenter.quickVolumeValue.set_label(info.muted ? "Muted" : `${info.value}%`)
-        controlCenter.volumeValue.set_label(info.muted ? "Muted" : `${info.value}%`)
-        syncingVolume = true
-        controlCenter.volumeScale.set_value(info.value)
-        syncingVolume = false
-    }
 }
 
 async function updateBrightness() {
     const info = await getBrightnessInfo()
     for (const refs of bars) {
         refs.brightness.set_label(info.text)
-        setTooltip(refs.brightnessButton, `<b>Brightness</b>\n${info.value}%\nClick: open control center`)
-    }
-    if (controlCenter) {
-        controlCenter.brightnessValue.set_label(`${info.value}%`)
-        syncingBrightness = true
-        controlCenter.brightnessScale.set_value(info.value)
-        syncingBrightness = false
+        setTooltip(
+            refs.brightnessButton,
+            `<b>Brightness</b>\n${info.value}%\nScroll: adjust\nClick: toggle night light`,
+        )
     }
 }
 
@@ -301,13 +325,6 @@ async function updateBattery() {
         if (info.levelClass) refs.batteryButton.add_css_class(info.levelClass)
         setTooltip(refs.batteryButton, info.tooltip)
     }
-    if (controlCenter) {
-        controlCenter.batteryQuickValue.set_label(`${info.value}%`)
-        controlCenter.batteryValue.set_label(`${info.icon} ${info.value}%`)
-        controlCenter.batteryMeta.set_label(
-            [info.status, info.watts].filter(Boolean).join("   ") || "Battery details unavailable",
-        )
-    }
 }
 
 async function updateNetwork() {
@@ -318,14 +335,6 @@ async function updateNetwork() {
         setTooltip(refs.networkButton, network.tooltip)
         setTooltip(refs.bluetoothButton, bluetooth.tooltip)
     }
-    if (controlCenter) {
-        controlCenter.wifiQuickValue.set_label(network.label === "󰤮" ? "Offline" : "Connected")
-        controlCenter.bluetoothQuickValue.set_label(bluetooth.icon === "󰂲" ? "Disabled" : "Ready")
-        controlCenter.wifiValue.set_label(network.label === "󰤮" ? "Offline" : "Connected")
-        controlCenter.bluetoothValue.set_label(bluetooth.icon === "󰂲" ? "Disabled" : "Ready")
-        controlCenter.networkValue.set_label(network.icon === "󰤮" ? "No network" : "Network live")
-        controlCenter.networkMeta.set_label(network.details)
-    }
 }
 
 function refreshClocks() {
@@ -333,163 +342,6 @@ function refreshClocks() {
         refs.clock.set_label(localClockText())
         refs.indiaClock.set_label(indiaClockText())
     }
-    if (controlCenter) {
-        controlCenter.centerClock.set_label(GLib.DateTime.new_now_local()?.format("%A, %d %B   %H:%M") ?? "")
-    }
-}
-
-function buildControlCenter(monitor: number): ControlCenterRefs {
-    const brightnessValue = valueLabel("0%")
-    const quickVolumeValue = valueLabel("0%")
-    const volumeValue = valueLabel("0%")
-    const wifiQuickValue = valueLabel("Offline")
-    const bluetoothQuickValue = valueLabel("Disabled")
-    const batteryQuickValue = valueLabel("0%")
-    const wifiValue = valueLabel("Offline")
-    const bluetoothValue = valueLabel("Disabled")
-    const batteryValue = valueLabel("0%")
-    const batteryMeta = valueLabel("")
-    const networkValue = valueLabel("")
-    const networkMeta = valueLabel("")
-    const systemValue = valueLabel("")
-    const centerWeather = valueLabel("")
-    const centerClock = valueLabel("")
-
-    const brightnessScale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 100, 1)
-    brightnessScale.set_draw_value(false)
-    brightnessScale.add_css_class("cc-slider")
-    brightnessScale.connect("value-changed", () => {
-        if (syncingBrightness) return
-        if (brightnessTimer) GLib.source_remove(brightnessTimer)
-        const value = Math.round(brightnessScale.get_value())
-        brightnessValue.set_label(`${value}%`)
-        brightnessTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 60, () => {
-            spawn(["brightnessctl", "set", `${value}%`])
-            void updateBrightness()
-            brightnessTimer = 0
-            return GLib.SOURCE_REMOVE
-        })
-    })
-
-    const volumeScale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, 100, 1)
-    volumeScale.set_draw_value(false)
-    volumeScale.add_css_class("cc-slider")
-    volumeScale.connect("value-changed", () => {
-        if (syncingVolume) return
-        if (volumeTimer) GLib.source_remove(volumeTimer)
-        const value = Math.round(volumeScale.get_value())
-        volumeValue.set_label(`${value}%`)
-        quickVolumeValue.set_label(`${value}%`)
-        volumeTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 60, () => {
-            spawn(["pamixer", "--set-volume", String(value)])
-            void updateAudio()
-            volumeTimer = 0
-            return GLib.SOURCE_REMOVE
-        })
-    })
-
-    const quickGrid = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10 })
-    quickGrid.append(controlTile("󰤨", "Wi-Fi", wifiQuickValue, () => spawn(["omarchy-launch-wifi"])))
-    quickGrid.append(controlTile("", "Bluetooth", bluetoothQuickValue, () => spawn(["omarchy-launch-bluetooth"])))
-    quickGrid.append(controlTile("󰕾", "Audio", quickVolumeValue, () => spawn(["omarchy-launch-audio"])))
-    quickGrid.append(controlTile("", "Power", batteryQuickValue, () => spawn(["omarchy-menu", "power"])))
-
-    const brightnessBlock = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 8 })
-    brightnessBlock.add_css_class("detail-card")
-    const brightnessTitle = valueLabel("Brightness")
-    brightnessTitle.add_css_class("card-title")
-    brightnessBlock.append(brightnessTitle)
-    brightnessBlock.append(brightnessValue)
-    brightnessBlock.append(brightnessScale)
-
-    const volumeBlock = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 8 })
-    volumeBlock.add_css_class("detail-card")
-    const volumeTitle = valueLabel("Volume")
-    volumeTitle.add_css_class("card-title")
-    volumeBlock.append(volumeTitle)
-    volumeBlock.append(volumeValue)
-    volumeBlock.append(volumeScale)
-
-    const batteryBlock = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 6 })
-    batteryBlock.add_css_class("detail-card")
-    const batteryTitle = valueLabel("Battery")
-    batteryTitle.add_css_class("card-title")
-    batteryBlock.append(batteryTitle)
-    batteryBlock.append(batteryValue)
-    batteryBlock.append(batteryMeta)
-
-    const networkBlock = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 6 })
-    networkBlock.add_css_class("detail-card")
-    const networkTitle = valueLabel("Network")
-    networkTitle.add_css_class("card-title")
-    networkBlock.append(networkTitle)
-    networkBlock.append(networkValue)
-    networkBlock.append(networkMeta)
-
-    const ambientBlock = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 6 })
-    ambientBlock.add_css_class("detail-card")
-    const ambientTitle = valueLabel("Ambient")
-    ambientTitle.add_css_class("card-title")
-    ambientBlock.append(ambientTitle)
-    ambientBlock.append(centerClock)
-    ambientBlock.append(centerWeather)
-    ambientBlock.append(systemValue)
-
-    const left = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10 })
-    left.append(quickGrid)
-
-    const right = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, hexpand: true })
-    right.append(brightnessBlock)
-    right.append(volumeBlock)
-    right.append(batteryBlock)
-    right.append(networkBlock)
-    right.append(ambientBlock)
-
-    const content = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 12 })
-    content.append(left)
-    content.append(right)
-
-    const shell = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
-    shell.add_css_class("control-center")
-    shell.append(content)
-
-    const window = new Astal.Window({
-        application: App,
-        name: "control-center",
-        monitor,
-        anchor: Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT,
-        exclusivity: Astal.Exclusivity.IGNORE,
-        layer: Astal.Layer.OVERLAY,
-        keymode: Astal.Keymode.ON_DEMAND,
-        visible: false,
-        child: shell,
-    })
-    setWindowMargins(window, 56, 18)
-
-    return {
-        window,
-        brightnessScale,
-        brightnessValue,
-        quickVolumeValue,
-        volumeScale,
-        volumeValue,
-        wifiQuickValue,
-        bluetoothQuickValue,
-        batteryQuickValue,
-        wifiValue,
-        bluetoothValue,
-        batteryValue,
-        batteryMeta,
-        networkValue,
-        networkMeta,
-        systemValue,
-        centerWeather,
-        centerClock,
-    }
-}
-
-function toggleControlCenter() {
-    if (controlCenter) App.toggle_window(controlCenter.window.name)
 }
 
 async function refreshWeatherNow() {
@@ -576,6 +428,12 @@ function buildWeatherPanel(anchor: Gtk.Widget): WeatherPanelRefs {
 }
 
 function buildBar(monitor: number): Astal.Window {
+    const monitorInfo = App.get_monitors()[monitor]
+    const geometry = monitorInfo?.get_geometry()
+    const monitorWidth = geometry?.width ?? 1920
+    const monitorHeight = geometry?.height ?? 1080
+    const compactLayout = monitorWidth < 1500 || monitorHeight > monitorWidth
+
     const omarchyLabel = moduleLabel("<span font='omarchy'></span>")
     omarchyLabel.set_use_markup(true)
     const omarchyButton = moduleButton(["logo-button"], omarchyLabel, () => spawn(["omarchy-menu"]))
@@ -585,7 +443,7 @@ function buildBar(monitor: number): Astal.Window {
     workspaceBox.add_css_class("workspaces")
 
     const leftCapsule = capsule(["left-capsule"])
-    leftCapsule.set_spacing(3)
+    leftCapsule.set_spacing(compactLayout ? 2 : 3)
     leftCapsule.append(omarchyButton)
     leftCapsule.append(workspaceBox)
 
@@ -627,8 +485,8 @@ function buildBar(monitor: number): Astal.Window {
     const notifButton = moduleButton(["status-indicator"], notif, () => spawn(["omarchy-toggle-notification-silencing"]))
 
     const centerCapsule = capsule(["center-capsule"])
-    centerCapsule.set_spacing(4)
-    ;[weatherButton, clockButton, indiaButton, privacyButton, updateButton, voxtypeButton, recordButton, idleButton, notifButton].forEach((widget) => centerCapsule.append(widget))
+    centerCapsule.set_spacing(compactLayout ? 3 : 4)
+        ;[weatherButton, clockButton, indiaButton, privacyButton, updateButton, voxtypeButton, recordButton, idleButton, notifButton].forEach((widget) => centerCapsule.append(widget))
 
     const bluetooth = moduleLabel("")
     const bluetoothButton = moduleButton(["compact"], bluetooth, () => spawn(["omarchy-launch-bluetooth"]))
@@ -642,8 +500,25 @@ function buildBar(monitor: number): Astal.Window {
     addScroll(audioButton, () => spawn(["pamixer", "--increase", "2"]), () => spawn(["pamixer", "--decrease", "2"]))
 
     const brightness = moduleLabel("󰃟 0%")
-    const brightnessButton = moduleButton(["compact", "brightness"], brightness, () => toggleControlCenter())
-    addScroll(brightnessButton, () => spawn(["brightnessctl", "set", "+5%"]), () => spawn(["brightnessctl", "set", "5%-"]))
+    const brightnessButton = moduleButton(["compact", "brightness"], brightness, () => {
+        spawn(["omarchy-toggle-nightlight"])
+        scheduleBrightnessRefresh()
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1100, () => {
+            void updateBrightness()
+            return GLib.SOURCE_REMOVE
+        })
+    })
+    addScroll(
+        brightnessButton,
+        () => {
+            spawn(["omarchy-brightness-display", "+5%"])
+            scheduleBrightnessRefresh()
+        },
+        () => {
+            spawn(["omarchy-brightness-display", "5%-"])
+            scheduleBrightnessRefresh()
+        },
+    )
 
     const cpu = moduleLabel("󰍛 0%")
     const cpuButton = moduleButton(["metric"], cpu, () => spawn(["omarchy-launch-or-focus-tui", "btop"]))
@@ -657,31 +532,43 @@ function buildBar(monitor: number): Astal.Window {
     addRightClick(batteryButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "battery-zen", "tui"]))
 
     const rightCapsule = capsule(["right-capsule"])
-    rightCapsule.set_spacing(6)
-    ;[bluetoothButton, networkButton, audioButton, brightnessButton, cpuButton, memoryButton, batteryButton].forEach((widget) => rightCapsule.append(widget))
+    rightCapsule.set_spacing(compactLayout ? 4 : 6)
+        ;[bluetoothButton, networkButton, audioButton, brightnessButton, cpuButton, memoryButton, batteryButton].forEach((widget) => rightCapsule.append(widget))
 
-    const leftWrap = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
-    leftWrap.set_halign(Gtk.Align.START)
-    leftWrap.append(leftCapsule)
+    let root: Gtk.Widget
+    if (compactLayout) {
+        const compactRoot = new Gtk.CenterBox({ hexpand: true })
+        compactRoot.add_css_class("bar-root")
+        compactRoot.set_start_widget(leftCapsule)
+        compactRoot.set_center_widget(centerCapsule)
+        compactRoot.set_end_widget(rightCapsule)
+        root = compactRoot
+    } else {
+        const leftWrap = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
+        leftWrap.set_halign(Gtk.Align.START)
+        leftWrap.append(leftCapsule)
 
-    const rightWrap = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
-    rightWrap.set_halign(Gtk.Align.END)
-    rightWrap.append(rightCapsule)
+        const rightWrap = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
+        rightWrap.set_halign(Gtk.Align.END)
+        rightWrap.append(rightCapsule)
 
-    const track = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
-    track.add_css_class("bar-root")
-    track.append(leftWrap)
-    track.append(rightWrap)
+        const track = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
+        track.add_css_class("bar-root")
+        track.append(leftWrap)
+        track.append(rightWrap)
 
-    centerCapsule.set_halign(Gtk.Align.CENTER)
-    centerCapsule.set_valign(Gtk.Align.CENTER)
+        centerCapsule.set_halign(Gtk.Align.CENTER)
+        centerCapsule.set_valign(Gtk.Align.CENTER)
 
-    const root = new Gtk.Overlay({ hexpand: true })
-    root.set_child(track)
-    root.add_overlay(centerCapsule)
+        const overlayRoot = new Gtk.Overlay({ hexpand: true })
+        overlayRoot.set_child(track)
+        overlayRoot.add_overlay(centerCapsule)
+        root = overlayRoot
+    }
 
     const shell = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true })
     shell.add_css_class("bar-shell")
+    if (compactLayout) shell.add_css_class("compact-monitor")
     shell.append(root)
 
     const refs: BarRefs = {
@@ -747,9 +634,6 @@ App.start({
             App.add_window(buildBar(index))
         }
 
-        controlCenter = buildControlCenter(0)
-        App.add_window(controlCenter.window)
-
         poll(1, refreshClocks)
         poll(3, updateNetwork)
         poll(4, updateAudio)
@@ -760,6 +644,7 @@ App.start({
         poll(1, updatePrivacy)
         poll(8, updateIndicators)
         poll(60, updateWeather)
+        void connectBrightnessWatch()
         void updateWorkspaces()
         connectHyprlandEvents()
     },

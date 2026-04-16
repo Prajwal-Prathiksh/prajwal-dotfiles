@@ -1,4 +1,4 @@
-import { Astal, Gtk } from "ags/gtk4"
+import { Gtk } from "ags/gtk4"
 
 export type Theme = Record<string, string>
 
@@ -71,27 +71,6 @@ export type WeatherPanelRefs = {
     forecastBox: Gtk.Box
 }
 
-export type ControlCenterRefs = {
-    window: Astal.Window
-    brightnessScale: Gtk.Scale
-    brightnessValue: Gtk.Label
-    quickVolumeValue: Gtk.Label
-    volumeScale: Gtk.Scale
-    volumeValue: Gtk.Label
-    wifiQuickValue: Gtk.Label
-    bluetoothQuickValue: Gtk.Label
-    batteryQuickValue: Gtk.Label
-    wifiValue: Gtk.Label
-    bluetoothValue: Gtk.Label
-    batteryValue: Gtk.Label
-    batteryMeta: Gtk.Label
-    networkValue: Gtk.Label
-    networkMeta: Gtk.Label
-    systemValue: Gtk.Label
-    centerWeather: Gtk.Label
-    centerClock: Gtk.Label
-}
-
 export type BatteryInfo = {
     icon: string
     text: string
@@ -106,6 +85,7 @@ export type BrightnessInfo = {
     icon: string
     value: number
     text: string
+    nightLight: boolean
 }
 
 export type AudioInfo = {

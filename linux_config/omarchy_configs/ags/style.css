@@ -30,6 +30,10 @@ tooltip label {
   padding: 0 8px 2px;
 }
 
+.compact-monitor {
+  padding: 0 4px 2px;
+}
+
 .bar-root {
   min-height: 18px;
 }
@@ -103,8 +107,44 @@ tooltip label {
   letter-spacing: 0.02em;
 }
 
+.compact-monitor .module-label {
+  font-size: 14px;
+}
+
 .logo-button .module-label {
   font-size: 16px;
+}
+
+.compact-monitor .capsule {
+  padding: 2px 5px;
+}
+
+.compact-monitor .left-capsule {
+  margin-right: 4px;
+}
+
+.compact-monitor .center-capsule {
+  margin: 0 5px;
+}
+
+.compact-monitor .right-capsule {
+  margin-left: 4px;
+}
+
+.compact-monitor .module-button.compact {
+  min-width: 24px;
+  padding: 0 3px;
+}
+
+.compact-monitor .module-button.metric,
+.compact-monitor .module-button.battery,
+.compact-monitor .module-button.weather,
+.compact-monitor .module-button.privacy,
+.compact-monitor .module-button.clock,
+.compact-monitor .module-button.brightness,
+.compact-monitor .module-button.logo-button,
+.compact-monitor .status-indicator {
+  padding: 0 4px;
 }
 
 .workspaces {
@@ -123,6 +163,11 @@ tooltip label {
 .workspace-button .module-label {
   color: alpha(@fg, 0.46);
   transition: color 220ms ease;
+}
+
+.compact-monitor .workspace-button {
+  min-width: 20px;
+  padding: 0 2px;
 }
 
 .module-button.india .module-label {
