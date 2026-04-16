@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -uo pipefail
-
 mem_total_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
 mem_avail_kb=$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)
 swap_total_kb=$(awk '/^SwapTotal:/ {print $2}' /proc/meminfo)

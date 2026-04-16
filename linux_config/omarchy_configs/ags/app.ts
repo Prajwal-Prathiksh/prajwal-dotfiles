@@ -7,7 +7,7 @@ import { CPU_SCRIPT, HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_S
 import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getBrightnessWatchPaths, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
 import { applyDynamicCss, watchStyle } from "./lib/theme"
 import type { BarRefs, WeatherData, WeatherPanelRefs } from "./lib/types"
-import { addRightClick, addScroll, capsule, moduleButton, moduleLabel, setTooltip, setWindowMargins, togglePopover, valueLabel, workspaceButton } from "./lib/widgets"
+import { addRightClick, addScroll, capsule, moduleButton, moduleLabel, setTooltip, setWindowMargins, valueLabel, workspaceButton } from "./lib/widgets"
 
 const bars: BarRefs[] = []
 let hyprSocketStream: Gio.DataInputStream | null = null
@@ -229,6 +229,8 @@ async function updateWeather() {
             condition: "Offline",
             local_time: "",
             updated_at: "Unavailable",
+            sunrise: "",
+            sunset: "",
             forecast: [],
         },
     )
@@ -244,6 +246,11 @@ async function updateWeather() {
         panel.currentTemp.set_label(data.temp_c)
         panel.currentCondition.set_label(data.condition)
         panel.currentMeta.set_label(`Feels like ${data.feels_like_c}   •   󰖝 ${data.wind_kmh}`)
+        const cycle = [data.sunrise ? `󰖜 ${data.sunrise}` : "", data.sunset ? `󰖛 ${data.sunset}` : ""]
+            .filter(Boolean)
+            .join("   ")
+        panel.currentCycle.set_label(cycle)
+        panel.currentCycle.set_visible(Boolean(cycle))
         panel.updatedAt.set_label(`Updated ${data.updated_at}`)
 
         let child = panel.forecastBox.get_first_child()
@@ -485,6 +492,20 @@ async function refreshWeatherNow() {
     }
 }
 
+function toggleWeatherPopover(panel: WeatherPanelRefs) {
+    if (panel.popover.is_visible()) {
+        panel.revealer.set_reveal_child(false)
+        return
+    }
+
+    panel.revealer.set_reveal_child(false)
+    panel.popover.popup()
+    GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        panel.revealer.set_reveal_child(true)
+        return GLib.SOURCE_REMOVE
+    })
+}
+
 function buildWeatherPanel(anchor: Gtk.Widget): WeatherPanelRefs {
     const location = valueLabel("Current Location")
     location.add_css_class("weather-location")
@@ -507,6 +528,8 @@ function buildWeatherPanel(anchor: Gtk.Widget): WeatherPanelRefs {
     currentCondition.add_css_class("weather-condition")
     const currentMeta = valueLabel("")
     currentMeta.add_css_class("weather-meta")
+    const currentCycle = valueLabel("")
+    currentCycle.add_css_class("weather-cycle")
     const updatedAt = valueLabel("")
     updatedAt.add_css_class("weather-updated")
 
@@ -514,6 +537,7 @@ function buildWeatherPanel(anchor: Gtk.Widget): WeatherPanelRefs {
     currentText.append(currentTemp)
     currentText.append(currentCondition)
     currentText.append(currentMeta)
+    currentText.append(currentCycle)
     currentText.append(updatedAt)
 
     const current = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 14 })
@@ -536,23 +560,42 @@ function buildWeatherPanel(anchor: Gtk.Widget): WeatherPanelRefs {
     card.append(header)
     card.append(current)
     card.append(forecastWrap)
+
+    const revealer = new Gtk.Revealer({
+        transition_type: Gtk.RevealerTransitionType.SLIDE_DOWN,
+        transition_duration: 300,
+        reveal_child: false,
+    })
+    revealer.add_css_class("weather-revealer")
+    revealer.set_child(card)
+
     const popover = new Gtk.Popover({
         autohide: true,
         has_arrow: false,
         position: Gtk.PositionType.BOTTOM,
     })
     popover.add_css_class("weather-shell")
-    popover.set_child(card)
+    popover.set_child(revealer)
     popover.set_parent(anchor)
+    revealer.connect("notify::child-revealed", () => {
+        if (!revealer.get_child_revealed() && !revealer.get_reveal_child() && popover.is_visible()) {
+            popover.popdown()
+        }
+    })
+    popover.connect("closed", () => {
+        revealer.set_reveal_child(false)
+    })
 
     return {
         popover,
+        revealer,
         card,
         location,
         currentIcon,
         currentTemp,
         currentCondition,
         currentMeta,
+        currentCycle,
         updatedAt,
         forecastBox,
     }
@@ -582,7 +625,7 @@ function buildBar(monitor: number): Astal.Window {
     const weather = moduleLabel("󰖪 --")
     const weatherButton = moduleButton(["weather"], weather)
     const weatherPanel = buildWeatherPanel(weatherButton)
-    weatherButton.connect("clicked", () => togglePopover(weatherPanel.popover))
+    weatherButton.connect("clicked", () => toggleWeatherPopover(weatherPanel))
     addRightClick(weatherButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "nvim", `${HOME}/.config/waybar/scripts/weather.sh`]))
 
     const clock = moduleLabel(localClockText())

@@ -16,11 +16,91 @@ else
     WTTR_TIME_URL="https://wttr.in/${LOCATION}?format=%T+%Z"
 fi
 
+time_to_minutes() {
+    local input="$1"
+    local normalized hour minute meridiem
+
+    normalized=$(tr '[:lower:]' '[:upper:]' <<< "$input")
+
+    if [[ "$normalized" =~ ([0-9]{1,2}):([0-9]{2})[[:space:]]*([AP]M) ]]; then
+        hour="${BASH_REMATCH[1]}"
+        minute="${BASH_REMATCH[2]}"
+        meridiem="${BASH_REMATCH[3]}"
+        hour=$((10#$hour))
+        minute=$((10#$minute))
+
+        if [[ "$meridiem" == "AM" ]]; then
+            (( hour == 12 )) && hour=0
+        else
+            (( hour != 12 )) && hour=$((hour + 12))
+        fi
+
+        echo $((hour * 60 + minute))
+        return
+    fi
+
+    if [[ "$normalized" =~ ([0-9]{1,2}):([0-9]{2}) ]]; then
+        hour="${BASH_REMATCH[1]}"
+        minute="${BASH_REMATCH[2]}"
+        echo $((10#$hour * 60 + 10#$minute))
+        return
+    fi
+
+    echo ""
+}
+
+slot_to_minutes() {
+    local slot="${1:-0}"
+    local slot_text
+    slot_text=$(printf "%04d" "$slot")
+    echo $((10#${slot_text:0:2} * 60 + 10#${slot_text:2:2}))
+}
+
+is_night_time() {
+    local current="$1"
+    local sunrise="$2"
+    local sunset="$3"
+    local current_minutes sunrise_minutes sunset_minutes
+
+    current_minutes=$(time_to_minutes "$current")
+    sunrise_minutes=$(time_to_minutes "$sunrise")
+    sunset_minutes=$(time_to_minutes "$sunset")
+
+    if [[ -z "$current_minutes" || -z "$sunrise_minutes" || -z "$sunset_minutes" ]]; then
+        echo 0
+        return
+    fi
+
+    if (( current_minutes < sunrise_minutes || current_minutes >= sunset_minutes )); then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
 is_night_slot() {
-    case "$1" in
-        0|300|1800|2100) echo 1 ;;
-        *) echo 0 ;;
-    esac
+    local slot="$1"
+    local sunrise="$2"
+    local sunset="$3"
+    local slot_minutes sunrise_minutes sunset_minutes
+
+    slot_minutes=$(slot_to_minutes "$slot")
+    sunrise_minutes=$(time_to_minutes "$sunrise")
+    sunset_minutes=$(time_to_minutes "$sunset")
+
+    if [[ -z "$sunrise_minutes" || -z "$sunset_minutes" ]]; then
+        case "$slot" in
+            0|300|1800|2100) echo 1 ;;
+            *) echo 0 ;;
+        esac
+        return
+    fi
+
+    if (( slot_minutes < sunrise_minutes || slot_minutes >= sunset_minutes )); then
+        echo 1
+    else
+        echo 0
+    fi
 }
 
 weather_icon() {
@@ -75,6 +155,36 @@ part_name() {
         2100) echo "09 PM" ;;
         *) echo "$1" ;;
     esac
+}
+
+format_short_time() {
+    local input="$1"
+    local normalized hour minute meridiem
+
+    normalized=$(tr '[:lower:]' '[:upper:]' <<< "$input")
+
+    if [[ "$normalized" =~ ([0-9]{1,2}):([0-9]{2})[[:space:]]*([AP]M) ]]; then
+        hour="${BASH_REMATCH[1]}"
+        minute="${BASH_REMATCH[2]}"
+        meridiem="${BASH_REMATCH[3]}"
+        hour=$((10#$hour))
+
+        if [[ "$meridiem" == "AM" ]]; then
+            (( hour == 12 )) && hour=0
+        else
+            (( hour != 12 )) && hour=$((hour + 12))
+        fi
+
+        printf "%02d:%s" "$hour" "$minute"
+        return
+    fi
+
+    if [[ "$normalized" =~ ([0-9]{1,2}):([0-9]{2}) ]]; then
+        printf "%02d:%s" "$((10#${BASH_REMATCH[1]}))" "${BASH_REMATCH[2]}"
+        return
+    fi
+
+    printf '%s' "$input"
 }
 
 pad_number() {
@@ -132,23 +242,29 @@ build_forecast() {
     local raw="$1"
     local now_slot="$2"
     jq -c --argjson now "$now_slot" '
-        [
-          (.weather[0].hourly
-            | map(select((.time|tonumber) > $now))
+        .weather[0] as $today
+        | .weather[1] as $tomorrow
+        | [
+          ($today.hourly
+            | map(select((.time | tonumber) > $now))
             | map({
                 day_offset: 0,
-                time: (.time|tonumber),
+                time: (.time | tonumber),
                 temp: (.tempC // ""),
                 desc: (.weatherDesc[0].value // ""),
-                wind: (.windspeedKmph // "")
+                wind: (.windspeedKmph // ""),
+                sunrise: ($today.astronomy[0].sunrise // ""),
+                sunset: ($today.astronomy[0].sunset // "")
               })),
-          (.weather[1].hourly
+          ($tomorrow.hourly
             | map({
                 day_offset: 1,
-                time: (.time|tonumber),
+                time: (.time | tonumber),
                 temp: (.tempC // ""),
                 desc: (.weatherDesc[0].value // ""),
-                wind: (.windspeedKmph // "")
+                wind: (.windspeedKmph // ""),
+                sunrise: ($tomorrow.astronomy[0].sunrise // ""),
+                sunset: ($tomorrow.astronomy[0].sunset // "")
               }))
         ]
         | add
@@ -156,13 +272,15 @@ build_forecast() {
         | .[]
     ' <<< "$raw" | while IFS= read -r row; do
         [[ -z "$row" ]] && continue
-        local t temp desc wind label slot_is_night icon
+        local t temp desc wind label sunrise sunset slot_is_night icon
         t=$(jq -r '.time' <<< "$row")
         temp=$(pad_number "$(jq -r '.temp' <<< "$row")" 2)
         desc=$(short_condition "$(jq -r '.desc' <<< "$row")")
         wind=$(pad_number "$(jq -r '.wind' <<< "$row")" 2)
+        sunrise=$(jq -r '.sunrise' <<< "$row")
+        sunset=$(jq -r '.sunset' <<< "$row")
         label=$(part_name "$t")
-        slot_is_night=$(is_night_slot "$t")
+        slot_is_night=$(is_night_slot "$t" "$sunrise" "$sunset")
         icon=$(weather_icon "$desc" "$slot_is_night")
         jq -cn \
             --arg label "$label" \
@@ -190,10 +308,14 @@ render_json() {
         | if length > 0 then join(", ") else "Current Location" end
     ' <<< "$raw")
 
-    local local_time_text now_slot current_is_night icon forecast
+    local local_time_text now_slot sunrise sunset sunrise_text sunset_text current_is_night icon forecast
     local_time_text=$(get_local_time_text)
     now_slot=$(current_slot_from_time_text "$local_time_text")
-    current_is_night=$(is_night_slot "$now_slot")
+    sunrise=$(jq -r '.weather[0].astronomy[0].sunrise // ""' <<< "$raw")
+    sunset=$(jq -r '.weather[0].astronomy[0].sunset // ""' <<< "$raw")
+    sunrise_text=$(format_short_time "$sunrise")
+    sunset_text=$(format_short_time "$sunset")
+    current_is_night=$(is_night_time "$local_time_text" "$sunrise" "$sunset")
     icon=$(weather_icon "$current_desc" "$current_is_night")
     forecast=$(build_forecast "$raw" "$now_slot")
 
@@ -207,6 +329,8 @@ render_json() {
         --arg condition "$current_desc" \
         --arg local_time "$local_time_text" \
         --arg updated_at "${local_time_text:-Just now}" \
+        --arg sunrise "$sunrise_text" \
+        --arg sunset "$sunset_text" \
         --argjson forecast "${forecast:-[]}" \
         '{
             bar_text:$bar_text,
@@ -218,6 +342,8 @@ render_json() {
             condition:$condition,
             local_time:$local_time,
             updated_at:$updated_at,
+            sunrise:$sunrise,
+            sunset:$sunset,
             forecast:$forecast
         }'
 }
@@ -233,6 +359,8 @@ offline_json() {
         condition:"Offline",
         local_time:"",
         updated_at:"Unavailable",
+        sunrise:"",
+        sunset:"",
         forecast:[],
         error:"Check network or wttr.in availability."
     }'
@@ -257,8 +385,25 @@ fetch_weather() {
     offline_json
 }
 
+refresh_weather() {
+    local raw
+    raw=$(curl -s -m 5 "$WTTR_JSON_URL" || true)
+
+    if valid_weather_json "$raw"; then
+        printf '%s' "$raw" > "$CACHE_FILE"
+        render_json "$raw"
+        return
+    fi
+
+    if [[ -f "$CACHE_FILE" ]]; then
+        rm -f "$CACHE_FILE"
+    fi
+
+    offline_json
+}
+
 if [[ "$MODE" == "--refresh" ]]; then
-    fetch_weather
+    refresh_weather
     exit 0
 fi
 

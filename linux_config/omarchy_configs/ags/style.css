@@ -315,6 +315,13 @@ popover.weather-shell arrow {
   color: alpha(@fg, 0.7);
 }
 
+.weather-cycle {
+  font-size: 12px;
+  font-weight: 700;
+  color: alpha(@fg, 0.56);
+  letter-spacing: 0.04em;
+}
+
 .weather-forecast {
   margin-top: 12px;
 }

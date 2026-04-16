@@ -55,18 +55,22 @@ export type WeatherData = {
     condition: string
     local_time: string
     updated_at: string
+    sunrise: string
+    sunset: string
     forecast: WeatherForecastItem[]
     error?: string
 }
 
 export type WeatherPanelRefs = {
     popover: Gtk.Popover
+    revealer: Gtk.Revealer
     card: Gtk.Box
     location: Gtk.Label
     currentIcon: Gtk.Label
     currentTemp: Gtk.Label
     currentCondition: Gtk.Label
     currentMeta: Gtk.Label
+    currentCycle: Gtk.Label
     updatedAt: Gtk.Label
     forecastBox: Gtk.Box
 }
