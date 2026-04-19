@@ -207,6 +207,10 @@ valid_weather_json() {
     jq -e '.current_condition[0] and .weather[0]' >/dev/null 2>&1 <<< "$1"
 }
 
+offline_bar() {
+    printf '󰖪 --\n'
+}
+
 get_local_time_text() {
     local t hhmm zone
     t=$(curl -s -m 3 "$WTTR_TIME_URL" || true)
@@ -348,6 +352,20 @@ render_json() {
         }'
 }
 
+render_bar() {
+    local raw="$1"
+    local current_temp current_desc local_time_text sunrise sunset current_is_night icon
+    current_temp=$(pad_number "$(jq -r '.current_condition[0].temp_C // ""' <<< "$raw")" 2)
+    current_desc=$(short_condition "$(jq -r '.current_condition[0].weatherDesc[0].value // ""' <<< "$raw")")
+    local_time_text=$(get_local_time_text)
+    sunrise=$(jq -r '.weather[0].astronomy[0].sunrise // ""' <<< "$raw")
+    sunset=$(jq -r '.weather[0].astronomy[0].sunset // ""' <<< "$raw")
+    current_is_night=$(is_night_time "$local_time_text" "$sunrise" "$sunset")
+    icon=$(weather_icon "$current_desc" "$current_is_night")
+
+    printf '%s %s°C\n' "$icon" "$current_temp"
+}
+
 offline_json() {
     jq -cn '{
         bar_text:"󰖪 --",
@@ -371,18 +389,30 @@ fetch_weather() {
     raw=$(curl -s -m 5 "$WTTR_JSON_URL" || true)
     if valid_weather_json "$raw"; then
         printf '%s' "$raw" > "$CACHE_FILE"
-        render_json "$raw"
+        if [[ "$MODE" == "--bar" ]]; then
+            render_bar "$raw"
+        else
+            render_json "$raw"
+        fi
         return
     fi
     if [[ -f "$CACHE_FILE" ]]; then
         local cached
         cached=$(cat "$CACHE_FILE")
         if valid_weather_json "$cached"; then
-            render_json "$cached"
+            if [[ "$MODE" == "--bar" ]]; then
+                render_bar "$cached"
+            else
+                render_json "$cached"
+            fi
             return
         fi
     fi
-    offline_json
+    if [[ "$MODE" == "--bar" ]]; then
+        offline_bar
+    else
+        offline_json
+    fi
 }
 
 refresh_weather() {
@@ -391,7 +421,11 @@ refresh_weather() {
 
     if valid_weather_json "$raw"; then
         printf '%s' "$raw" > "$CACHE_FILE"
-        render_json "$raw"
+        if [[ "$MODE" == "--bar" ]]; then
+            render_bar "$raw"
+        else
+            render_json "$raw"
+        fi
         return
     fi
 
@@ -399,7 +433,11 @@ refresh_weather() {
         rm -f "$CACHE_FILE"
     fi
 
-    offline_json
+    if [[ "$MODE" == "--bar" ]]; then
+        offline_bar
+    else
+        offline_json
+    fi
 }
 
 if [[ "$MODE" == "--refresh" ]]; then
@@ -415,7 +453,11 @@ if [[ -f "$CACHE_FILE" ]]; then
     else
         CACHED_CONTENT=$(cat "$CACHE_FILE")
         if valid_weather_json "$CACHED_CONTENT"; then
-            render_json "$CACHED_CONTENT"
+            if [[ "$MODE" == "--bar" ]]; then
+                render_bar "$CACHED_CONTENT"
+            else
+                render_json "$CACHED_CONTENT"
+            fi
         else
             fetch_weather
         fi
