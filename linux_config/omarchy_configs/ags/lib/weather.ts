@@ -181,12 +181,11 @@ function openWeatherWindow(
     panel.window.set_visible(true)
     panel.window.present()
     panel.window.set_keymode(Astal.Keymode.ON_DEMAND)
-    if (panel.addRevealer.get_reveal_child()) {
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            panel.addEntry.grab_focus_without_selecting()
-            return GLib.SOURCE_REMOVE
-        })
-    }
+    GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        if (panel.addRevealer.get_reveal_child()) panel.addEntry.grab_focus_without_selecting()
+        else panel.card.grab_focus()
+        return GLib.SOURCE_REMOVE
+    })
 }
 
 export function weatherFallbackData(): WeatherData {
@@ -492,6 +491,8 @@ export function buildWeatherPanel(
     const card = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
     card.add_css_class("weather-panel")
     card.set_size_request(panelWidth, -1)
+    card.set_focusable(true)
+    card.set_can_focus(true)
     card.append(header)
     card.append(current)
     card.append(cityWrap)
@@ -532,15 +533,22 @@ export function buildWeatherPanel(
         forecastBox,
     }
 
-    const escapeController = new Gtk.EventControllerKey()
-    escapeController.connect("key-pressed", (_controller, keyval) => {
-        if (keyval === Gdk.KEY_Escape) {
-            closeWeatherWindow(panel)
-            return true
-        }
-        return false
-    })
-    window.add_controller(escapeController)
+    const bindEscapeController = (widget: Gtk.Widget) => {
+        const controller = new Gtk.EventControllerKey()
+        controller.connect("key-pressed", (_controller, keyval) => {
+            if (keyval === Gdk.KEY_Escape) {
+                closeWeatherWindow(panel)
+                return true
+            }
+            return false
+        })
+        widget.add_controller(controller)
+    }
+
+    bindEscapeController(window)
+    bindEscapeController(card)
+    bindEscapeController(addEntry)
+
     window.connect("close-request", () => {
         closeWeatherWindow(panel)
         return true
