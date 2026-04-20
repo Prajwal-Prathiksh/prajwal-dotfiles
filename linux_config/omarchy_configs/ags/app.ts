@@ -718,6 +718,7 @@ async function addWeatherCity(panel: WeatherPanelRefs) {
         panel.addRevealer.set_reveal_child(true)
         panel.addTriggerLabel.set_label("󰅖")
         panel.addTrigger.set_visible(true)
+        scheduleWeatherPanelRelayout(panel)
         return
     }
 
@@ -730,6 +731,7 @@ async function addWeatherCity(panel: WeatherPanelRefs) {
         panel.addRevealer.set_reveal_child(false)
         panel.addTriggerLabel.set_label("󰐕")
         panel.addTrigger.set_visible(false)
+        scheduleWeatherPanelRelayout(panel)
     }
 }
 
@@ -766,8 +768,29 @@ function positionWeatherWindow(
     const maxLeft = Math.max(8, shellWidth - width - 8)
     const left = Math.max(8, Math.min(maxLeft, Math.round(buttonCenter - width / 2)))
     const top = Math.max(40, Math.round(buttonY + anchorButton.get_height() + 10))
+    panel.window.set_default_size(width, 1)
     panel.card.set_size_request(width, -1)
     setWindowMargins(panel.window as Astal.Window, top, 0, left)
+}
+
+function scheduleWeatherPanelRelayout(panel: WeatherPanelRefs) {
+    if (!panel.window.is_visible()) return
+    const anchorButton = panel.anchorButton
+    const shell = panel.shell
+    const monitorWidth = panel.monitorWidth
+    const panelWidth = panel.panelWidth
+    if (!anchorButton || !shell || !monitorWidth || !panelWidth) return
+
+    ;[0, 120, 240].forEach((delay) => {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+            if (!panel.window.is_visible()) return GLib.SOURCE_REMOVE
+            panel.window.set_default_size(panelWidth, 1)
+            panel.card.queue_resize()
+            panel.window.queue_resize()
+            positionWeatherWindow(panel, anchorButton, shell, monitorWidth, panelWidth)
+            return GLib.SOURCE_REMOVE
+        })
+    })
 }
 
 function openWeatherWindow(
@@ -1013,6 +1036,7 @@ function buildWeatherPanel(monitor: number, compactLayout: boolean, panelWidth: 
         addRevealer.set_reveal_child(expanded)
         if (!expanded) addEntry.set_text("")
         syncAddTrigger()
+        scheduleWeatherPanelRelayout(panel)
         if (expanded) {
             GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
                 addEntry.grab_focus_without_selecting()
@@ -1036,6 +1060,9 @@ function buildWeatherPanel(monitor: number, compactLayout: boolean, panelWidth: 
         syncAddTrigger()
     })
     cityHeaderBar.add_controller(cityHeaderMotion)
+    addRevealer.connect("notify::child-revealed", () => {
+        scheduleWeatherPanelRelayout(panel)
+    })
     syncAddTrigger()
 
     return panel
@@ -1211,6 +1238,10 @@ function buildBar(monitor: number): Astal.Window {
     shell.add_css_class("bar-shell")
     if (compactLayout) shell.add_css_class("compact-monitor")
     shell.append(root)
+    weatherPanel.anchorButton = weatherButton
+    weatherPanel.shell = shell
+    weatherPanel.monitorWidth = monitorWidth
+    weatherPanel.panelWidth = weatherPanelWidth
 
     const refs: BarRefs = {
         workspaceBox,

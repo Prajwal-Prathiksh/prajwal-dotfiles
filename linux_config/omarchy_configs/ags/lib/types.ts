@@ -80,6 +80,10 @@ export type WeatherPanelRefs = {
     card: Gtk.Box
     citySection: Gtk.Box
     cityCards: Gtk.Box
+    anchorButton?: Gtk.Widget
+    shell?: Gtk.Widget
+    monitorWidth?: number
+    panelWidth?: number
     title: Gtk.Label
     location: Gtk.Label
     addEntry: Gtk.Entry
