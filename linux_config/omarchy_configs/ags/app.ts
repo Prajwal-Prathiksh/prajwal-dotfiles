@@ -22,6 +22,8 @@ let audioScrollFlushTimer = 0
 let lastWeatherData: WeatherData | null = null
 let pendingWeatherPrimaryId: string | null = null
 let weatherPrimarySyncInFlight = false
+let lastWeatherScrollDirection: "next" | "prev" | null = null
+let lastWeatherScrollAtUsec = 0
 
 function schedulePrivacyRefresh() {
     ;[80, 220, 500, 900].forEach((delay) => {
@@ -526,6 +528,16 @@ async function cycleWeather(direction: "next" | "prev") {
     queueWeatherPrimarySelection(nextCity.id)
 }
 
+function handleWeatherScroll(direction: "next" | "prev") {
+    const nowUsec = GLib.get_monotonic_time()
+    const withinBounceWindow = nowUsec - lastWeatherScrollAtUsec < 180_000
+    if (withinBounceWindow && lastWeatherScrollDirection && lastWeatherScrollDirection !== direction) return
+
+    lastWeatherScrollDirection = direction
+    lastWeatherScrollAtUsec = nowUsec
+    void cycleWeather(direction)
+}
+
 async function addWeatherCity(panel: WeatherPanelRefs) {
     const query = panel.addEntry.get_text().trim()
     if (!query) {
@@ -589,10 +601,10 @@ function buildBar(monitor: number): Astal.Window {
     addScroll(
         weatherButton,
         () => {
-            void cycleWeather("next")
+            handleWeatherScroll("next")
         },
         () => {
-            void cycleWeather("prev")
+            handleWeatherScroll("prev")
         },
     )
     addRightClick(weatherButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "nvim", `${HOME}/.config/ags/scripts/weather-ags.sh`]))
