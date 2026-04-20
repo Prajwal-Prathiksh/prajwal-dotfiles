@@ -45,8 +45,10 @@ export type WeatherForecastItem = {
     desc: string
 }
 
-export type WeatherData = {
-    bar_text: string
+export type WeatherCityData = {
+    id: string
+    query: string
+    title: string
     location: string
     icon: string
     temp_c: string
@@ -58,20 +60,40 @@ export type WeatherData = {
     sunrise: string
     sunset: string
     forecast: WeatherForecastItem[]
+    bar_text: string
+    removable: boolean
+    is_auto: boolean
+    is_primary?: boolean
+    error?: string
+}
+
+export type WeatherData = {
+    bar_text: string
+    primary_city: WeatherCityData
+    cities: WeatherCityData[]
+    notice?: string
     error?: string
 }
 
 export type WeatherPanelRefs = {
-    popover: Gtk.Popover
-    revealer: Gtk.Revealer
+    window: Gtk.Window
     card: Gtk.Box
+    citySection: Gtk.Box
+    cityCards: Gtk.Box
+    title: Gtk.Label
     location: Gtk.Label
+    addEntry: Gtk.Entry
+    addRevealer: Gtk.Revealer
+    addTrigger: Gtk.Button
+    addTriggerLabel: Gtk.Label
+    message: Gtk.Label
     currentIcon: Gtk.Label
     currentTemp: Gtk.Label
     currentCondition: Gtk.Label
     currentMeta: Gtk.Label
     currentCycle: Gtk.Label
     updatedAt: Gtk.Label
+    cityList: Gtk.Box
     forecastBox: Gtk.Box
 }
 
