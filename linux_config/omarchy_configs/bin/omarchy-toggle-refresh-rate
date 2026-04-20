@@ -17,7 +17,7 @@ NEW_REFRESH_RATE_LINE=$(echo "$AVAILABLE_MODES" | grep -v "@$CURRENT_REFRESH_RAT
 # echo "Switching to: $NEW_REFRESH_RATE_LINE"
 
 # Update Hyprland config for the monitor
-sed -i "s|monitor=$PRIMARY_MONITOR.*|monitor=$PRIMARY_MONITOR,$NEW_REFRESH_RATE_LINE,auto,2|g" ~/.config/hypr/monitors.conf
+sed -i "s|monitor=$PRIMARY_MONITOR.*|monitor=$PRIMARY_MONITOR,$NEW_REFRESH_RATE_LINE,0x0,2|g" ~/.config/hypr/monitors.conf
 
 # Notify user
 notify-send "Switched $PRIMARY_MONITOR to $NEW_REFRESH_RATE_LINE"
