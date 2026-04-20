@@ -24,6 +24,10 @@ let pendingWeatherPrimaryId: string | null = null
 let weatherPrimarySyncInFlight = false
 let lastWeatherScrollDirection: "next" | "prev" | null = null
 let lastWeatherScrollAtUsec = 0
+let weatherScrollCooldownUntilUsec = 0
+let desiredWeatherPrimaryId: string | null = null
+let weatherRequestToken = 0
+let latestWeatherAppliedToken = 0
 
 function schedulePrivacyRefresh() {
     ;[80, 220, 500, 900].forEach((delay) => {
@@ -256,9 +260,44 @@ async function updateWorkspaces() {
     }
 }
 
-function renderWeatherData(data: WeatherData) {
-    lastWeatherData = data
-    applyWeatherData(bars, data, {
+function renderWeatherData(data: WeatherData, optimistic = false) {
+    if (optimistic) {
+        lastWeatherData = data
+        applyWeatherData(bars, data, {
+            setPrimaryCity: (cityId) => {
+                void setPrimaryWeatherCity(cityId)
+            },
+            removeCity: (cityId) => {
+                void removeWeatherCity(cityId)
+            },
+        })
+        return
+    }
+
+    let resolved = data
+    if (desiredWeatherPrimaryId) {
+        const hasDesiredCity = (data.cities ?? []).some((city) => city.id === desiredWeatherPrimaryId)
+        if (hasDesiredCity) {
+            const activeId = data.primary_city?.id
+            if (activeId !== desiredWeatherPrimaryId) {
+                resolved = withPrimaryWeatherCity(data, desiredWeatherPrimaryId)
+            }
+        } else {
+            desiredWeatherPrimaryId = null
+        }
+    }
+
+    if (
+        desiredWeatherPrimaryId &&
+        data.primary_city?.id === desiredWeatherPrimaryId &&
+        !weatherPrimarySyncInFlight &&
+        !pendingWeatherPrimaryId
+    ) {
+        desiredWeatherPrimaryId = null
+    }
+
+    lastWeatherData = resolved
+    applyWeatherData(bars, resolved, {
         setPrimaryCity: (cityId) => {
             void setPrimaryWeatherCity(cityId)
         },
@@ -269,8 +308,15 @@ function renderWeatherData(data: WeatherData) {
 }
 
 async function runWeatherAction(args: string[]) {
+    const token = ++weatherRequestToken
     const raw = await run([WEATHER_AGS_SCRIPT, ...args])
     const data = parseWeatherData(raw)
+
+    if (token < latestWeatherAppliedToken) {
+        return data
+    }
+
+    latestWeatherAppliedToken = token
     renderWeatherData(data)
     return data
 }
@@ -503,7 +549,8 @@ function queueWeatherPrimarySelection(cityId: string) {
 }
 
 async function setPrimaryWeatherCity(cityId: string) {
-    if (lastWeatherData) renderWeatherData(withPrimaryWeatherCity(lastWeatherData, cityId))
+    desiredWeatherPrimaryId = cityId
+    if (lastWeatherData) renderWeatherData(withPrimaryWeatherCity(lastWeatherData, cityId), true)
     queueWeatherPrimarySelection(cityId)
 }
 
@@ -524,17 +571,29 @@ async function cycleWeather(direction: "next" | "prev") {
     const nextCity = cities[(currentIndex + offset + cities.length) % cities.length]
     if (!nextCity) return
 
-    renderWeatherData(withPrimaryWeatherCity(lastWeatherData!, nextCity.id))
+    desiredWeatherPrimaryId = nextCity.id
+    renderWeatherData(withPrimaryWeatherCity(lastWeatherData!, nextCity.id), true)
     queueWeatherPrimarySelection(nextCity.id)
 }
 
 function handleWeatherScroll(direction: "next" | "prev") {
     const nowUsec = GLib.get_monotonic_time()
-    const withinBounceWindow = nowUsec - lastWeatherScrollAtUsec < 180_000
+    const baseCooldownUsec = 140_000
+    const reboundCooldownUsec = 220_000
+    const withinCooldownWindow = nowUsec < weatherScrollCooldownUntilUsec
+    if (withinCooldownWindow) {
+        if (lastWeatherScrollDirection && lastWeatherScrollDirection !== direction) {
+            weatherScrollCooldownUntilUsec = nowUsec + reboundCooldownUsec
+        }
+        return
+    }
+
+    const withinBounceWindow = nowUsec - lastWeatherScrollAtUsec < reboundCooldownUsec
     if (withinBounceWindow && lastWeatherScrollDirection && lastWeatherScrollDirection !== direction) return
 
     lastWeatherScrollDirection = direction
     lastWeatherScrollAtUsec = nowUsec
+    weatherScrollCooldownUntilUsec = nowUsec + baseCooldownUsec
     void cycleWeather(direction)
 }
 
@@ -598,15 +657,28 @@ function buildBar(monitor: number): Astal.Window {
     weatherButton.connect("clicked", () => {
         toggleWeatherWindow(bars, weatherPanel, weatherButton, shell, monitorWidth, weatherPanelWidth)
     })
-    addScroll(
-        weatherButton,
-        () => {
-            handleWeatherScroll("next")
-        },
-        () => {
-            handleWeatherScroll("prev")
-        },
-    )
+    let weatherScrollAccum = 0
+    let weatherScrollSettleTimer = 0
+    const weatherScrollController = Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.VERTICAL)
+    weatherScrollController.connect("scroll", (_controller, _dx, dy) => {
+        // Accumulate smooth touchpad deltas, then emit a single discrete city step.
+        if (Math.abs(dy) < 0.02) return true
+        weatherScrollAccum += dy
+
+        if (weatherScrollSettleTimer) GLib.source_remove(weatherScrollSettleTimer)
+        weatherScrollSettleTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 120, () => {
+            weatherScrollAccum = 0
+            weatherScrollSettleTimer = 0
+            return GLib.SOURCE_REMOVE
+        })
+
+        if (Math.abs(weatherScrollAccum) < 0.7) return true
+
+        handleWeatherScroll(weatherScrollAccum < 0 ? "next" : "prev")
+        weatherScrollAccum = 0
+        return true
+    })
+    weatherButton.add_controller(weatherScrollController)
     addRightClick(weatherButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "nvim", `${HOME}/.config/ags/scripts/weather-ags.sh`]))
 
     const clock = moduleLabel(localClockText())
