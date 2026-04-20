@@ -41,9 +41,8 @@ export async function getBrightnessWatchPaths(): Promise<string[]> {
 }
 
 export async function getAudioInfo(): Promise<AudioInfo> {
-    const [volumeRaw, mutedRaw, sinkRaw, sinkDescriptionRaw] = await Promise.all([
-        run(["pamixer", "--get-volume"]),
-        run(["pamixer", "--get-mute"]),
+    const [wpctlRaw, sinkRaw, sinkDescriptionRaw] = await Promise.all([
+        run(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]),
         sh("pactl info | sed -n 's/^Default Sink: //p'"),
         sh(`
             default_sink="$(pactl info | sed -n 's/^Default Sink: //p' | head -n1)"
@@ -58,8 +57,9 @@ export async function getAudioInfo(): Promise<AudioInfo> {
             '
         `),
     ])
-    const value = Number.parseInt(volumeRaw, 10) || 0
-    const muted = mutedRaw === "true"
+    const volumeMatch = wpctlRaw.match(/Volume:\s+([0-9.]+)/)
+    const value = Math.round((Number.parseFloat(volumeMatch?.[1] ?? "0") || 0) * 100)
+    const muted = wpctlRaw.includes("[MUTED]")
     const baseIcon = muted || value === 0 ? "" : value >= 67 ? "󰕾" : value >= 34 ? "󰖀" : "󰕿"
     const sinkName = sinkRaw.trim()
     const sinkDescription = sinkDescriptionRaw.trim() || sinkName || "Default output"

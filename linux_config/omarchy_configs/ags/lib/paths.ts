@@ -8,6 +8,7 @@ export const LIGHT_MODE_FILE = `${HOME}/.config/omarchy/current/theme/light.mode
 export const WEATHER_AGS_SCRIPT = `${HOME}/.config/ags/scripts/weather-ags.sh`
 export const CPU_SCRIPT = `${HOME}/.config/ags/scripts/cpu-ags.sh`
 export const MEMORY_SCRIPT = `${HOME}/.config/ags/scripts/memory-ags.sh`
+export const AUDIO_OSD_SCRIPT = `${HOME}/.config/hypr/scripts/audio-osd.sh`
 export const SCREENREC_SCRIPT =
     `${HOME}/.local/share/omarchy/default/waybar/indicators/screen-recording.sh`
 export const IDLE_SCRIPT = `${HOME}/.local/share/omarchy/default/waybar/indicators/idle.sh`
