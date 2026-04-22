@@ -3,6 +3,8 @@ import { Gtk } from "ags/gtk4"
 export type Theme = Record<string, string>
 
 export type BarRefs = {
+    monitor: number
+    monitorName: string
     workspaceBox: Gtk.Box
     weather: Gtk.Label
     weatherButton: Gtk.Widget
