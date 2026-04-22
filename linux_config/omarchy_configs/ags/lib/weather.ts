@@ -31,6 +31,10 @@ function setCompactLabel(label: Gtk.Label) {
     label.set_ellipsize(Pango.EllipsizeMode.END)
 }
 
+function setPlainTooltip(widget: Gtk.Widget, text: string) {
+    widget.set_tooltip_text(text || null)
+}
+
 function parseClockMinutes(value: string): number | null {
     const match = value.trim().match(/^(\d{1,2}):(\d{2})$/)
     if (!match) return null
@@ -57,6 +61,7 @@ function buildForecastCard(item: WeatherCityData["forecast"][number]) {
     const row = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4, hexpand: true })
     row.add_css_class("forecast-row")
     row.set_size_request(0, 72)
+    setPlainTooltip(row, `${item.label}  ${item.temp}\n${item.desc}\n󰖝 ${item.wind}`)
 
     const header = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 })
     const time = new Gtk.Label({ label: item.label, xalign: 0 })
@@ -92,10 +97,22 @@ function buildWeatherCityCard(city: WeatherCityData, actions: WeatherCardActions
     button.add_css_class("weather-city-card")
     if (city.is_primary) button.add_css_class("primary")
     if (city.is_auto) button.add_css_class("live")
-    button.set_size_request(176, 98)
+    button.set_size_request(176, 92)
     button.connect("clicked", () => {
         actions.setPrimaryCity(city.id)
     })
+    const updatedLabel = city.local_time || city.updated_at
+    setPlainTooltip(
+        button,
+        [
+            city.title,
+            `${city.temp_c}  ${city.error ? "Unavailable" : city.condition}`,
+            city.error ?? city.location,
+            updatedLabel && !city.error ? `Updated at ${updatedLabel}` : "",
+        ]
+            .filter(Boolean)
+            .join("\n"),
+    )
 
     const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 5 })
 
@@ -104,22 +121,22 @@ function buildWeatherCityCard(city: WeatherCityData, actions: WeatherCardActions
     title.add_css_class("weather-city-title")
     title.set_hexpand(true)
     setCompactLabel(title)
-    const temp = new Gtk.Label({ label: city.temp_c, xalign: 1 })
-    temp.add_css_class("weather-city-temp")
     top.append(title)
-    top.append(temp)
 
     const middle = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 })
     const icon = new Gtk.Label({ label: city.icon, xalign: 0 })
     icon.add_css_class("weather-city-icon")
     const summary = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 1, hexpand: true })
+    const tempCondition = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 })
+    const temp = new Gtk.Label({ label: city.temp_c, xalign: 0 })
+    temp.add_css_class("weather-city-temp")
     const condition = new Gtk.Label({ label: city.error ? "Unavailable" : city.condition, xalign: 0 })
     condition.add_css_class("weather-city-condition")
+    condition.set_hexpand(true)
     setCompactLabel(condition)
     const meta = new Gtk.Label({ label: city.error ?? city.location, xalign: 0 })
     meta.add_css_class("weather-city-meta")
     setCompactLabel(meta)
-    const updatedLabel = city.local_time || city.updated_at
     const updated = new Gtk.Label({
         label: updatedLabel && !city.error ? `Updated at ${updatedLabel}` : "",
         xalign: 0,
@@ -127,7 +144,9 @@ function buildWeatherCityCard(city: WeatherCityData, actions: WeatherCardActions
     updated.add_css_class("weather-city-updated")
     setCompactLabel(updated)
     updated.set_visible(Boolean(updatedLabel) && !city.error)
-    summary.append(condition)
+    tempCondition.append(temp)
+    tempCondition.append(condition)
+    summary.append(tempCondition)
     summary.append(meta)
     summary.append(updated)
     middle.append(icon)
@@ -140,7 +159,7 @@ function buildWeatherCityCard(city: WeatherCityData, actions: WeatherCardActions
 
     const overlay = new Gtk.Overlay()
     overlay.add_css_class("weather-city-shell")
-    overlay.set_size_request(176, 98)
+    overlay.set_size_request(176, 92)
     overlay.set_child(button)
 
     if (city.removable) {
@@ -172,7 +191,7 @@ function positionWeatherWindow(
             buttonX = Math.round(x)
             buttonY = Math.round(y)
         }
-    } catch { }
+    } catch {}
 
     const shellWidth = shell.get_width() > 0 ? shell.get_width() : monitorWidth
     const width = Math.min(panelWidth, Math.max(280, shellWidth - 16))
@@ -352,16 +371,16 @@ export function scheduleWeatherPanelRelayout(panel: WeatherPanelRefs) {
     const panelWidth = panel.panelWidth
     if (!anchorButton || !shell || !monitorWidth || !panelWidth) return
 
-        ;[0, 120, 240].forEach((delay) => {
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
-                if (!panel.window.is_visible()) return GLib.SOURCE_REMOVE
-                panel.window.set_default_size(panelWidth, 1)
-                panel.card.queue_resize()
-                panel.window.queue_resize()
-                positionWeatherWindow(panel, anchorButton, shell, monitorWidth, panelWidth)
-                return GLib.SOURCE_REMOVE
-            })
+    ;[0, 120, 240].forEach((delay) => {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+            if (!panel.window.is_visible()) return GLib.SOURCE_REMOVE
+            panel.window.set_default_size(panelWidth, 1)
+            panel.card.queue_resize()
+            panel.window.queue_resize()
+            positionWeatherWindow(panel, anchorButton, shell, monitorWidth, panelWidth)
+            return GLib.SOURCE_REMOVE
         })
+    })
 }
 
 export function toggleWeatherWindow(
