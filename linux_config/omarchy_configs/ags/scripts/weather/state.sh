@@ -17,7 +17,7 @@ save_state() {
     local state="$1"
     local tmp
     tmp=$(mktemp)
-    printf '%s\n' "$state" > "$tmp"
+    jq '.' <<< "$state" > "$tmp"
     command mv -f "$tmp" "$STATE_FILE"
 }
 
