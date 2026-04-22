@@ -58,12 +58,12 @@ function scheduleAudioRefresh() {
 
 function scheduleAudioRefreshBurst() {
     scheduleAudioRefresh()
-    ;[160, 360].forEach((delay) => {
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
-            scheduleAudioRefresh()
-            return GLib.SOURCE_REMOVE
+        ;[160, 360].forEach((delay) => {
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+                scheduleAudioRefresh()
+                return GLib.SOURCE_REMOVE
+            })
         })
-    })
 }
 
 function adjustAudioWithOsd(action: "raise" | "lower" | "mute-toggle", step?: number) {
@@ -107,7 +107,7 @@ async function connectBrightnessWatch() {
                 scheduleBrightnessRefresh()
             })
             brightnessMonitors.push(monitor)
-        } catch {}
+        } catch { }
     })
 }
 
@@ -227,7 +227,7 @@ function connectAudioEvents() {
         }
 
         readNext()
-    } catch {}
+    } catch { }
 }
 
 async function updateWorkspaces() {
@@ -880,10 +880,10 @@ App.start({
         }
 
         poll(1, refreshClocks)
-        poll(3, updateNetwork)
-        poll(5, updateCpu)
-        poll(5, updateMemory)
-        poll(5, updateBattery)
+        poll(10, updateNetwork)
+        poll(10, updateCpu)
+        poll(10, updateMemory)
+        poll(10, updateBattery)
         poll(5, updateBrightness)
         poll(1, updatePrivacy)
         poll(8, updateIndicators)

@@ -31,6 +31,28 @@ function setCompactLabel(label: Gtk.Label) {
     label.set_ellipsize(Pango.EllipsizeMode.END)
 }
 
+function parseClockMinutes(value: string): number | null {
+    const match = value.trim().match(/^(\d{1,2}):(\d{2})$/)
+    if (!match) return null
+
+    const hour = Number.parseInt(match[1], 10)
+    const minute = Number.parseInt(match[2], 10)
+    if (Number.isNaN(hour) || Number.isNaN(minute) || hour > 23 || minute > 59) return null
+
+    return hour * 60 + minute
+}
+
+function formatDaylightDuration(sunrise: string, sunset: string): string {
+    const sunriseMinutes = parseClockMinutes(sunrise)
+    const sunsetMinutes = parseClockMinutes(sunset)
+    if (sunriseMinutes === null || sunsetMinutes === null || sunsetMinutes <= sunriseMinutes) return ""
+
+    const totalMinutes = sunsetMinutes - sunriseMinutes
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
+    return `(${hours}h ${minutes.toString().padStart(2, "0")}m light)`
+}
+
 function buildForecastCard(item: WeatherCityData["forecast"][number]) {
     const row = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4, hexpand: true })
     row.add_css_class("forecast-row")
@@ -150,7 +172,7 @@ function positionWeatherWindow(
             buttonX = Math.round(x)
             buttonY = Math.round(y)
         }
-    } catch {}
+    } catch { }
 
     const shellWidth = shell.get_width() > 0 ? shell.get_width() : monitorWidth
     const width = Math.min(panelWidth, Math.max(280, shellWidth - 16))
@@ -276,7 +298,12 @@ export function applyWeatherData(
         panel.currentTemp.set_label(current.temp_c)
         panel.currentCondition.set_label(current.condition)
         panel.currentMeta.set_label(`Feels like ${current.feels_like_c}   •   󰖝 ${current.wind_kmh}`)
-        const cycle = [current.sunrise ? `󰖜 ${current.sunrise}` : "", current.sunset ? `󰖛 ${current.sunset}` : ""]
+        const daylight = formatDaylightDuration(current.sunrise, current.sunset)
+        const cycle = [
+            current.sunrise ? `󰖜 ${current.sunrise}` : "",
+            current.sunset ? `󰖛 ${current.sunset}` : "",
+            daylight,
+        ]
             .filter(Boolean)
             .join("   ")
         panel.currentCycle.set_label(cycle)
@@ -325,16 +352,16 @@ export function scheduleWeatherPanelRelayout(panel: WeatherPanelRefs) {
     const panelWidth = panel.panelWidth
     if (!anchorButton || !shell || !monitorWidth || !panelWidth) return
 
-    ;[0, 120, 240].forEach((delay) => {
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
-            if (!panel.window.is_visible()) return GLib.SOURCE_REMOVE
-            panel.window.set_default_size(panelWidth, 1)
-            panel.card.queue_resize()
-            panel.window.queue_resize()
-            positionWeatherWindow(panel, anchorButton, shell, monitorWidth, panelWidth)
-            return GLib.SOURCE_REMOVE
+        ;[0, 120, 240].forEach((delay) => {
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+                if (!panel.window.is_visible()) return GLib.SOURCE_REMOVE
+                panel.window.set_default_size(panelWidth, 1)
+                panel.card.queue_resize()
+                panel.window.queue_resize()
+                positionWeatherWindow(panel, anchorButton, shell, monitorWidth, panelWidth)
+                return GLib.SOURCE_REMOVE
+            })
         })
-    })
 }
 
 export function toggleWeatherWindow(
