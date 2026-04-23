@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Sync Omarchy theme to VS Code, VSCodium, and Cursor
+
+VS_CODE_THEME="$HOME/.config/omarchy/current/theme/vscode.json"
+
+set_user_setting() {
+  local settings_path="$1"
+  local key="$2"
+  local value="$3"
+  local escaped_value
+
+  escaped_value=$(printf '%s' "$value" | sed -e 's/[\/&]/\\&/g')
+
+  if grep -q "\"$key\"" "$settings_path"; then
+    sed -i --follow-symlinks -E \
+      "s/(\"$key\"[[:space:]]*:[[:space:]]*\")[^\"]*(\")/\1$escaped_value\2/" \
+      "$settings_path"
+  else
+    sed -i --follow-symlinks -E "0,/\{/{s/\{/{\n  \"$key\": \"$escaped_value\",/}" "$settings_path"
+  fi
+}
+
+remove_user_setting() {
+  local settings_path="$1"
+  local key="$2"
+
+  sed -i --follow-symlinks -E "/\"$key\"[[:space:]]*:/d" "$settings_path"
+}
+
+set_theme() {
+  local editor_cmd="$1"
+  local settings_path="$2"
+  local skip_flag="$3"
+
+  omarchy-cmd-present "$editor_cmd" && [[ ! -f $skip_flag ]] || return 0
+
+  if [[ -f $VS_CODE_THEME ]]; then
+    theme_name=$(jq -r '.name' "$VS_CODE_THEME")
+    extension=$(jq -r '.extension' "$VS_CODE_THEME")
+
+    if [[ -n $extension ]] && ! "$editor_cmd" --list-extensions | grep -Fxq "$extension"; then
+      "$editor_cmd" --install-extension "$extension" >/dev/null
+    fi
+
+    mkdir -p "$(dirname "$settings_path")"
+    [[ -f $settings_path ]] || printf '{\n}\n' >"$settings_path"
+
+    set_user_setting "$settings_path" "workbench.colorTheme" "$theme_name"
+    set_user_setting "$settings_path" "workbench.preferredDarkColorTheme" "$theme_name"
+    set_user_setting "$settings_path" "workbench.preferredLightColorTheme" "$theme_name"
+  elif [[ -f $settings_path ]]; then
+    remove_user_setting "$settings_path" "workbench.colorTheme"
+    remove_user_setting "$settings_path" "workbench.preferredDarkColorTheme"
+    remove_user_setting "$settings_path" "workbench.preferredLightColorTheme"
+  fi
+}
+
+set_theme "code" "$HOME/.config/Code/User/settings.json" "$HOME/.local/state/omarchy/toggles/skip-vscode-theme-changes"
+set_theme "code-insiders" "$HOME/.config/Code - Insiders/User/settings.json" "$HOME/.local/state/omarchy/toggles/skip-vscode-insiders-theme-changes"
+set_theme "codium" "$HOME/.config/VSCodium/User/settings.json" "$HOME/.local/state/omarchy/toggles/skip-codium-theme-changes"
+set_theme "cursor" "$HOME/.config/Cursor/User/settings.json" "$HOME/.local/state/omarchy/toggles/skip-cursor-theme-changes"

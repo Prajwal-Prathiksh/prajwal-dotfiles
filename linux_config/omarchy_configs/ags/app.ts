@@ -846,7 +846,7 @@ function buildBar(monitor: number): Astal.Window {
 
     const battery = moduleLabel("󰁹 0%")
     const batteryButton = moduleButton(["battery"], battery, () => spawn(["omarchy-menu", "power"]))
-    addRightClick(batteryButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "battery-zen", "tui"]))
+    addRightClick(batteryButton, () => spawn(["omarchy-launch-or-focus-tui", "battery-zen tui"]))
 
     const rightCapsule = capsule(["right-capsule"])
     rightCapsule.set_spacing(compactLayout ? 4 : 6)

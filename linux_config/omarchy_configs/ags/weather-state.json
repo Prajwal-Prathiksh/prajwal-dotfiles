@@ -19,6 +19,12 @@
       "query": "Las Vegas",
       "label": "Las Vegas",
       "kind": "manual"
+    },
+    {
+      "id": "erpedu",
+      "query": "Erpedu",
+      "label": "Erpedu",
+      "kind": "manual"
     }
   ]
 }
