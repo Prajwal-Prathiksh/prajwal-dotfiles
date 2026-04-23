@@ -2,7 +2,7 @@ import { Astal, Gtk } from "ags/gtk4"
 import App from "ags/gtk4/app"
 import Gio from "gi://Gio?version=2.0"
 import GLib from "gi://GLib?version=2.0"
-import { compact, parseJson, poll, run, safeRead, spawn } from "./lib/helpers"
+import { compact, parseJson, poll, run, safeRead, sh, spawn } from "./lib/helpers"
 import { AUDIO_OSD_SCRIPT, CPU_SCRIPT, HOME, IDLE_SCRIPT, MEMORY_SCRIPT, NOTIF_SCRIPT, SCREENREC_SCRIPT, WEATHER_AGS_SCRIPT, WEATHER_POPUP_TRIGGER } from "./lib/paths"
 import { getAudioInfo, getBatteryInfo, getBluetoothInfo, getBrightnessInfo, getBrightnessWatchPaths, getNetworkInfo, getPrivacyInfo, indiaClockText, localClockText } from "./lib/system"
 import { applyDynamicCss, watchStyle } from "./lib/theme"
@@ -492,7 +492,11 @@ async function updateIndicators() {
     const [idleRaw, notifRaw, voxtypeRaw, updateRaw] = await Promise.all([
         run([IDLE_SCRIPT]),
         run([NOTIF_SCRIPT]),
-        run(["omarchy-voxtype-status"]),
+        sh(`if command -v voxtype >/dev/null && omarchy-cmd-present voxtype; then
+            voxtype status --extended --format json | jq -c '. + {alt: .class}'
+        else
+            printf '{"alt":"","tooltip":""}'
+        fi`),
         run(["omarchy-update-available"]),
     ])
 
