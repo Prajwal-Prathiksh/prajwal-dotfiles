@@ -201,6 +201,25 @@ function buildWeatherCityCard(city: WeatherCityCardViewModel, actions: WeatherCa
     return overlay
 }
 
+function bindVerticalScrollToHorizontal(scroller: Gtk.ScrolledWindow) {
+    const controller = Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.VERTICAL)
+    controller.connect("scroll", (_controller, _dx, dy) => {
+        if (Math.abs(dy) < 0.02) return false
+
+        const adjustment = scroller.get_hadjustment()
+        const lower = adjustment.get_lower()
+        const upper = adjustment.get_upper()
+        const pageSize = adjustment.get_page_size()
+        const max = Math.max(lower, upper - pageSize)
+        const step = Math.max(adjustment.get_step_increment(), pageSize * 0.42, 96)
+        const next = Math.max(lower, Math.min(max, adjustment.get_value() + dy * step))
+
+        adjustment.set_value(next)
+        return true
+    })
+    scroller.add_controller(controller)
+}
+
 function positionWeatherWindow(
     panel: WeatherPanelRefs,
     anchorButton: Gtk.Widget,
@@ -505,6 +524,7 @@ export function buildWeatherPanel(
     cityScroller.set_max_content_width(panelWidth - 24)
     cityScroller.set_hexpand(true)
     cityScroller.set_child(cityList)
+    bindVerticalScrollToHorizontal(cityScroller)
 
     const cityCards = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
     cityCards.set_visible(false)

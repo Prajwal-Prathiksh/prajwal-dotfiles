@@ -267,6 +267,9 @@ parse_args() {
             --current)
                 BAR_TARGET="current"
                 ;;
+            --cache-dir)
+                MODE="cache-dir"
+                ;;
             --add-city)
                 ACTION="add"
                 ACTION_VALUE="${2:-}"

@@ -1,8 +1,8 @@
 import Gio from "gi://Gio?version=2.0"
 import GLib from "gi://GLib?version=2.0"
-import { WEATHER_POPUP_TRIGGER } from "./paths"
+import { WEATHER_AGS_SCRIPT } from "./paths"
 import type { BarRefs } from "./types"
-import { parseJson, safeRead } from "./helpers"
+import { parseJson, run, safeRead } from "./helpers"
 import { toggleWeatherWindow } from "./weather-view"
 
 type WeatherPopupTrigger = {
@@ -19,6 +19,7 @@ export function createWeatherPopupController(bars: BarRefs[]): WeatherPopupContr
     let monitorRef: Gio.FileMonitor | null = null
     let triggerTimer = 0
     let lastToken = ""
+    let triggerPath = ""
 
     function toggleWeatherForBar(refs: BarRefs) {
         const panel = refs.weather.weatherPanel
@@ -32,7 +33,8 @@ export function createWeatherPopupController(bars: BarRefs[]): WeatherPopupContr
     }
 
     function handleTrigger() {
-        const raw = safeRead(WEATHER_POPUP_TRIGGER)
+        if (!triggerPath) return
+        const raw = safeRead(triggerPath)
         if (!raw) return
 
         const trigger = parseJson<WeatherPopupTrigger>(raw, {})
@@ -47,8 +49,12 @@ export function createWeatherPopupController(bars: BarRefs[]): WeatherPopupContr
         if (target) toggleWeatherForBar(target)
     }
 
-    function connect() {
-        const file = Gio.File.new_for_path(WEATHER_POPUP_TRIGGER)
+    async function connectMonitor() {
+        const cacheDir = await run([WEATHER_AGS_SCRIPT, "--cache-dir"])
+        if (!cacheDir) return
+
+        triggerPath = `${cacheDir}/weather-popup.trigger`
+        const file = Gio.File.new_for_path(triggerPath)
 
         try {
             file.get_parent()?.make_directory_with_parents(null)
@@ -82,6 +88,8 @@ export function createWeatherPopupController(bars: BarRefs[]): WeatherPopupContr
     }
 
     return {
-        connect,
+        connect: () => {
+            void connectMonitor()
+        },
     }
 }

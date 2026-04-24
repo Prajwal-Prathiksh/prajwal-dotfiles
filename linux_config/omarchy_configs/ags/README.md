@@ -19,7 +19,7 @@ Custom AGS GTK4 top bar for an Omarchy/Hyprland desktop. The app runs as the AGS
 - `restart.sh`: stops the current `omarchy-top-bar` instance and starts `ags run app.ts --gtk 4`.
 - `style.css`: GTK CSS for the bar, tooltips, and weather popup.
 - `weather-state.json`: saved weather city state.
-- `weather-popup.trigger`: file-based trigger used by external scripts/keybindings to open the weather popup.
+- `weather-popup.trigger`: file-based trigger in the weather cache dir, used by external scripts/keybindings to open the weather popup.
 
 ## TypeScript Layout
 
@@ -36,7 +36,7 @@ Custom AGS GTK4 top bar for an Omarchy/Hyprland desktop. The app runs as the AGS
 - `lib/audio-controller.ts`: `pactl subscribe`, audio refreshes, mute toggle, and scroll volume coalescing.
 - `lib/system-controller.ts`: clocks, network, Bluetooth, CPU, memory, battery, brightness, privacy, and status indicator updates.
 - `lib/weather-controller.ts`: weather script calls, optimistic city switching, refresh/add/remove actions, and scroll cycling.
-- `lib/weather-popup-controller.ts`: watches `weather-popup.trigger` and opens the weather popup on the requested monitor.
+- `lib/weather-popup-controller.ts`: asks `scripts/weather-ags.sh --cache-dir` for the weather cache dir, watches `weather-popup.trigger` there, and opens the weather popup on the requested monitor.
 
 ## Weather Modules
 
@@ -64,6 +64,6 @@ The bar uses both polling and event streams:
 - Hyprland workspaces update from Hyprland socket events.
 - Audio updates from `pactl subscribe`.
 - Brightness also watches backlight sysfs files.
-- Weather popup opening is triggered by writes to `weather-popup.trigger`.
+- Weather popup opening is triggered by writes to `weather-popup.trigger` inside the cache dir reported by `scripts/weather-ags.sh --cache-dir`.
 
 Most command failures degrade quietly to fallback text or hidden indicators so the bar keeps running even if a dependency is temporarily missing.

@@ -2,7 +2,6 @@ import GLib from "gi://GLib?version=2.0"
 
 export const HOME = GLib.get_home_dir()
 export const AGS_STYLE = `${HOME}/.config/ags/style.css`
-export const WEATHER_POPUP_TRIGGER = `${HOME}/.config/ags/weather-popup.trigger`
 export const THEME_DIR = `${HOME}/.config/omarchy/current/theme`
 export const THEME_COLORS = `${HOME}/.config/omarchy/current/theme/colors.toml`
 export const LIGHT_MODE_FILE = `${HOME}/.config/omarchy/current/theme/light.mode`

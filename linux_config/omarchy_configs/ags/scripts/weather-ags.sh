@@ -17,6 +17,11 @@ source "${WEATHER_LIB_DIR}/render.sh"
 
 parse_args "$@"
 
+if [[ "$MODE" == "cache-dir" ]]; then
+    printf '%s\n' "$CACHE_DIR"
+    exit 0
+fi
+
 STATE=$(load_state)
 
 if [[ -n "$ACTION" ]]; then
