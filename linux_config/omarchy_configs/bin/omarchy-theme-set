@@ -39,9 +39,7 @@ echo "$THEME_NAME" >"$HOME/.config/omarchy/current/theme.name"
 omarchy-theme-bg-next
 
 # Restart components to apply new theme
-if pgrep -f "$HOME/.config/ags/app.ts" >/dev/null || pgrep -x ags >/dev/null; then
-  omarchy-restart-ags
-fi
+omarchy-restart-ags
 omarchy-restart-swayosd
 omarchy-restart-terminal
 omarchy-restart-hyprctl
