@@ -21,10 +21,12 @@ has_external_monitor() {
 
 enable_internal() {
     hyprctl keyword monitor "$INTERNAL_MONITOR,$INTERNAL_CONFIG" >/dev/null
+    omarchy-restart-ags
 }
 
 disable_internal() {
     hyprctl keyword monitor "$INTERNAL_MONITOR,disable" >/dev/null
+    omarchy-restart-ags
 }
 
 focus_external() {
