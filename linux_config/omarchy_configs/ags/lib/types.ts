@@ -146,5 +146,6 @@ export type PrivacyInfo = {
     text: string
     tooltip: string
     micActive: boolean
+    cameraActive: boolean
     screenActive: boolean
 }

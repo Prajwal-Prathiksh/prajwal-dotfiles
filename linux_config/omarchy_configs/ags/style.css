@@ -103,6 +103,10 @@ tooltip label {
   padding: 0 6px;
 }
 
+.module-button.brightness {
+  padding-left: 14px;
+}
+
 .module-label {
   letter-spacing: 0.02em;
 }
@@ -112,7 +116,7 @@ tooltip label {
 }
 
 .logo-button .module-label {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .compact-monitor .capsule {
@@ -145,6 +149,10 @@ tooltip label {
 .compact-monitor .module-button.logo-button,
 .compact-monitor .status-indicator {
   padding: 0 4px;
+}
+
+.compact-monitor .module-button.brightness {
+  padding-left: 6px;
 }
 
 .workspaces {

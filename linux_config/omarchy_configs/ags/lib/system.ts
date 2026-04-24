@@ -1,6 +1,6 @@
 import GLib from "gi://GLib?version=2.0";
 import Gio from "gi://Gio?version=2.0";
-import { run, safeRead, sh } from "./helpers";
+import { parseJson, run, safeRead, sh } from "./helpers";
 import type { AudioInfo, BatteryInfo, BluetoothInfo, BrightnessInfo, NetworkInfo, PrivacyInfo } from "./types";
 
 let previousCpu: { idle: number; total: number } | null = null
@@ -292,20 +292,87 @@ export async function getBluetoothInfo(): Promise<BluetoothInfo> {
 }
 
 export async function getPrivacyInfo(): Promise<PrivacyInfo> {
-    const [micCountRaw, recorderRaw] = await Promise.all([
+    const [micCountRaw, recorderRaw, videoRaw, directVideoRaw] = await Promise.all([
         sh("pactl list source-outputs short 2>/dev/null | wc -l"),
         sh("pgrep -f '^gpu-screen-recorder' >/dev/null && echo 1 || echo 0"),
+        sh(String.raw`
+            pw-dump 2>/dev/null | jq -r '
+                def props: (.info.props // {});
+                def textprops:
+                    [
+                        props["device.api"],
+                        props["node.name"],
+                        props["node.description"],
+                        props["media.name"],
+                        props["api.v4l2.path"],
+                        props["object.path"]
+                    ] | map(. // "") | join(" ");
+                def link_output_id:
+                    (
+                        .info["output-node-id"]
+                        // props["link.output.node"]
+                        // props["output.node.id"]
+                        // empty
+                    ) | tostring;
+                def video_node:
+                    .type == "PipeWire:Interface:Node"
+                    and ((props["media.class"] // "") | test("Video"));
+                def active_node($activeVideoOutputs):
+                    (.id | tostring) as $id
+                    | (($activeVideoOutputs | index($id)) != null)
+                    or ((.info.state // "") | test("running"; "i"));
+                def camera_node($activeVideoOutputs):
+                    video_node and active_node($activeVideoOutputs) and (textprops | test("v4l2|libcamera|camera|webcam|/dev/video"; "i"));
+                def portal_node($activeVideoOutputs):
+                    video_node and active_node($activeVideoOutputs) and (textprops | test("xdpw|portal|screencast|screen|hyprland"; "i"));
+
+                [
+                    .[]
+                    | select(.type == "PipeWire:Interface:Link")
+                    | select((.info.state // "active") | test("active|running"; "i"))
+                    | link_output_id
+                ] as $activeVideoOutputs
+                |
+                {
+                    camera: any(.[]; camera_node($activeVideoOutputs)),
+                    screen: any(.[]; portal_node($activeVideoOutputs))
+                } | @json
+            ' 2>/dev/null
+        `),
+        sh(String.raw`
+            pw-dump 2>/dev/null | jq -r '
+                [
+                    .[]
+                    | select(.type == "PipeWire:Interface:Node")
+                    | (.info.props // {})["api.v4l2.path"]
+                    | select(type == "string" and length > 0)
+                ]
+                | unique
+                | .[]
+            ' 2>/dev/null \
+            | while IFS= read -r device; do
+                [ -n "$device" ] || continue
+                if fuser "$device" >/dev/null 2>&1; then
+                    echo "$device"
+                fi
+            done
+        `),
     ])
 
     const micActive = (Number.parseInt(micCountRaw.trim(), 10) || 0) > 0
-    const screenActive = recorderRaw.trim() === "1"
+    const video = parseJson<{ camera?: boolean; screen?: boolean }>(videoRaw.trim(), {})
+    const directVideoActive = directVideoRaw.trim().length > 0
+    const cameraActive = video.camera === true || directVideoActive
+    const screenActive = recorderRaw.trim() === "1" || video.screen === true
     const icons = [
         micActive ? "" : "",
+        cameraActive ? "" : "",
         screenActive ? "󰹑" : "",
     ].filter(Boolean)
 
     const details = [
         micActive ? "Microphone in use" : "",
+        cameraActive ? "Camera in use" : "",
         screenActive ? "Screen capture active" : "",
     ].filter(Boolean)
 
@@ -313,6 +380,7 @@ export async function getPrivacyInfo(): Promise<PrivacyInfo> {
         text: icons.join("  "),
         tooltip: details.length ? `<b>Privacy</b>\n${details.join("\n")}` : "<b>Privacy</b>\nNo active capture",
         micActive,
+        cameraActive,
         screenActive,
     }
 }

@@ -533,7 +533,7 @@ async function updatePrivacy() {
         refs.privacy.set_label(privacy.text)
         refs.privacyButton.set_visible(Boolean(privacy.text))
         refs.privacyButton.remove_css_class("critical")
-        if (privacy.micActive || privacy.screenActive) refs.privacyButton.add_css_class("critical")
+        if (privacy.micActive || privacy.cameraActive || privacy.screenActive) refs.privacyButton.add_css_class("critical")
         setTooltip(refs.privacyButton, privacy.tooltip)
 
         refs.record.set_label(record.text ?? "")
