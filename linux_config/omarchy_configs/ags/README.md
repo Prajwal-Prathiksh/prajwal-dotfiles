@@ -6,7 +6,7 @@ Custom AGS GTK4 top bar for an Omarchy/Hyprland desktop. The app runs as the AGS
 
 - Hyprland workspace strip with active workspace highlighting.
 - Weather module with saved cities, auto location, popup panel, city add/remove, manual refresh, and scroll-to-cycle.
-- Local clock and India clock.
+- Local clock with left-click month calendar, right-click timezone settings, and India clock.
 - Privacy indicators for microphone, camera, and screen capture.
 - Recording, idle, notification-silencing, update, and Voxtype status indicators.
 - Bluetooth, network, audio, brightness, CPU, memory, and battery modules.

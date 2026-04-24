@@ -11,6 +11,7 @@ window {
 
 .bar-shell,
 .weather-panel,
+.calendar-panel,
 tooltip {
   font-size: 17px;
   font-weight: 600;
@@ -244,6 +245,141 @@ tooltip label {
 
 .battery.charging .module-label {
   color: @success;
+}
+
+/* Calendar Panel */
+
+.calendar-panel {
+  min-width: 320px;
+  padding: 12px;
+  border-radius: 22px;
+  border: 1px solid @stroke-strong;
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.92), alpha(@bg, 0.76)),
+    linear-gradient(140deg, alpha(@accent, 0.12), transparent 42%),
+    linear-gradient(320deg, alpha(white, 0.10), transparent 58%);
+  background-color: @glass-strong;
+  box-shadow:
+    0 24px 60px alpha(black, 0.26),
+    0 12px 24px alpha(black, 0.14),
+    0 0 0 1px alpha(@mode_fg, 0.05),
+    inset 0 1px 0 alpha(white, 0.32);
+}
+
+.calendar-header {
+  margin-bottom: 0;
+}
+
+.calendar-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  color: alpha(@fg, 0.66);
+}
+
+.calendar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: alpha(@fg, 0.82);
+}
+
+.calendar-today {
+  font-size: 12px;
+  font-weight: 700;
+  color: alpha(@fg, 0.74);
+}
+
+.calendar-current {
+  border-radius: 16px;
+  border: 1px solid @stroke;
+  padding: 8px 10px;
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.62), alpha(@bg, 0.42)),
+    linear-gradient(to right, alpha(@accent, 0.12), transparent 55%);
+  background-color: alpha(@bg, 0.16);
+  box-shadow:
+    inset 0 1px 0 alpha(white, 0.22),
+    0 6px 14px alpha(black, 0.08);
+}
+
+.calendar-nav {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 8px;
+}
+
+.calendar-nav .module-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.calendar-close .module-label {
+  font-size: 13px;
+}
+
+.calendar-grid {
+  margin: 0;
+}
+
+.calendar-month-card {
+  border-radius: 16px;
+  border: 1px solid alpha(@fg, 0.08);
+  padding: 8px;
+  background-image:
+    linear-gradient(to bottom, alpha(@bg, 0.46), alpha(@bg, 0.26)),
+    linear-gradient(120deg, alpha(white, 0.07), transparent 62%);
+  background-color: alpha(@bg, 0.12);
+  box-shadow:
+    inset 0 1px 0 alpha(white, 0.16),
+    0 6px 14px alpha(black, 0.06);
+}
+
+.calendar-weekday {
+  min-height: 22px;
+  font-size: 10px;
+  font-weight: 800;
+  color: alpha(@fg, 0.54);
+}
+
+.calendar-day {
+  min-width: 32px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.calendar-day .module-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: alpha(@fg, 0.82);
+}
+
+.calendar-day:hover {
+  background: alpha(@fg, 0.07);
+}
+
+.calendar-day.outside {
+  background: transparent;
+}
+
+.calendar-day.outside .module-label {
+  color: alpha(@fg, 0.30);
+}
+
+.calendar-day.today {
+  border-color: alpha(@accent, 0.42);
+  background-image:
+    linear-gradient(to bottom, alpha(@mode_fg, 0.14), alpha(@mode_fg, 0.05)),
+    linear-gradient(to right, @glow, transparent);
+  background-color: alpha(@fg, 0.10);
+  box-shadow:
+    inset 0 1px 0 alpha(white, 0.24),
+    0 6px 14px alpha(black, 0.08);
+}
+
+.calendar-day.today .module-label {
+  color: @fg;
 }
 
 /* Weather Panel */

@@ -14,6 +14,7 @@ export type WeatherRefs = {
 
 export type ClockRefs = {
     clock: Gtk.Label
+    clockButton: Gtk.Widget
     indiaClock: Gtk.Label
 }
 

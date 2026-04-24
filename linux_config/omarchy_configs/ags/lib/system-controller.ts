@@ -11,6 +11,7 @@ import {
     getPrivacyInfo,
     indiaClockText,
     localClockText,
+    localClockTooltip,
 } from "./system-info"
 import type { BarRefs } from "./types"
 import { setTooltip } from "./widgets"
@@ -69,6 +70,7 @@ export function createSystemController(bars: BarRefs[]): SystemController {
     function refreshClocks() {
         for (const refs of bars) {
             refs.clocks.clock.set_label(localClockText())
+            setTooltip(refs.clocks.clockButton, localClockTooltip())
             refs.clocks.indiaClock.set_label(indiaClockText())
         }
     }

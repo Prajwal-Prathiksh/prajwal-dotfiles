@@ -10,6 +10,23 @@ export function localClockText() {
     return GLib.DateTime.new_now_local()?.format("  %a, %d %b   󰥔  %H:%M") ?? ""
 }
 
+export function localClockTooltip() {
+    const now = GLib.DateTime.new_now_local()
+    if (!now) return ""
+
+    const date = now.format("%A, %B %d, %Y") ?? "Local date"
+    const time = now.format("%H:%M:%S %Z") ?? "Local time"
+
+    return [
+        "<b>Local Time</b>",
+        `<tt>${date}</tt>`,
+        `<tt>${time}</tt>`,
+        "",
+        "Left click to open calendar",
+        "Right click to change timezone",
+    ].join("\n")
+}
+
 export function indiaClockText() {
     return GLib.DateTime.new_now(GLib.TimeZone.new("Asia/Kolkata"))?.format(" %H:%M") ?? ""
 }

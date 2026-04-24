@@ -1,7 +1,6 @@
 import { Astal, Gtk } from "ags/gtk4"
 import App from "ags/gtk4/app"
 import GLib from "gi://GLib?version=2.0"
-import { HOME } from "./paths"
 import { indiaClockText, localClockText } from "./system-info"
 import type {
     BarRefs,
@@ -13,6 +12,7 @@ import type {
     WeatherRefs,
     WorkspaceRefs,
 } from "./types"
+import { buildCalendarPanel, toggleCalendarWindow } from "./calendar-view"
 import { buildWeatherPanel, toggleWeatherWindow } from "./weather-view"
 import { addRightClick, addScroll, capsule, moduleButton, moduleLabel, setTooltip, setWindowMargins } from "./widgets"
 import { spawn } from "./helpers"
@@ -144,10 +144,18 @@ function buildCenterModules(
         return true
     })
     weatherButton.add_controller(weatherScrollController)
-    addRightClick(weatherButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "nvim", `${HOME}/.config/ags/scripts/weather-ags.sh`]))
 
     const clock = moduleLabel(localClockText())
     const clockButton = moduleButton(["clock"], clock)
+    const calendarPanelWidth = layout.compactLayout ? Math.min(312, layout.monitorWidth - 20) : 320
+    const calendarPanel = buildCalendarPanel(layout.monitor, layout.compactLayout, calendarPanelWidth)
+    calendarPanel.anchorButton = clockButton
+    calendarPanel.shell = shell
+    calendarPanel.monitorWidth = layout.monitorWidth
+    calendarPanel.panelWidth = calendarPanelWidth
+    clockButton.connect("clicked", () => {
+        toggleCalendarWindow(calendarPanel, clockButton, shell, layout.monitorWidth, calendarPanelWidth)
+    })
     addRightClick(clockButton, () => spawn(["omarchy-launch-floating-terminal-with-presentation", "omarchy-tz-select"]))
 
     const indiaClock = moduleLabel(indiaClockText())
@@ -182,7 +190,7 @@ function buildCenterModules(
     return {
         capsule: centerCapsule,
         weather: { weather, weatherButton, weatherPanel },
-        clocks: { clock, indiaClock },
+        clocks: { clock, clockButton, indiaClock },
         status: {
             privacy,
             privacyButton,

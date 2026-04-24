@@ -3,6 +3,7 @@ import { Astal, Gdk, Gtk } from "ags/gtk4"
 export function addRightClick(widget: Gtk.Widget, callback: () => void) {
     const gesture = Gtk.GestureClick.new()
     gesture.set_button(Gdk.BUTTON_SECONDARY)
+    gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     gesture.connect("pressed", () => callback())
     widget.add_controller(gesture)
 }
