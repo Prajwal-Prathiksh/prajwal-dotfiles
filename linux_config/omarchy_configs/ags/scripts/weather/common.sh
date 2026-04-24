@@ -1,5 +1,5 @@
 STATE_FILE="${HOME}/.config/ags/weather-state.json"
-CACHE_DIR="/tmp/ags-weather"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/ags-weather"
 UPDATE_INTERVAL=300
 
 MODE="json"
@@ -8,5 +8,7 @@ BAR_TARGET="primary"
 ACTION=""
 ACTION_VALUE=""
 NOTICE=""
+ACTION_STATUS=""
+ACTION_CITY_ID=""
 NEXT_STATE=""
 CURRENT_TIME=$(date +%s)

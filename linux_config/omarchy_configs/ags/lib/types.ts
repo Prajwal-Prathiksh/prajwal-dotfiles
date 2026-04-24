@@ -2,15 +2,22 @@ import { Gtk } from "ags/gtk4"
 
 export type Theme = Record<string, string>
 
-export type BarRefs = {
-    monitor: number
-    monitorName: string
+export type WorkspaceRefs = {
     workspaceBox: Gtk.Box
+}
+
+export type WeatherRefs = {
     weather: Gtk.Label
     weatherButton: Gtk.Widget
     weatherPanel: WeatherPanelRefs
+}
+
+export type ClockRefs = {
     clock: Gtk.Label
     indiaClock: Gtk.Label
+}
+
+export type StatusRefs = {
     privacy: Gtk.Label
     privacyButton: Gtk.Button
     update: Gtk.Label
@@ -23,6 +30,9 @@ export type BarRefs = {
     idleButton: Gtk.Button
     notif: Gtk.Label
     notifButton: Gtk.Button
+}
+
+export type ConnectivityRefs = {
     bluetooth: Gtk.Label
     bluetoothButton: Gtk.Button
     network: Gtk.Label
@@ -31,12 +41,26 @@ export type BarRefs = {
     audioButton: Gtk.Button
     brightness: Gtk.Label
     brightnessButton: Gtk.Button
+}
+
+export type MetricRefs = {
     cpu: Gtk.Label
     cpuButton: Gtk.Button
     memory: Gtk.Label
     memoryButton: Gtk.Button
     battery: Gtk.Label
     batteryButton: Gtk.Button
+}
+
+export type BarRefs = {
+    monitor: number
+    monitorName: string
+    workspaces: WorkspaceRefs
+    weather: WeatherRefs
+    clocks: ClockRefs
+    status: StatusRefs
+    connectivity: ConnectivityRefs
+    metrics: MetricRefs
 }
 
 export type WeatherForecastItem = {
@@ -74,6 +98,8 @@ export type WeatherData = {
     primary_city: WeatherCityData
     cities: WeatherCityData[]
     notice?: string
+    action_status?: string
+    action_city_id?: string
     error?: string
 }
 

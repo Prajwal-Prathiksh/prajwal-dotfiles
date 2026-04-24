@@ -1,13 +1,22 @@
+/* Base */
+
 * {
   color: @fg;
   font-family: "Inter Display", "Symbols Nerd Font Mono", "iA Writer Mono S", sans-serif;
-  font-size: 17px;
-  font-weight: 600;
 }
 
 window {
   background: transparent;
 }
+
+.bar-shell,
+.weather-panel,
+tooltip {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* Tooltips */
 
 tooltip {
   background-image:
@@ -26,6 +35,8 @@ tooltip label {
   padding: 9px 11px;
 }
 
+/* Bar Layout */
+
 .bar-shell {
   padding: 0 8px 2px;
 }
@@ -37,6 +48,8 @@ tooltip label {
 .bar-root {
   min-height: 18px;
 }
+
+/* Capsules */
 
 .capsule {
   background-image:
@@ -65,6 +78,8 @@ tooltip label {
 .right-capsule {
   margin-left: 8px;
 }
+
+/* Modules */
 
 .module-button {
   background: transparent;
@@ -104,11 +119,13 @@ tooltip label {
 }
 
 .module-button.brightness {
-  padding-left: 14px;
+  padding-left: 8px;
 }
 
 .module-label {
-  letter-spacing: 0.02em;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .compact-monitor .module-label {
@@ -154,6 +171,17 @@ tooltip label {
 .compact-monitor .module-button.brightness {
   padding-left: 6px;
 }
+
+.module-button.audio:not(.muted) .module-label {
+  font-size: 21px;
+  padding-left: 4px;
+}
+
+.compact-monitor .module-button.audio:not(.muted) .module-label {
+  font-size: 16px;
+}
+
+/* Workspaces */
 
 .workspaces {
   margin-left: 3px;
@@ -218,21 +246,11 @@ tooltip label {
   color: @success;
 }
 
-.control-center {
-  min-width: 410px;
-  padding: 14px;
-  border-radius: 28px;
-  border: 1px solid @stroke-strong;
-  background-image:
-    linear-gradient(to bottom, alpha(@bg, 0.86), alpha(@bg, 0.72)),
-    linear-gradient(135deg, @tint, transparent 42%);
-  background-color: @glass-strong;
-  box-shadow:
-    0 28px 60px alpha(black, 0.24),
-    0 8px 20px alpha(black, 0.14),
-    0 0 0 1px alpha(@mode_fg, 0.05),
-    inset 0 1px 0 alpha(white, 0.34),
-    inset 0 -1px 0 alpha(black, 0.08);
+/* Weather Panel */
+
+.value-text {
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .weather-panel {
@@ -270,12 +288,7 @@ tooltip label {
   color: alpha(@fg, 0.78);
 }
 
-.weather-refresh {
-  min-width: 32px;
-  min-height: 32px;
-  padding: 0 10px;
-}
-
+.weather-refresh,
 .weather-close {
   min-width: 32px;
   min-height: 32px;
@@ -368,6 +381,8 @@ tooltip label {
   color: alpha(@fg, 0.56);
   letter-spacing: 0.04em;
 }
+
+/* Weather Cities */
 
 .weather-city-section {
   margin-bottom: 6px;
@@ -467,6 +482,8 @@ tooltip label {
     inset 0 1px 0 alpha(white, 0.18);
 }
 
+/* Forecast */
+
 .weather-forecast {
   margin-top: 0;
 }
@@ -524,101 +541,4 @@ tooltip label {
 .forecast-meta {
   font-size: 10px;
   color: alpha(@fg, 0.62);
-}
-
-.control-tile,
-.detail-card {
-  border-radius: 20px;
-  border: 1px solid @stroke;
-  background-image: linear-gradient(to bottom, alpha(@bg, 0.6), alpha(@bg, 0.4));
-  background-color: alpha(@bg, 0.16);
-  box-shadow:
-    inset 0 1px 0 alpha(white, 0.22),
-    0 6px 14px alpha(black, 0.08);
-}
-
-.control-tile {
-  padding: 10px 12px;
-}
-
-.control-tile:hover {
-  background-image:
-    linear-gradient(to bottom, alpha(@bg, 0.7), alpha(@bg, 0.48)),
-    linear-gradient(to right, alpha(@accent, 0.12), transparent);
-}
-
-.detail-card {
-  padding: 12px 14px;
-}
-
-.tile-icon {
-  font-size: 20px;
-}
-
-.tile-title,
-.card-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: alpha(@fg, 0.72);
-}
-
-.tile-value,
-.value-text {
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.weather-kicker.value-text {
-  font-size: 12px;
-  font-weight: 700;
-  color: alpha(@fg, 0.66);
-}
-
-.weather-location.value-text {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.weather-forecast-header.value-text {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.weather-temp.value-text {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.weather-condition.value-text {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.weather-meta.value-text,
-.weather-updated.value-text,
-.weather-cycle.value-text {
-  font-size: 10px;
-}
-
-.cc-slider {
-  margin-top: 4px;
-}
-
-.cc-slider trough {
-  min-height: 8px;
-  border-radius: 999px;
-  background: alpha(@fg, 0.12);
-}
-
-.cc-slider highlight {
-  border-radius: 999px;
-  background: @accent;
-}
-
-.cc-slider slider {
-  min-width: 18px;
-  min-height: 18px;
-  border-radius: 999px;
-  background: @bg;
-  box-shadow: 0 4px 12px alpha(black, 0.22);
 }

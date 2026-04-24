@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-INSTANCE_NAME="simple-bar"
+INSTANCE_NAME="omarchy-top-bar"
 APP_PATH="$HOME/.config/ags/app.ts"
 
 ags quit -i "$INSTANCE_NAME" >/dev/null 2>&1 || true

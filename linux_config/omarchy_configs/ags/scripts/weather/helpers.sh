@@ -149,7 +149,7 @@ short_condition() {
     desc="${desc/Light rain shower/Light rain}"
     desc="${desc/Moderate rain at times/Moderate rain}"
     desc="${desc/Thundery outbreaks in nearby/Thunder nearby}"
-    printf '%s' "$desc"
+    trim "$desc"
 }
 
 part_name() {

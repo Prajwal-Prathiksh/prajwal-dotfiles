@@ -3,6 +3,7 @@ import App from "ags/gtk4/app"
 import GLib from "gi://GLib?version=2.0"
 import Pango from "gi://Pango?version=1.0"
 import { compact } from "./helpers"
+import { weatherFallbackData } from "./weather-model"
 import type { BarRefs, WeatherCityData, WeatherData, WeatherPanelRefs } from "./types"
 import { moduleButton, moduleLabel, setTooltip, setWindowMargins, valueLabel } from "./widgets"
 
@@ -14,6 +15,31 @@ type WeatherCardActions = {
 type WeatherPanelCallbacks = {
     addCity: (panel: WeatherPanelRefs) => void
     refreshNow: () => void
+}
+
+type ForecastCardViewModel = WeatherCityData["forecast"][number]
+
+type WeatherCityCardViewModel = WeatherCityData
+
+type WeatherPanelViewModel = {
+    title: string
+    location: string
+    currentIcon: string
+    currentTemp: string
+    currentCondition: string
+    currentMeta: string
+    currentCycle: string
+    updatedAt: string
+    message: string
+    secondaryCities: WeatherCityCardViewModel[]
+    forecast: ForecastCardViewModel[]
+    error?: string
+}
+
+type WeatherViewModel = {
+    barText: string
+    tooltip: string
+    panel: WeatherPanelViewModel
 }
 
 function clearBox(box: Gtk.Box) {
@@ -57,7 +83,7 @@ function formatDaylightDuration(sunrise: string, sunset: string): string {
     return `(${hours}h ${minutes.toString().padStart(2, "0")}m light)`
 }
 
-function buildForecastCard(item: WeatherCityData["forecast"][number]) {
+function buildForecastCard(item: ForecastCardViewModel) {
     const row = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4, hexpand: true })
     row.add_css_class("forecast-row")
     row.set_size_request(0, 72)
@@ -92,7 +118,7 @@ function buildForecastCard(item: WeatherCityData["forecast"][number]) {
     return row
 }
 
-function buildWeatherCityCard(city: WeatherCityData, actions: WeatherCardActions) {
+function buildWeatherCityCard(city: WeatherCityCardViewModel, actions: WeatherCardActions) {
     const button = new Gtk.Button({ hexpand: true })
     button.add_css_class("weather-city-card")
     if (city.is_primary) button.add_css_class("primary")
@@ -213,8 +239,8 @@ function openWeatherWindow(
     panelWidth: number,
 ) {
     bars.forEach((refs) => {
-        if (refs.weatherPanel !== panel && refs.weatherPanel.window.is_visible()) {
-            closeWeatherWindow(refs.weatherPanel)
+        if (refs.weather.weatherPanel !== panel && refs.weather.weatherPanel.window.is_visible()) {
+            closeWeatherWindow(refs.weather.weatherPanel)
         }
     })
 
@@ -229,63 +255,79 @@ function openWeatherWindow(
     })
 }
 
-export function weatherFallbackData(): WeatherData {
-    const primaryCity: WeatherCityData = {
-        id: "auto",
-        query: "auto",
-        title: "Current Location",
-        location: "Weather unavailable",
-        icon: "󰖪",
-        temp_c: "--",
-        feels_like_c: "--",
-        wind_kmh: "--",
-        condition: "Offline",
-        local_time: "",
-        updated_at: "Unavailable",
-        sunrise: "",
-        sunset: "",
-        forecast: [],
-        bar_text: "󰖪 --",
-        removable: false,
-        is_auto: true,
-        is_primary: true,
-        error: "Check network or wttr.in availability.",
-    }
+function weatherViewModel(data: WeatherData): WeatherViewModel {
+    const current = data.primary_city ?? weatherFallbackData().primary_city
+    const barText = compact(data.bar_text ?? "󰖪 --")
+    const cityCount = data.cities?.length ?? 0
+    const secondaryCities = (data.cities ?? []).filter((city) => !city.is_primary)
+    const daylight = formatDaylightDuration(current.sunrise, current.sunset)
+    const currentCycle = [
+        current.sunrise ? `󰖜 ${current.sunrise}` : "",
+        current.sunset ? `󰖛 ${current.sunset}` : "",
+        daylight,
+    ]
+        .filter(Boolean)
+        .join("   ")
+    const updatedLabel = current.local_time || current.updated_at
+    const message = data.notice ?? (data.error ? data.error : "")
+    const tooltip = [
+        `<b>${current.title}</b>`,
+        `<tt>${barText}</tt>`,
+        cityCount > 1 ? `${cityCount} saved cities` : "1 saved city",
+        cityCount > 1 ? "Click to open • Scroll to switch cities" : "Click to open",
+    ].join("\n")
 
     return {
-        bar_text: primaryCity.bar_text,
-        primary_city: primaryCity,
-        cities: [primaryCity],
-        error: primaryCity.error,
+        barText,
+        tooltip,
+        panel: {
+            title: current.title,
+            location: current.location,
+            currentIcon: current.icon,
+            currentTemp: current.temp_c,
+            currentCondition: current.condition,
+            currentMeta: `Feels like ${current.feels_like_c}   •   󰖝 ${current.wind_kmh}`,
+            currentCycle,
+            updatedAt: updatedLabel ? `Updated at ${updatedLabel}` : "Updated at just now",
+            message,
+            secondaryCities,
+            forecast: current.forecast.slice(0, 4),
+            error: current.error,
+        },
     }
 }
 
-export function parseWeatherData(raw: string): WeatherData {
-    try {
-        return JSON.parse(raw) as WeatherData
-    } catch {
-        return weatherFallbackData()
-    }
-}
+function applyWeatherViewModel(panel: WeatherPanelRefs, viewModel: WeatherPanelViewModel, actions: WeatherCardActions) {
+    panel.title.set_label(viewModel.title)
+    panel.location.set_label(viewModel.location)
+    panel.currentIcon.set_label(viewModel.currentIcon)
+    panel.currentTemp.set_label(viewModel.currentTemp)
+    panel.currentCondition.set_label(viewModel.currentCondition)
+    panel.currentMeta.set_label(viewModel.currentMeta)
+    panel.currentCycle.set_label(viewModel.currentCycle)
+    panel.currentCycle.set_visible(Boolean(viewModel.currentCycle))
+    panel.updatedAt.set_label(viewModel.updatedAt)
 
-export function withPrimaryWeatherCity(data: WeatherData, cityId: string): WeatherData {
-    const cities = (data.cities ?? []).map((city) => ({
-        ...city,
-        is_primary: city.id === cityId,
-    }))
-    const primary = cities.find((city) => city.id === cityId) ?? cities[0] ?? data.primary_city
-    return {
-        ...data,
-        bar_text: primary?.bar_text ?? data.bar_text,
-        primary_city: primary
-            ? {
-                ...primary,
-                is_primary: true,
-            }
-            : data.primary_city,
-        cities,
-        notice: undefined,
+    panel.message.set_label(viewModel.message)
+    panel.message.set_visible(Boolean(viewModel.message))
+
+    clearBox(panel.cityList)
+    viewModel.secondaryCities.forEach((city) => {
+        panel.cityList.append(buildWeatherCityCard(city, actions))
+    })
+    panel.cityCards.set_visible(viewModel.secondaryCities.length > 0)
+
+    clearBox(panel.forecastBox)
+    if (viewModel.error) {
+        const error = valueLabel(viewModel.error)
+        error.add_css_class("weather-meta")
+        panel.forecastBox.append(error)
+        return
     }
+
+    viewModel.forecast.forEach((item) => {
+        panel.forecastBox.append(buildForecastCard(item))
+    })
 }
 
 export function applyWeatherData(
@@ -293,64 +335,15 @@ export function applyWeatherData(
     data: WeatherData,
     actions: WeatherCardActions,
 ) {
-    const current = data.primary_city ?? weatherFallbackData().primary_city
-    const text = compact(data.bar_text ?? "󰖪 --")
-    const secondaryCities = (data.cities ?? []).filter((city) => !city.is_primary)
-    const cityCount = data.cities?.length ?? 0
-    const tooltipLines = [
-        `<b>${current.title}</b>`,
-        `<tt>${text}</tt>`,
-        cityCount > 1 ? `${cityCount} saved cities` : "1 saved city",
-        cityCount > 1 ? "Click to open • Scroll to switch cities" : "Click to open",
-    ]
+    const viewModel = weatherViewModel(data)
 
     for (const refs of bars) {
-        refs.weather.set_label(text)
-        setTooltip(refs.weatherButton, tooltipLines.join("\n"))
+        refs.weather.weather.set_label(viewModel.barText)
+        setTooltip(refs.weather.weatherButton, viewModel.tooltip)
     }
 
     for (const refs of bars) {
-        const panel = refs.weatherPanel
-        panel.title.set_label(current.title)
-        panel.location.set_label(current.location)
-        panel.currentIcon.set_label(current.icon)
-        panel.currentTemp.set_label(current.temp_c)
-        panel.currentCondition.set_label(current.condition)
-        panel.currentMeta.set_label(`Feels like ${current.feels_like_c}   •   󰖝 ${current.wind_kmh}`)
-        const daylight = formatDaylightDuration(current.sunrise, current.sunset)
-        const cycle = [
-            current.sunrise ? `󰖜 ${current.sunrise}` : "",
-            current.sunset ? `󰖛 ${current.sunset}` : "",
-            daylight,
-        ]
-            .filter(Boolean)
-            .join("   ")
-        panel.currentCycle.set_label(cycle)
-        panel.currentCycle.set_visible(Boolean(cycle))
-        const updatedLabel = current.local_time || current.updated_at
-        panel.updatedAt.set_label(updatedLabel ? `Updated at ${updatedLabel}` : "Updated at just now")
-
-        const message = data.notice ?? (data.error ? data.error : "")
-        panel.message.set_label(message)
-        panel.message.set_visible(Boolean(message))
-
-        clearBox(panel.cityList)
-        secondaryCities.forEach((city) => {
-            panel.cityList.append(buildWeatherCityCard(city, actions))
-        })
-        panel.cityCards.set_visible(secondaryCities.length > 0)
-
-        clearBox(panel.forecastBox)
-        if (current.error) {
-            const error = valueLabel(current.error)
-            error.add_css_class("weather-meta")
-            panel.forecastBox.append(error)
-            continue
-        }
-
-        current.forecast.slice(0, 4).forEach((item) => {
-            panel.forecastBox.append(buildForecastCard(item))
-        })
+        applyWeatherViewModel(refs.weather.weatherPanel, viewModel.panel, actions)
     }
 }
 

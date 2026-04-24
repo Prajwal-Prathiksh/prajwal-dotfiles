@@ -28,7 +28,7 @@ build_forecast() {
               }))
         ]
         | add
-        | .[:5]
+        | .[:4]
         | .[]
     ' <<< "$raw" | while IFS= read -r row; do
         [[ -z "$row" ]] && continue
@@ -225,6 +225,8 @@ render_bundle_json() {
 
     jq -cn \
         --arg notice "$NOTICE" \
+        --arg action_status "$ACTION_STATUS" \
+        --arg action_city_id "$ACTION_CITY_ID" \
         --argjson primary "$primary_city" \
         --argjson cities "$city_list" \
         '{
@@ -233,7 +235,9 @@ render_bundle_json() {
             cities: $cities
         }
         + (if ($primary.error // "") != "" then {error: $primary.error} else {} end)
-        + (if $notice != "" then {notice: $notice} else {} end)'
+        + (if $notice != "" then {notice: $notice} else {} end)
+        + (if $action_status != "" then {action_status: $action_status} else {} end)
+        + (if $action_city_id != "" then {action_city_id: $action_city_id} else {} end)'
 }
 
 render_bar_output() {

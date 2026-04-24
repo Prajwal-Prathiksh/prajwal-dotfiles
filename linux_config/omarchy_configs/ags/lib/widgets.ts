@@ -75,32 +75,3 @@ export function valueLabel(text = ""): Gtk.Label {
     label.add_css_class("value-text")
     return label
 }
-
-export function controlTile(
-    icon: string,
-    title: string,
-    valueText: Gtk.Label,
-    onClick: () => void,
-): Gtk.Button {
-    const titleLabel = new Gtk.Label({ label: title, xalign: 0 })
-    titleLabel.add_css_class("tile-title")
-    valueText.set_xalign(0)
-    valueText.add_css_class("tile-value")
-
-    const iconLabel = new Gtk.Label({ label: icon })
-    iconLabel.add_css_class("tile-icon")
-
-    const textBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 3, hexpand: true })
-    textBox.append(titleLabel)
-    textBox.append(valueText)
-
-    const row = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 })
-    row.append(iconLabel)
-    row.append(textBox)
-
-    const button = new Gtk.Button()
-    button.add_css_class("control-tile")
-    button.set_child(row)
-    button.connect("clicked", () => onClick())
-    return button
-}

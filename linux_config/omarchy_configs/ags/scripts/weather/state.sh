@@ -1,6 +1,5 @@
 default_state() {
     jq -cn '{
-        version: 2,
         primary_id: "auto",
         cities: [
             {
@@ -31,7 +30,6 @@ normalize_state() {
 
     jq -c '
         (.primary_id // "auto") as $primary
-        | .version = 2
         | .cities = (
             (.cities // [])
             | map({
@@ -150,11 +148,14 @@ action_add_city() {
 
     if [[ -z "$city_query" ]]; then
         NOTICE="Type a city name first."
+        ACTION_STATUS="empty"
         return
     fi
 
     if [[ "${city_query,,}" == "auto" ]]; then
         NOTICE="Current location is already pinned."
+        ACTION_STATUS="set-primary"
+        ACTION_CITY_ID="auto"
         NEXT_STATE=$(set_primary_id "$state" "auto")
         return
     fi
@@ -163,6 +164,8 @@ action_add_city() {
     existing_id=$(state_find_duplicate_query_id "$state" "$city_query")
     if [[ -n "$existing_id" ]]; then
         NOTICE="That city is already saved."
+        ACTION_STATUS="already-saved"
+        ACTION_CITY_ID="$existing_id"
         NEXT_STATE=$(set_primary_id "$state" "$existing_id")
         return
     fi
@@ -172,10 +175,13 @@ action_add_city() {
     if ! refresh_city_cache "$city_query" "$new_id"; then
         remove_city_cache "$new_id"
         NOTICE="Could not fetch weather for ${city_query}."
+        ACTION_STATUS="fetch-failed"
         return
     fi
 
     NOTICE="Added ${city_query}."
+    ACTION_STATUS="added"
+    ACTION_CITY_ID="$new_id"
     NEXT_STATE=$(jq -c \
         --arg id "$new_id" \
         --arg query "$city_query" \
@@ -195,16 +201,21 @@ action_remove_city() {
     city_id=$(resolve_saved_city_id "$state" "$selector")
     if [[ -z "$city_id" ]]; then
         NOTICE="That city is not saved."
+        ACTION_STATUS="missing"
         return
     fi
 
     if [[ "$city_id" == "auto" ]]; then
         NOTICE="Current location stays pinned."
+        ACTION_STATUS="kept-auto"
+        ACTION_CITY_ID="auto"
         return
     fi
 
     remove_city_cache "$city_id"
     NOTICE="Removed city."
+    ACTION_STATUS="removed"
+    ACTION_CITY_ID="$city_id"
     NEXT_STATE=$(normalize_state "$(jq -c --arg id "$city_id" '.cities |= map(select(.id != $id))' <<< "$state")")
 }
 
@@ -230,6 +241,8 @@ action_cycle_city() {
     ' <<< "$state")
 
     [[ -n "$next_id" ]] || return
+    ACTION_STATUS="cycled"
+    ACTION_CITY_ID="$next_id"
     NEXT_STATE=$(set_primary_id "$state" "$next_id")
 }
 
@@ -249,8 +262,11 @@ apply_action() {
             city_id=$(resolve_saved_city_id "$state" "$ACTION_VALUE")
             if [[ -n "$city_id" ]]; then
                 NEXT_STATE=$(set_primary_id "$state" "$city_id")
+                ACTION_STATUS="set-primary"
+                ACTION_CITY_ID="$city_id"
             else
                 NOTICE="That city is not saved."
+                ACTION_STATUS="missing"
             fi
             ;;
         cycle)
