@@ -24,6 +24,7 @@ Custom AGS GTK4 top bar for an Omarchy/Hyprland desktop. The app runs as the AGS
 ## TypeScript Layout
 
 - `lib/bar.ts`: builds the bar windows and widget layout: left workspace area, center weather/clocks/status area, and right system modules.
+- `lib/calendar-view.ts`: month calendar popup for the local clock, displayed with Monday as the first day of the week.
 - `lib/types.ts`: shared TypeScript shapes for bar refs, weather data, and system payloads.
 - `lib/widgets.ts`: small GTK widget helpers such as module buttons, labels, scroll/right-click handlers, capsules, and window margins.
 - `lib/theme.ts`: reads Omarchy theme files, generates GTK CSS variables, and applies `style.css`.

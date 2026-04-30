@@ -19,7 +19,8 @@ type CalendarPanelRefs = {
 }
 
 const panels: CalendarPanelRefs[] = []
-const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+const calendarWeekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 const monthNames = [
     "January",
     "February",
@@ -62,14 +63,15 @@ function addMonths(panel: CalendarPanelRefs, delta: number) {
 function renderCalendar(panel: CalendarPanelRefs) {
     const today = new Date()
     const first = new Date(panel.year, panel.month, 1)
-    const start = new Date(panel.year, panel.month, 1 - first.getDay())
+    const firstMondayOffset = (first.getDay() + 6) % 7
+    const start = new Date(panel.year, panel.month, 1 - firstMondayOffset)
 
     panel.monthTitle.set_label(`${monthNames[panel.month]} ${panel.year}`)
-    panel.todayText.set_label(`Today   ${weekdays[today.getDay()]}, ${monthNames[today.getMonth()].slice(0, 3)} ${today.getDate()}`)
+    panel.todayText.set_label(`Today   ${weekdayNames[today.getDay()]}, ${monthNames[today.getMonth()].slice(0, 3)} ${today.getDate()}`)
 
     clearGrid(panel.dayGrid)
 
-    weekdays.forEach((day, column) => {
+    calendarWeekdays.forEach((day, column) => {
         const label = valueLabel(day)
         label.add_css_class("calendar-weekday")
         label.set_xalign(0.5)
