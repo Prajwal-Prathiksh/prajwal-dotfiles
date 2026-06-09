@@ -65,23 +65,6 @@ if ! command_exists fc-cache; then
     echo -e "\e[32mFont-config installed successfully!!\e[0m"
 fi
 
-read -p "Do you want to add repositories for some packages? ([y]es/[N]o): " addRepos
-if [[ $addRepos == "y" ]]; then
-    if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list /etc/apt/sources.list.d/* >/dev/null 2>&1; then
-        sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
-    else
-        echo -e "\e[33mRepository already added. Skipping...\e[0m"
-    fi
-
-    if ! grep -q "ytvwld/asciiquarium" /etc/apt/sources.list /etc/apt/sources.list.d/* >/dev/null 2>&1; then
-        sudo add-apt-repository ppa:ytvwld/asciiquarium -y
-    else
-        echo -e "\e[33mRepository already added. Skipping...\e[0m"
-    fi
-else
-    echo -e "\e[33mSkipping adding repositories...\e[0m"
-fi
-
 ######################################################
 ######################################################
 # FONT INSTALL SECTION
@@ -149,7 +132,6 @@ aptPackages=(
     "7zip"
     "rlwrap"
     "lua5.4"
-    "asciiquarium"
     "tree"
 )
 
